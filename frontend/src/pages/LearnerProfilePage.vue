@@ -1,42 +1,506 @@
 <template>
-  <section class="page">
+  <section class="page learner-profile-page">
     <div class="page-header">
       <div>
         <h1 class="page-title">学情画像</h1>
-        <p class="page-subtitle">查看演示学习者的画像分层、目标领域和能力等级。</p>
+        <p class="page-subtitle">
+          从诊断答题记录生成学习者能力画像，定位薄弱知识点，并把画像结果传递给个性化资源生成流程。
+        </p>
       </div>
-      <el-button :loading="loading" @click="load">刷新样例</el-button>
+      <div class="toolbar">
+        <el-button :loading="loadingLearners" @click="loadLearners">刷新画像</el-button>
+        <el-button type="primary" @click="goDiagnostics">创建诊断测评</el-button>
+      </div>
     </div>
-    <div class="panel">
-      <el-table v-loading="loading" :data="learners">
-        <el-table-column prop="learner_id" label="学习者" />
-        <el-table-column prop="profile_type" label="画像类型" />
-        <el-table-column prop="target_domain" label="领域" />
-        <el-table-column prop="ability_level" label="能力等级" />
-      </el-table>
+
+    <div class="profile-workspace">
+      <aside class="panel learner-list-panel">
+        <div class="section-head">
+          <h2 class="panel-title">学习者</h2>
+          <el-tag effect="plain">{{ learners.length }} 人</el-tag>
+        </div>
+
+        <el-skeleton v-if="loadingLearners" :rows="5" animated />
+        <el-empty v-else-if="learners.length === 0" description="暂无学习者数据" />
+        <div v-else class="learner-list">
+          <button
+            v-for="learner in learners"
+            :key="learner.learner_id"
+            class="learner-row"
+            :class="{ 'is-active': learner.learner_id === selectedLearnerId }"
+            type="button"
+            @click="selectLearner(learner.learner_id)"
+          >
+            <span>
+              <strong>{{ learner.learner_id }}</strong>
+              <small>{{ learner.target_domain }}</small>
+            </span>
+            <span class="learner-meta">
+              <el-tag
+                size="small"
+                :type="learner.profile_status === 'ready' ? 'success' : 'info'"
+                effect="plain"
+              >
+                {{ statusLabel(learner.profile_status) }}
+              </el-tag>
+              <b v-if="learner.ability_level">{{ learner.ability_level }} 级</b>
+            </span>
+          </button>
+        </div>
+      </aside>
+
+      <main class="profile-detail">
+        <el-skeleton v-if="loadingProfile" class="panel" :rows="9" animated />
+        <el-alert
+          v-else-if="errorMessage"
+          class="panel"
+          type="error"
+          show-icon
+          :title="errorMessage"
+        />
+        <template v-else-if="profile">
+          <section class="panel profile-summary-panel">
+            <div class="profile-summary">
+              <div>
+                <h2>{{ profile.learner_id }}</h2>
+                <p>
+                  {{ profile.background || '未填写学习背景' }}，{{ styleLabel(profile.learning_style) }}，
+                  {{ profile.experience_years }} 年相关经验
+                </p>
+              </div>
+              <div class="summary-actions">
+                <el-tag :type="profile.profile_status === 'ready' ? 'success' : 'info'" effect="plain">
+                  {{ profileLabel(profile.profile_type) }}
+                </el-tag>
+                <el-button
+                  type="primary"
+                  :disabled="profile.profile_status !== 'ready'"
+                  :loading="generating"
+                  @click="generateResources"
+                >
+                  生成个性化资源
+                </el-button>
+              </div>
+            </div>
+
+            <div class="stat-strip">
+              <div>
+                <span>诊断正确率</span>
+                <strong>{{ profile.diagnostic_summary.accuracy }}%</strong>
+              </div>
+              <div>
+                <span>答题记录</span>
+                <strong>
+                  {{ profile.diagnostic_summary.correct_count }}/{{ profile.diagnostic_summary.answer_count }}
+                </strong>
+              </div>
+              <div>
+                <span>画像 ID</span>
+                <strong>{{ profile.profile_id || '待生成' }}</strong>
+              </div>
+            </div>
+          </section>
+
+          <section v-if="profile.profile_status !== 'ready'" class="empty-hint">
+            <strong>尚未生成学情画像</strong>
+            <p>请先完成诊断测评，系统会根据答题记录生成五维能力画像、薄弱知识点和学习路径。</p>
+            <el-button type="primary" @click="goDiagnostics">开始诊断测评</el-button>
+          </section>
+
+          <template v-else>
+            <div class="profile-grid">
+              <section class="panel">
+                <div class="section-head">
+                  <h2 class="panel-title">五维能力雷达</h2>
+                  <el-tag effect="plain">平均 {{ averageRadar }} 分</el-tag>
+                </div>
+                <RadarChart :values="profile.radar" />
+              </section>
+
+              <section class="panel">
+                <h2 class="panel-title">分类掌握度</h2>
+                <div v-if="categoryRows.length" class="mastery-list">
+                  <div v-for="item in categoryRows" :key="item.name" class="mastery-row">
+                    <div>
+                      <span>{{ item.name }}</span>
+                      <strong>{{ item.value }}%</strong>
+                    </div>
+                    <el-progress :percentage="item.value" :stroke-width="10" />
+                  </div>
+                </div>
+                <div v-else class="empty-hint small">
+                  <strong>暂无分类掌握度</strong>
+                  <p>完成诊断后会按知识分类聚合掌握情况。</p>
+                </div>
+              </section>
+            </div>
+
+            <section class="panel">
+              <div class="section-head">
+                <h2 class="panel-title">薄弱知识点</h2>
+                <el-tag type="warning" effect="plain">{{ profile.weak_knowledge.length }} 项</el-tag>
+              </div>
+              <el-table v-if="profile.weak_knowledge.length" :data="profile.weak_knowledge">
+                <el-table-column prop="name" label="知识点" min-width="180" />
+                <el-table-column prop="category" label="分类" min-width="120" />
+                <el-table-column label="薄弱等级" width="120">
+                  <template #default="{ row }">
+                    <el-rate
+                      :model-value="row.weakness_level"
+                      disabled
+                      :max="5"
+                      size="small"
+                    />
+                  </template>
+                </el-table-column>
+                <el-table-column label="原因" min-width="150">
+                  <template #default="{ row }">{{ weaknessLabel(row.weakness_type) }}</template>
+                </el-table-column>
+                <el-table-column label="建议动作" min-width="120">
+                  <template #default="{ row }">
+                    <el-tag type="warning" effect="plain">{{ row.suggested_action || '巩固练习' }}</el-tag>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <div v-else class="empty-hint small">
+                <strong>暂无明显薄弱点</strong>
+                <p>当前诊断未发现低分知识点，可直接生成进阶资源。</p>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="section-head">
+                <h2 class="panel-title">推荐学习路径</h2>
+                <el-tag type="success" effect="plain">可随反馈刷新</el-tag>
+              </div>
+              <el-steps
+                v-if="pathStages.length"
+                :active="pathStages.length"
+                finish-status="success"
+                align-center
+              >
+                <el-step
+                  v-for="stage in pathStages"
+                  :key="stage.name"
+                  :title="stage.name"
+                  :description="stage.description"
+                />
+              </el-steps>
+              <div v-else class="empty-hint small">
+                <strong>暂无学习路径</strong>
+                <p>完成诊断后会自动生成从前置知识到反馈更新的学习路径。</p>
+              </div>
+            </section>
+          </template>
+        </template>
+      </main>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
-import { listLearners, type LearnerSummary } from '@/api/learners'
+import { createGenerationTask } from '@/api/generation'
+import {
+  getLearnerProfile,
+  listLearners,
+  type LearnerProfileDetail,
+  type LearnerSummary,
+} from '@/api/learners'
+import RadarChart from '@/components/Charts/RadarChart.vue'
 
+const router = useRouter()
 const learners = ref<LearnerSummary[]>([])
-const loading = ref(false)
+const profile = ref<LearnerProfileDetail | null>(null)
+const selectedLearnerId = ref('learner_001')
+const loadingLearners = ref(false)
+const loadingProfile = ref(false)
+const generating = ref(false)
+const errorMessage = ref('')
 
-async function load() {
-  loading.value = true
+const categoryRows = computed(() =>
+  Object.entries(profile.value?.category_mastery ?? {}).map(([name, value]) => ({
+    name,
+    value: Math.round(Number(value)),
+  })),
+)
+
+const pathStages = computed(() => profile.value?.learning_path?.stages ?? [])
+
+const averageRadar = computed(() => {
+  const values = profile.value?.radar ?? []
+  if (!values.length) return 0
+  return Math.round(values.reduce((total, value) => total + Number(value), 0) / values.length)
+})
+
+function profileLabel(profileType: string) {
+  return (
+    {
+      beginner: '基础补齐型',
+      intermediate: '能力提升型',
+      advanced: '挑战拓展型',
+      practice_oriented: '实操优势型',
+      not_started: '待诊断',
+    }[profileType] ?? profileType
+  )
+}
+
+function statusLabel(status: string) {
+  return status === 'ready' ? '已画像' : '待诊断'
+}
+
+function styleLabel(style: string) {
+  return (
+    {
+      theory: '理论型',
+      practice: '实操型',
+      mixed: '混合型',
+    }[style] ?? style
+  )
+}
+
+function weaknessLabel(type?: string) {
+  return (
+    {
+      not_mastered: '尚未掌握',
+      partial_confusion: '部分混淆',
+      needs_consolidation: '需要巩固',
+    }[type ?? ''] ?? '诊断低分'
+  )
+}
+
+async function loadLearners() {
+  loadingLearners.value = true
   try {
     learners.value = await listLearners()
+    if (!learners.value.some((learner) => learner.learner_id === selectedLearnerId.value)) {
+      selectedLearnerId.value = learners.value[0]?.learner_id ?? 'learner_001'
+    }
+    await loadProfile(selectedLearnerId.value)
   } catch (error) {
-    ElMessage.error('学习者样例加载失败，请确认后端服务已启动。')
+    ElMessage.error('学习者列表加载失败，请确认后端服务已启动。')
   } finally {
-    loading.value = false
+    loadingLearners.value = false
   }
 }
 
-onMounted(load)
+async function loadProfile(learnerId: string) {
+  loadingProfile.value = true
+  errorMessage.value = ''
+  try {
+    profile.value = await getLearnerProfile(learnerId)
+  } catch (error) {
+    profile.value = null
+    errorMessage.value = '画像详情加载失败，请先完成诊断测评或检查后端服务。'
+  } finally {
+    loadingProfile.value = false
+  }
+}
+
+async function selectLearner(learnerId: string) {
+  selectedLearnerId.value = learnerId
+  await loadProfile(learnerId)
+}
+
+function goDiagnostics() {
+  router.push('/diagnostics')
+}
+
+async function generateResources() {
+  if (!profile.value?.profile_id) return
+  generating.value = true
+  try {
+    await createGenerationTask(profile.value.profile_id)
+    ElMessage.success('个性化资源已生成，请到学习资源页查看。')
+    router.push('/resources')
+  } catch (error) {
+    ElMessage.error('资源生成失败，请确认生成服务可用。')
+  } finally {
+    generating.value = false
+  }
+}
+
+onMounted(loadLearners)
 </script>
+
+<style scoped>
+.learner-profile-page {
+  gap: 18px;
+}
+
+.profile-workspace {
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.learner-list-panel {
+  position: sticky;
+  top: 18px;
+}
+
+.section-head,
+.profile-summary,
+.summary-actions,
+.stat-strip > div,
+.mastery-row > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-head {
+  margin-bottom: 12px;
+}
+
+.learner-list {
+  display: grid;
+  gap: 8px;
+}
+
+.learner-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-panel);
+  padding: 12px;
+  color: var(--app-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.learner-row:hover,
+.learner-row.is-active {
+  border-color: #93b4ef;
+  background: var(--app-accent-soft);
+}
+
+.learner-row strong,
+.learner-row small {
+  display: block;
+}
+
+.learner-row small,
+.learner-meta {
+  color: var(--app-muted);
+}
+
+.learner-meta {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+}
+
+.profile-detail {
+  display: grid;
+  gap: 16px;
+}
+
+.profile-summary-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.profile-summary h2 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.25;
+}
+
+.profile-summary p {
+  margin: 7px 0 0;
+  color: var(--app-muted);
+  line-height: 1.6;
+}
+
+.summary-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stat-strip > div {
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-panel-soft);
+  padding: 12px;
+}
+
+.stat-strip span,
+.mastery-row span {
+  color: var(--app-muted);
+}
+
+.stat-strip strong {
+  overflow-wrap: anywhere;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 16px;
+}
+
+.mastery-list {
+  display: grid;
+  gap: 14px;
+}
+
+.mastery-row {
+  display: grid;
+  gap: 8px;
+}
+
+.empty-hint.small {
+  padding: 16px;
+}
+
+.empty-hint p {
+  margin: 8px 0 14px;
+  color: var(--app-muted);
+  line-height: 1.7;
+}
+
+@media (max-width: 1100px) {
+  .profile-workspace,
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .learner-list-panel {
+    position: static;
+  }
+}
+
+@media (max-width: 760px) {
+  .profile-summary,
+  .section-head,
+  .stat-strip > div,
+  .mastery-row > div {
+    display: grid;
+    justify-content: stretch;
+  }
+
+  .summary-actions {
+    justify-content: stretch;
+  }
+
+  .stat-strip {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from collections import defaultdict
 from typing import Any
 from uuid import uuid4
 
@@ -11,17 +10,16 @@ from app.agents.graphs import build_generation_graph
 from app.models import (
     AgentMessageRecord,
     AgentRun,
-    AnswerRecord,
     DiagnosticQuestion,
     Feedback,
     GenerationTask,
-    KnowledgeItem,
     Learner,
     LearnerProfile,
     LearningPath,
     LearningResource,
     ReviewReport,
 )
+from app.services.profile_service import default_profile_for_learner, generate_profile_from_diagnostic
 
 
 RESOURCE_TYPES = ["lecture", "practice_guide", "graded_quiz"]
@@ -83,46 +81,6 @@ def create_diagnostic_session(
     }
 
 
-def score_answer(question: DiagnosticQuestion, answer: Any) -> tuple[float, bool]:
-    answer_key = question.answer_key_json or {}
-    if question.question_type == "single_choice":
-        expected = answer_key.get("correct_option")
-        try:
-            selected = int(answer)
-        except (TypeError, ValueError):
-            selected = -1
-        is_correct = selected == expected
-        return (1.0 if is_correct else 0.0), is_correct
-
-    answer_text = str(answer or "")
-    rubric = answer_key.get("rubric", [])
-    if not rubric:
-        return (0.0, False)
-    matched = sum(1 for item in rubric if str(item) in answer_text)
-    score = matched / len(rubric)
-    return score, score >= 0.6
-
-
-def classify_profile(score_percent: float) -> str:
-    if score_percent >= 80:
-        return "advanced"
-    if score_percent >= 60:
-        return "intermediate"
-    return "beginner"
-
-
-def build_ability_profile(score_percent: float, profile_type: str) -> dict[str, Any]:
-    base = max(20, min(90, int(score_percent)))
-    return {
-        "profile_type": profile_type,
-        "theory": base,
-        "practice": max(20, min(90, base - 8)),
-        "problem_solving": max(20, min(90, base - 4)),
-        "breadth": max(20, min(90, base - 10)),
-        "learning_speed": max(20, min(90, base + 5)),
-    }
-
-
 def submit_diagnostic_session(
     db: Session,
     *,
@@ -140,134 +98,16 @@ def submit_diagnostic_session(
             )
         )
     )
-    knowledge_items = {
-        item.id: item
-        for item in db.scalars(
-            select(KnowledgeItem).where(
-                KnowledgeItem.id.in_([question.knowledge_item_id for question in questions])
-            )
-        )
-    }
-
-    total_score = 0.0
-    weak_items: list[dict[str, Any]] = []
-    category_scores: dict[str, list[float]] = defaultdict(list)
-
-    for question in questions:
-        answer = answer_by_question_id[question.public_id]
-        score, is_correct = score_answer(question, answer)
-        total_score += score
-        item = knowledge_items[question.knowledge_item_id]
-        category_scores[item.category].append(score)
-        db.add(
-            AnswerRecord(
-                learner_id=learner.id,
-                question_id=question.id,
-                knowledge_item_id=item.id,
-                score=score,
-                is_correct=is_correct,
-                answer_summary_json={
-                    "session_id": session_id,
-                    "question_id": question.public_id,
-                    "answer_type": question.question_type,
-                },
-            )
-        )
-        if not is_correct:
-            weak_items.append(
-                {
-                    "knowledge_id": item.public_id,
-                    "name": item.name,
-                    "category": item.category,
-                    "weakness_level": max(1, min(5, question.difficulty + 1)),
-                }
-            )
-
-    question_count = max(1, len(questions))
-    score_percent = round(total_score / question_count * 100, 1)
-    profile_type = classify_profile(score_percent)
-    ability_profile = build_ability_profile(score_percent, profile_type)
-    ability_profile["category_mastery"] = {
-        category: round(sum(scores) / len(scores) * 100, 1)
-        for category, scores in category_scores.items()
-    }
-
-    if not weak_items:
-        weak_items = [
-            {
-                "knowledge_id": "learning_path_generation",
-                "name": "学习路径生成",
-                "category": "个性化学习",
-                "weakness_level": 2,
-            }
-        ]
-
-    profile = LearnerProfile(
-        public_id=public_id("profile"),
-        learner_id=learner.id,
+    result = generate_profile_from_diagnostic(
+        db,
+        learner=learner,
         domain_code=domain_code,
-        ability_profile_json=ability_profile,
-        weak_knowledge_json=weak_items[:5],
+        session_id=session_id,
+        questions=questions,
+        answer_by_question_id=answer_by_question_id,
     )
-    db.add(profile)
-    db.flush()
-
-    path = LearningPath(
-        public_id=public_id("path"),
-        learner_id=learner.id,
-        profile_id=profile.id,
-        domain_code=domain_code,
-        status="active",
-        path_json={
-            "profile_type": profile_type,
-            "score": score_percent,
-            "stages": [
-                {
-                    "name": "补齐薄弱知识",
-                    "knowledge_ids": [item["knowledge_id"] for item in weak_items[:3]],
-                },
-                {"name": "生成个性化资源", "resource_types": RESOURCE_TYPES},
-                {"name": "反馈后更新路径", "trigger": "resource_feedback"},
-            ],
-        },
-        needs_refresh=False,
-    )
-    db.add(path)
     db.commit()
-
-    return {
-        "session_id": session_id,
-        "learner_id": learner.public_id,
-        "status": "scored",
-        "score": score_percent,
-        "correct_count": sum(1 for question in questions if score_answer(question, answer_by_question_id[question.public_id])[1]),
-        "question_count": len(questions),
-        "profile_id": profile.public_id,
-        "profile_type": profile_type,
-        "ability_profile": ability_profile,
-        "weak_knowledge": weak_items[:5],
-        "learning_path_id": path.public_id,
-        "next_action": "create_generation_task",
-    }
-
-
-def latest_profile_for_learner(db: Session, learner: Learner) -> LearnerProfile:
-    profile = db.scalar(
-        select(LearnerProfile)
-        .where(LearnerProfile.learner_id == learner.id)
-        .order_by(LearnerProfile.id.desc())
-    )
-    if profile is None:
-        profile = LearnerProfile(
-            public_id=public_id("profile"),
-            learner_id=learner.id,
-            domain_code=learner.target_domain,
-            ability_profile_json=build_ability_profile(55, "beginner"),
-            weak_knowledge_json=[],
-        )
-        db.add(profile)
-        db.flush()
-    return profile
+    return result
 
 
 def create_generation_task(
@@ -282,10 +122,10 @@ def create_generation_task(
     profile = (
         db.scalar(select(LearnerProfile).where(LearnerProfile.public_id == profile_id))
         if profile_id
-        else latest_profile_for_learner(db, learner)
+        else default_profile_for_learner(db, learner)
     )
     if profile is None:
-        profile = latest_profile_for_learner(db, learner)
+        profile = default_profile_for_learner(db, learner)
 
     requested_types = resource_types or RESOURCE_TYPES
     task = GenerationTask(
@@ -464,12 +304,14 @@ def submit_feedback(
     )
     db.add(feedback)
 
-    profile = latest_profile_for_learner(db, learner)
+    profile = default_profile_for_learner(db, learner)
     ability_profile = dict(profile.ability_profile_json or {})
     if feedback_type in {"too_hard", "confusing"}:
         ability_profile["practice"] = max(20, int(ability_profile.get("practice", 50)) - 3)
     elif feedback_type == "too_easy":
-        ability_profile["problem_solving"] = min(95, int(ability_profile.get("problem_solving", 50)) + 3)
+        ability_profile["problem_solving"] = min(
+            95, int(ability_profile.get("problem_solving", 50)) + 3
+        )
     ability_profile["last_feedback_action"] = action
     profile.ability_profile_json = ability_profile
 

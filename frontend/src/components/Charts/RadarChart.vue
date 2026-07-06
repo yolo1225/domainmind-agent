@@ -46,9 +46,19 @@ function renderChart() {
   })
 }
 
-onMounted(renderChart)
+function resizeChart() {
+  chart?.resize()
+}
+
+onMounted(() => {
+  renderChart()
+  window.addEventListener('resize', resizeChart)
+})
 watch(() => props.values, renderChart)
-onBeforeUnmount(() => chart?.dispose())
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', resizeChart)
+  chart?.dispose()
+})
 </script>
 
 <style scoped>

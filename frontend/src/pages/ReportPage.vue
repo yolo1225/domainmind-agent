@@ -4,7 +4,7 @@
       <div>
         <h1 class="page-title">学习报告</h1>
         <p class="page-subtitle">
-          汇总学习者画像、推荐路径和资源反馈后的刷新状态，用于证明个性化闭环不是一次性生成。
+          汇总学习者画像、推荐路径和资源反馈后的刷新状态，用于展示个性化闭环的当前结果。
         </p>
       </div>
       <el-button :loading="loading" @click="load">加载 learner_001</el-button>
@@ -12,7 +12,10 @@
 
     <div class="report-grid">
       <div class="panel">
-        <h2 class="panel-title">能力雷达</h2>
+        <div class="section-head">
+          <h2 class="panel-title">能力雷达</h2>
+          <el-tag v-if="report?.profile_type" effect="plain">{{ profileLabel(report.profile_type) }}</el-tag>
+        </div>
         <RadarChart :values="report?.radar ?? [0, 0, 0, 0, 0]" />
       </div>
 
@@ -44,7 +47,15 @@
         <h2 class="panel-title">推荐学习路径</h2>
         <el-tag type="success" effect="plain">可随反馈刷新</el-tag>
       </div>
-      <el-steps :active="report.path.length" finish-status="success">
+      <el-steps v-if="pathDetail.length" :active="pathDetail.length" finish-status="success">
+        <el-step
+          v-for="item in pathDetail"
+          :key="item.name"
+          :title="item.name"
+          :description="item.description"
+        />
+      </el-steps>
+      <el-steps v-else :active="report.path.length" finish-status="success">
         <el-step v-for="item in report.path" :key="item" :title="item" />
       </el-steps>
     </div>
@@ -52,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 
 import { getLearningReport, type LearningReport } from '@/api/reports'
@@ -61,9 +72,23 @@ import RadarChart from '@/components/Charts/RadarChart.vue'
 const report = ref<LearningReport | null>(null)
 const loading = ref(false)
 
+const pathDetail = computed(() => report.value?.path_detail ?? [])
+
 function percent(value: number) {
   if (value <= 1) return `${Math.round(value * 100)}%`
   return `${Math.round(value)}%`
+}
+
+function profileLabel(profileType: string) {
+  return (
+    {
+      beginner: '基础补齐型',
+      intermediate: '能力提升型',
+      advanced: '挑战拓展型',
+      practice_oriented: '实操优势型',
+      not_started: '待诊断',
+    }[profileType] ?? profileType
+  )
 }
 
 async function load() {
@@ -87,6 +112,14 @@ onMounted(load)
   gap: 16px;
 }
 
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
 .quality-list {
   display: grid;
   gap: 12px;
@@ -97,7 +130,7 @@ onMounted(load)
   align-items: center;
   justify-content: space-between;
   border: 1px solid var(--app-border);
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--app-panel-soft);
   padding: 14px;
 }
@@ -110,16 +143,13 @@ onMounted(load)
   font-size: 24px;
 }
 
-.section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 @media (max-width: 900px) {
   .report-grid {
     grid-template-columns: 1fr;
+  }
+
+  .section-head {
+    display: grid;
   }
 }
 </style>
