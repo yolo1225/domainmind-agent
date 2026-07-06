@@ -1,0 +1,26 @@
+[
+  {
+    "learner_id": "learner_001",
+    "profile_type": "beginner",
+    "background": "高校学生，具备基础 Python 经验",
+    "target_domain": "ai_app_dev",
+    "experience_years": 0,
+    "learning_style": "theory_first"
+  },
+  {
+    "learner_id": "learner_002",
+    "profile_type": "advanced",
+    "background": "后端开发者，了解 API 与数据库",
+    "target_domain": "ai_app_dev",
+    "experience_years": 2,
+    "learning_style": "mixed"
+  },
+  {
+    "learner_id": "learner_003",
+    "profile_type": "practice_oriented",
+    "background": "企业实训学员，偏好任务驱动学习",
+    "target_domain": "ai_app_dev",
+    "experience_years": 1,
+    "learning_style": "practice_first"
+  }
+]

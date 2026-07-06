@@ -1,0 +1,13 @@
+{
+  "domain_code": "ai_app_dev",
+  "name": "人工智能应用开发实训",
+  "domain_schema_version": "1.0",
+  "resource_types": ["lecture", "practice_guide", "graded_quiz"],
+  "ability_dimensions": ["theory", "practice", "problem_solving", "breadth", "learning_speed"],
+  "mvp_targets": {
+    "knowledge_items": 50,
+    "diagnostic_questions": 60,
+    "learner_profiles": 3,
+    "evaluation_cases": 50
+  }
+}
