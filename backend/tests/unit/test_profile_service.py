@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.agents.nodes import load_profile
+from app.agents.profile_agent import ProfileAnalysisAgent
 from app.models import (
     AgentMessageRecord,
     AgentRun,
@@ -181,6 +182,33 @@ def test_load_profile_node_analyzes_diagnostic_answers() -> None:
     assert state["profile"]["weak_knowledge"]
     assert state["agent_trace"][-1]["agent_name"] == "profile_analysis_agent"
     assert state["agent_trace"][-1]["output"]["profile_source"] == "diagnostic_analysis"
+
+
+def test_profile_analysis_agent_executes_diagnostic_mode() -> None:
+    testing_session = build_test_session()
+    with testing_session() as db:
+        learner, choice, short = seed_profile_fixture(db)
+        result = ProfileAnalysisAgent().execute(
+            {
+                "db_session": db,
+                "session_id": "diag_agent_class",
+                "learner_id": learner.public_id,
+                "domain_code": "ai_app_dev",
+                "profile_mode": "analyze_diagnostic",
+                "answers": [
+                    {"question_id": choice.public_id, "answer": 1},
+                    {
+                        "question_id": short.public_id,
+                        "answer": "Embedding uses vector representation for semantic meaning.",
+                    },
+                ],
+                "question_ids": [choice.public_id, short.public_id],
+            }
+        )
+
+    assert result["profile_source"] == "diagnostic_analysis"
+    assert result["profile_type"] == "advanced"
+    assert result["learning_path_id"].startswith("path_")
 
 
 def test_load_profile_node_loads_existing_profile() -> None:
