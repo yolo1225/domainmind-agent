@@ -10,6 +10,8 @@ import { VueFlow, type Edge, type Node } from '@vue-flow/core'
 
 const props = defineProps<{
   activeStep?: string
+  hasRevisionLoop?: boolean
+  currentRound?: number
 }>()
 
 const steps = [
@@ -46,13 +48,30 @@ const nodes = computed<Node[]>(() =>
   }),
 )
 
-const edges: Edge[] = steps.slice(0, -1).map(([id], index) => ({
-  id: `${id}-${steps[index + 1][0]}`,
-  source: id,
-  target: steps[index + 1][0],
-  animated: true,
-  style: { stroke: '#9aa9bc' },
-}))
+const edges = computed<Edge[]>(() => {
+  const mainEdges = steps.slice(0, -1).map(([id], index) => ({
+    id: `${id}-${steps[index + 1][0]}`,
+    source: id,
+    target: steps[index + 1][0],
+    animated: true,
+    style: { stroke: '#9aa9bc' },
+  }))
+  if (!props.hasRevisionLoop) {
+    return mainEdges
+  }
+  return [
+    ...mainEdges,
+    {
+      id: 'revision-loop',
+      source: 'decide_next_step',
+      target: 'retrieve_knowledge',
+      animated: true,
+      label: `第 ${props.currentRound || 2} 轮修订`,
+      style: { stroke: '#d97706', strokeWidth: 2 },
+      labelStyle: { fill: '#92400e', fontWeight: 700 },
+    },
+  ]
+})
 </script>
 
 <style scoped>

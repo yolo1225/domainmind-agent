@@ -18,6 +18,31 @@ router = APIRouter()
 
 RESOURCE_TYPES = ["lecture", "practice_guide", "graded_quiz"]
 TERMINAL_TASK_STATUSES = {"completed", "failed", "revision_required"}
+SENSITIVE_PAYLOAD_KEYS = {
+    "answers",
+    "answer_text",
+    "content",
+    "content_md",
+    "draft_resources",
+    "profile",
+    "profile_result",
+}
+
+STEP_LABELS = {
+    "load_profile": "加载学习画像",
+    "retrieve_knowledge": "检索领域知识",
+    "generate_resource": "生成学习资源",
+    "review_resource": "审核与校验",
+    "decide_next_step": "协同决策",
+    "persist_resource": "资源入库",
+    "task": "任务状态",
+}
+
+RESOURCE_TYPE_LABELS = {
+    "lecture": "讲义",
+    "practice_guide": "实训指导",
+    "graded_quiz": "分级测验",
+}
 
 
 def _get_or_create_learner(db: Session, learner_public_id: str) -> Learner:
@@ -123,6 +148,90 @@ def _json_event(event_name: str, payload: dict[str, Any]) -> str:
     return f"event: {event_name}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
 
+def _safe_event_payload(value: Any) -> Any:
+    if isinstance(value, dict):
+        safe: dict[str, Any] = {}
+        for key, item in value.items():
+            if key in SENSITIVE_PAYLOAD_KEYS:
+                continue
+            safe[key] = _safe_event_payload(item)
+        return safe
+    if isinstance(value, list):
+        return [_safe_event_payload(item) for item in value[:20]]
+    return value
+
+
+def _resource_type_text(resource_types: list[Any]) -> str:
+    labels = [RESOURCE_TYPE_LABELS.get(str(item), str(item)) for item in resource_types]
+    return "、".join(labels)
+
+
+def _agent_event_message(step: str, status: str, payload: dict[str, Any], generation_round: int | None) -> str:
+    round_prefix = f"第 {generation_round} 轮：" if generation_round else ""
+    if status == "running":
+        return f"{round_prefix}{STEP_LABELS.get(step, step)}开始运行"
+    if status == "failed":
+        return f"{round_prefix}{STEP_LABELS.get(step, step)}执行失败"
+
+    if step == "load_profile":
+        return (
+            f"画像类型 {payload.get('profile_type', 'unknown')}，"
+            f"策略 {payload.get('strategy', 'unknown')}，"
+            f"目标难度 {payload.get('target_difficulty', '-')}"
+        )
+    if step == "retrieve_knowledge":
+        retrieved = payload.get("retrieved") or []
+        return (
+            f"{round_prefix}召回 {len(retrieved)} 个来源，"
+            f"priority {payload.get('matched_priority_count', 0)}，"
+            f"prerequisite {payload.get('matched_prerequisite_count', 0)}"
+        )
+    if step == "generate_resource":
+        generated = payload.get("generated_resource_count", payload.get("resource_count", 0))
+        preserved = payload.get("preserved_resource_count", 0)
+        return f"{round_prefix}生成 {generated} 类资源，保留已通过资源 {preserved} 个"
+    if step == "review_resource":
+        return (
+            f"{round_prefix}平均审核分 {payload.get('average_score', 0)}，"
+            f"需修订 {payload.get('revision_required_count', 0)}，"
+            f"失败 {payload.get('failed_count', 0)}"
+        )
+    if step == "decide_next_step":
+        decision = payload.get("decision", "pending")
+        revision_types = payload.get("revision_resource_types") or []
+        if decision == "revision_required":
+            return f"{round_prefix}审核要求修订 {_resource_type_text(revision_types)}"
+        if decision == "passed":
+            return f"{round_prefix}全部资源通过审核"
+        if decision == "failed":
+            return f"{round_prefix}资源生成未通过审核"
+        return f"{round_prefix}决策结果 {decision}"
+    if step == "persist_resource":
+        return f"{round_prefix}已入库 {payload.get('persisted_resources', payload.get('resource_count', 0))} 个资源"
+    return f"{round_prefix}{STEP_LABELS.get(step, step)}已更新"
+
+
+def _serialize_agent_status_event(task: GenerationTask, run: AgentRun, step: str) -> dict[str, Any]:
+    input_summary = run.input_summary_json or {}
+    output_summary = run.output_summary_json or {}
+    payload = _safe_event_payload(output_summary)
+    generation_round = input_summary.get("generation_round") or output_summary.get("generation_round")
+    if generation_round is not None:
+        generation_round = int(generation_round)
+    return {
+        "run_id": run.id,
+        "task_id": task.public_id,
+        "step": step,
+        "status": run.status,
+        "agent_name": run.agent_name,
+        "generation_round": generation_round,
+        "is_revision_round": bool(generation_round and generation_round > 1),
+        "event_message": _agent_event_message(step, run.status, payload, generation_round),
+        "payload": payload,
+        "timestamp": run.updated_at.isoformat() if run.updated_at else None,
+    }
+
+
 async def _task_events(task_id: str) -> AsyncIterator[str]:
     emitted_run_statuses: set[tuple[int, str]] = set()
     while True:
@@ -150,17 +259,7 @@ async def _task_events(task_id: str) -> AsyncIterator[str]:
                 step = (run.input_summary_json or {}).get("step") or (
                     run.output_summary_json or {}
                 ).get("step") or run.agent_name
-                yield _json_event(
-                    "agent_status",
-                    {
-                        "task_id": task.public_id,
-                        "step": step,
-                        "status": run.status,
-                        "agent_name": run.agent_name,
-                        "payload": run.output_summary_json or {},
-                        "timestamp": run.updated_at.isoformat() if run.updated_at else None,
-                    },
-                )
+                yield _json_event("agent_status", _serialize_agent_status_event(task, run, step))
 
             if task.status in TERMINAL_TASK_STATUSES:
                 yield _json_event(
@@ -170,6 +269,7 @@ async def _task_events(task_id: str) -> AsyncIterator[str]:
                         "step": "task",
                         "status": task.status,
                         "decision": task.decision,
+                        "event_message": f"任务结束：{task.decision}",
                     },
                 )
                 return

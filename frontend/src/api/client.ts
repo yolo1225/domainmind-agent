@@ -28,5 +28,8 @@ export function subscribeTaskEvents(
   source.addEventListener('agent_status', (event) => {
     onEvent(JSON.parse((event as MessageEvent).data))
   })
+  source.addEventListener('task_status', (event) => {
+    onEvent(JSON.parse((event as MessageEvent).data))
+  })
   return source
 }

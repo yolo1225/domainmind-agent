@@ -16,9 +16,13 @@ class AgentGraphState(TypedDict, total=False):
     answer_by_question_id: dict[str, Any]
     profile: dict[str, Any]
     profile_result: dict[str, Any]
+    retrieval_plan: dict[str, Any]
     retrieved_chunks: list[dict[str, Any]]
+    generation_context: dict[str, Any]
     draft_resources: list[dict[str, Any]]
     review_reports: list[dict[str, Any]]
+    revision_plan: dict[str, Any]
+    passed_resources: list[dict[str, Any]]
     agent_trace: list[dict[str, Any]]
     revision_count: int
     decision: str
