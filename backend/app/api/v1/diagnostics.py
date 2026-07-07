@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.core.db import get_db
 from app.schemas.common import ApiResponse, ok
-from app.services.demo_flow_service import create_diagnostic_session, submit_diagnostic_session
+from app.services.diagnostic_service import create_diagnostic_session, submit_diagnostic_session
 
 router = APIRouter()
 

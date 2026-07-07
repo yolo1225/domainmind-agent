@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.models import Learner
 from app.schemas.common import ApiResponse, ok
-from app.services.demo_flow_service import get_or_create_demo_learner
+from app.services.learner_service import get_or_create_demo_learner
 from app.services.profile_service import (
     latest_profile_for_learner,
     profile_ability_level,

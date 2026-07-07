@@ -25,6 +25,7 @@
         </div>
         <div class="header-right">
           <el-tag effect="plain">ai_app_dev</el-tag>
+          <el-tag effect="plain">{{ learnerStore.selectedLearnerId }}</el-tag>
           <el-tag type="success">demo_admin</el-tag>
         </div>
       </el-header>
@@ -37,8 +38,10 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
+import { useLearnerStore } from '@/stores/learnerStore'
 
 const route = useRoute()
+const learnerStore = useLearnerStore()
 </script>
 
 <style scoped>

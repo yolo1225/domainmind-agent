@@ -41,9 +41,10 @@
     "category": "工程基础",
     "difficulty": 1,
     "tags": ["git", "collaboration"],
-    "content": "Git 协作强调小步提交、清晰分支、可回滚变更和代码评审。竞赛原型也应保留关键实现路径，便于复现实验和定位问题。",
+    "content": "Git 协作强调小步提交、清晰分支、可回溯变更和代码评审。竞赛原型也应保留关键实现路径，便于复现实验和定位问题。",
     "source_title": "自建 AI 应用开发实训知识库",
-    "license_note": "team-authored"
+    "license_note": "team-authored",
+    "prerequisites": ["ai_app_dev_overview"]
   },
   {
     "knowledge_id": "data_schema_design",
@@ -148,7 +149,7 @@
     "category": "模型调用",
     "difficulty": 3,
     "tags": ["streaming", "sse"],
-    "content": "流式响应可减少用户等待感，SSE 适合从后端向浏览器推送生成进度和智能体状态。前端应能处理连接关闭、错误和最终完成事件。",
+    "content": "流式响应可减少用户等待感。SSE 适合从后端向浏览器推送生成进度和智能体状态，前端应能处理连接关闭、错误和最终完成事件。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
     "prerequisites": ["http_rest_basics", "llm_api_calling"]
@@ -496,7 +497,7 @@
     "category": "个性化学习",
     "difficulty": 2,
     "tags": ["profile", "personalization"],
-    "content": "学习者画像可包含能力维度、薄弱知识点、学习风格、目标和最近反馈摘要。画像不等于静态标签，它会随诊断和反馈持续更新。",
+    "content": "学习者画像可包含能力维度、薄弱知识点、学习风格、目标和最近反馈摘要。画像不是静态标签，它会随诊断和反馈持续更新。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
     "prerequisites": ["data_schema_design"]

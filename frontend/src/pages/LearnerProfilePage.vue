@@ -211,11 +211,13 @@ import {
   type LearnerSummary,
 } from '@/api/learners'
 import RadarChart from '@/components/Charts/RadarChart.vue'
+import { useLearnerStore } from '@/stores/learnerStore'
 
 const router = useRouter()
+const learnerStore = useLearnerStore()
 const learners = ref<LearnerSummary[]>([])
 const profile = ref<LearnerProfileDetail | null>(null)
-const selectedLearnerId = ref('learner_001')
+const selectedLearnerId = ref(learnerStore.selectedLearnerId)
 const loadingLearners = ref(false)
 const loadingProfile = ref(false)
 const generating = ref(false)
@@ -279,6 +281,7 @@ async function loadLearners() {
     if (!learners.value.some((learner) => learner.learner_id === selectedLearnerId.value)) {
       selectedLearnerId.value = learners.value[0]?.learner_id ?? 'learner_001'
     }
+    learnerStore.setSelectedLearner(selectedLearnerId.value)
     await loadProfile(selectedLearnerId.value)
   } catch (error) {
     ElMessage.error('学习者列表加载失败，请确认后端服务已启动。')
@@ -302,18 +305,19 @@ async function loadProfile(learnerId: string) {
 
 async function selectLearner(learnerId: string) {
   selectedLearnerId.value = learnerId
+  learnerStore.setSelectedLearner(learnerId)
   await loadProfile(learnerId)
 }
 
 function goDiagnostics() {
-  router.push('/diagnostics')
+  router.push({ path: '/diagnostics', query: { learner_id: selectedLearnerId.value } })
 }
 
 async function generateResources() {
   if (!profile.value?.profile_id) return
   generating.value = true
   try {
-    await createGenerationTask(profile.value.profile_id)
+    await createGenerationTask(profile.value.profile_id, profile.value.learner_id)
     ElMessage.success('个性化资源已生成，请到学习资源页查看。')
     router.push('/resources')
   } catch (error) {

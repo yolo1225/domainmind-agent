@@ -21,9 +21,9 @@ export interface GenerationTaskResult {
   }>
 }
 
-export function createGenerationTask(profileId?: string) {
+export function createGenerationTask(profileId?: string, learnerId = 'learner_001') {
   return postData<GenerationTaskResult>('/generation-tasks', {
-    learner_id: 'learner_001',
+    learner_id: learnerId,
     profile_id: profileId,
     domain_code: 'ai_app_dev',
     resource_types: ['lecture', 'practice_guide', 'graded_quiz'],
@@ -31,5 +31,11 @@ export function createGenerationTask(profileId?: string) {
 }
 
 export function getGenerationTask(taskId: string) {
-  return getData<{ task_id: string; status: string; decision: string }>(`/generation-tasks/${taskId}`)
+  return getData<{
+    task_id: string
+    status: string
+    revision_count: number
+    decision: string
+    resources: GenerationTaskResult['resources']
+  }>(`/generation-tasks/${taskId}`)
 }

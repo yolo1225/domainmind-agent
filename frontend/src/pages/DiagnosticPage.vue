@@ -8,6 +8,18 @@
         </p>
       </div>
       <div class="toolbar">
+        <el-select
+          v-model="selectedLearnerId"
+          class="learner-select"
+          @change="changeLearner"
+        >
+          <el-option
+            v-for="learner in learnerOptions"
+            :key="learner.learner_id"
+            :label="learner.learner_id"
+            :value="learner.learner_id"
+          />
+        </el-select>
         <el-button :loading="loadingSession" @click="createSession">创建 10 题测评</el-button>
         <el-button v-if="session" @click="fillDemoAnswers">填入演示答案</el-button>
       </div>
@@ -113,8 +125,8 @@
 
     <div v-if="generation" class="panel">
       <h2 class="panel-title">生成结果</h2>
-      <el-steps :active="generation.agent_trace.length" finish-status="success" simple>
-        <el-step v-for="trace in generation.agent_trace" :key="trace.agent_name" :title="agentLabel(trace.agent_name)" />
+      <el-steps :active="(generation.agent_trace ?? []).length" finish-status="success" simple>
+        <el-step v-for="trace in generation.agent_trace ?? []" :key="trace.agent_name" :title="agentLabel(trace.agent_name)" />
       </el-steps>
       <el-alert class="resource-alert" type="success" show-icon>
         <template #title>
@@ -126,7 +138,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
 import {
@@ -136,7 +149,13 @@ import {
   type DiagnosticSession,
 } from '@/api/diagnostics'
 import { createGenerationTask, type GenerationTaskResult } from '@/api/generation'
+import { listLearners, type LearnerSummary } from '@/api/learners'
+import { useLearnerStore } from '@/stores/learnerStore'
 
+const route = useRoute()
+const learnerStore = useLearnerStore()
+const selectedLearnerId = ref(learnerStore.selectedLearnerId)
+const learnerOptions = ref<LearnerSummary[]>([])
 const session = ref<DiagnosticSession | null>(null)
 const result = ref<DiagnosticResult | null>(null)
 const generation = ref<GenerationTaskResult | null>(null)
@@ -151,6 +170,42 @@ const currentStep = computed(() => {
   if (session.value) return 1
   return 0
 })
+
+const learnerId = computed(() => {
+  return selectedLearnerId.value || learnerStore.selectedLearnerId
+})
+
+watch(
+  () => route.query.learner_id,
+  (raw) => {
+    if (typeof raw === 'string' && raw.trim()) {
+      selectedLearnerId.value = raw
+      learnerStore.setSelectedLearner(raw)
+    }
+  },
+  { immediate: true },
+)
+
+async function loadLearnerOptions() {
+  try {
+    learnerOptions.value = await listLearners()
+    if (!learnerOptions.value.some((learner) => learner.learner_id === selectedLearnerId.value)) {
+      selectedLearnerId.value = learnerOptions.value[0]?.learner_id ?? learnerStore.selectedLearnerId
+      learnerStore.setSelectedLearner(selectedLearnerId.value)
+    }
+  } catch (error) {
+    learnerOptions.value = [{ learner_id: selectedLearnerId.value, profile_type: '', target_domain: 'ai_app_dev', ability_level: 0, profile_status: 'not_started' }]
+  }
+}
+
+function changeLearner(learnerId: string) {
+  selectedLearnerId.value = learnerId
+  learnerStore.setSelectedLearner(learnerId)
+  session.value = null
+  result.value = null
+  generation.value = null
+  answers.value = {}
+}
 
 function profileLabel(profileType: string) {
   return (
@@ -177,7 +232,8 @@ function agentLabel(agentName: string) {
 async function createSession() {
   loadingSession.value = true
   try {
-    session.value = await createDiagnosticSession()
+    learnerStore.setSelectedLearner(learnerId.value)
+    session.value = await createDiagnosticSession(learnerId.value)
     result.value = null
     generation.value = null
     answers.value = {}
@@ -210,7 +266,8 @@ async function submitSession() {
   }))
   loadingSubmit.value = true
   try {
-    result.value = await submitDiagnosticSession(session.value.session_id, payload)
+    result.value = await submitDiagnosticSession(session.value.session_id, payload, session.value.learner_id)
+    learnerStore.setSelectedLearner(result.value.learner_id)
     ElMessage.success('诊断完成，学习画像已生成。')
   } catch (error) {
     ElMessage.error('提交诊断失败，请检查答案或后端服务。')
@@ -223,7 +280,7 @@ async function generateResources() {
   if (!result.value) return
   loadingGeneration.value = true
   try {
-    generation.value = await createGenerationTask(result.value.profile_id)
+    generation.value = await createGenerationTask(result.value.profile_id, result.value.learner_id)
     ElMessage.success('学习资源生成完成。')
   } catch (error) {
     ElMessage.error('生成资源失败，请确认生成接口可用。')
@@ -231,6 +288,8 @@ async function generateResources() {
     loadingGeneration.value = false
   }
 }
+
+onMounted(loadLearnerOptions)
 </script>
 
 <style scoped>
@@ -240,6 +299,10 @@ async function generateResources() {
 
 .session-panel {
   background: #fbfdff;
+}
+
+.learner-select {
+  width: 160px;
 }
 
 .question-panel {
