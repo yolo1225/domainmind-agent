@@ -1,0 +1,144 @@
+from app.agents.generation_agent import ContentGenerationAgent
+from app.agents.orchestrator import OrchestratorAgent
+from app.agents.retrieval_agent import KnowledgeRetrievalAgent
+from app.agents.review_agent import ReviewValidationAgent
+
+
+def test_retrieval_agent_execute_builds_retrieved_chunks(monkeypatch):
+    class FakeVectorStore:
+        def query(self, **kwargs):
+            return {
+                "ids": [["chunk_1"]],
+                "documents": [["RAG chunk content"]],
+                "metadatas": [
+                    [
+                        {
+                            "knowledge_id": "k_rag",
+                            "name": "RAG 检索",
+                            "category": "实操技能",
+                            "difficulty": 2,
+                            "source_title": "测试知识库",
+                            "source_url": "",
+                        }
+                    ]
+                ],
+                "distances": [[0.2]],
+            }
+
+    monkeypatch.setattr("app.agents.retrieval_agent.VectorStore", FakeVectorStore)
+    monkeypatch.setattr("app.agents.retrieval_agent.embed_texts", lambda texts: [[0.1, 0.2]])
+
+    output = KnowledgeRetrievalAgent().execute(
+        {
+            "domain_code": "ai_app_dev",
+            "learning_goal": "学习 RAG",
+            "retrieval_plan": {
+                "strategy": "remedial",
+                "target_difficulty": 2,
+                "priority_knowledge_ids": ["k_rag"],
+                "prerequisite_knowledge_ids": [],
+                "query_terms": ["RAG 检索"],
+                "n_results": 3,
+            },
+            "revision_plan": {},
+        }
+    )
+
+    assert output["retrieved_chunks"][0]["knowledge_id"] == "k_rag"
+    assert output["retrieved_chunks"][0]["matched_plan"] == "priority"
+    assert output["trace"]["matched_priority_count"] == 1
+
+
+def test_generation_agent_execute_outputs_three_sourced_resources():
+    output = ContentGenerationAgent().execute(
+        {
+            "profile_id": "profile_1",
+            "profile": {"profile_type": "beginner", "weak_knowledge": []},
+            "retrieval_plan": {"strategy": "consolidation", "target_difficulty": 3},
+            "revision_plan": {},
+            "resource_types": ["lecture", "practice_guide", "graded_quiz"],
+            "retrieved_chunks": [
+                {
+                    "knowledge_id": "k_prompt",
+                    "name": "Prompt 工程",
+                    "content": "Prompt 工程内容",
+                    "source_title": "测试知识库",
+                    "matched_plan": "semantic",
+                    "used_for": "consolidation_practice",
+                }
+            ],
+        }
+    )
+
+    assert len(output["draft_resources"]) == 3
+    assert {item["resource_type"] for item in output["draft_resources"]} == {
+        "lecture",
+        "practice_guide",
+        "graded_quiz",
+    }
+    assert all(item["sources"] for item in output["draft_resources"])
+
+
+def test_review_agent_execute_marks_missing_source_as_revision_required():
+    output = ReviewValidationAgent().execute(
+        {
+            "generation_context": {
+                "sources": [],
+                "generation_requirements": {
+                    "difficulty": 3,
+                    "strategy": "consolidation",
+                },
+            },
+            "draft_resources": [
+                {
+                    "resource_type": "lecture",
+                    "difficulty": 3,
+                    "content": "没有来源的讲义",
+                    "sources": [],
+                }
+            ],
+        }
+    )
+
+    report = output["review_reports"][0]
+    assert report["failure_level"] == "failed"
+    assert output["trace"]["failed_count"] == 1
+
+
+def test_orchestrator_agent_decide_passed_revision_and_failed():
+    agent = OrchestratorAgent()
+
+    passed = agent.decide({"review_reports": [{"passed": True}], "revision_count": 0})
+    assert passed["decision"] == "passed"
+
+    revision = agent.decide(
+        {
+            "review_reports": [
+                {
+                    "resource_type": "lecture",
+                    "passed": False,
+                    "revision_required": True,
+                    "failure_level": "revision",
+                    "source_traceability": 75,
+                    "difficulty_match": 95,
+                    "core_knowledge_coverage": 90,
+                    "factual_accuracy": 90,
+                }
+            ],
+            "generation_context": {
+                "generation_requirements": {"strategy": "consolidation"},
+            },
+            "draft_resources": [{"resource_type": "lecture"}],
+            "revision_count": 0,
+        }
+    )
+    assert revision["decision"] == "revision_required"
+    assert revision["revision_count"] == 1
+
+    failed = agent.decide(
+        {
+            "review_reports": [{"passed": False, "failure_level": "failed"}],
+            "revision_count": 0,
+        }
+    )
+    assert failed["decision"] == "failed"
