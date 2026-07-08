@@ -4,6 +4,7 @@ import time
 from collections.abc import Callable
 from typing import Any
 
+from langgraph.graph import END, START, StateGraph
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -14,6 +15,7 @@ from app.agents.nodes import (
     persist_resource,
     retrieve_knowledge,
     review_resource,
+    route_after_decision,
 )
 from app.agents.state import AgentGraphState
 from app.core.db import SessionLocal
@@ -24,22 +26,19 @@ from app.models import (
     Learner,
     LearnerProfile,
     LearningResource,
-    ReviewReport,
 )
+from app.services.generation_service import persist_generated_resources
 
 NodeFunc = Callable[[AgentGraphState], AgentGraphState]
 
-INITIAL_NODE: tuple[str, str, NodeFunc] = ("load_profile", "profile_analysis_agent", load_profile)
-
-LOOP_NODE_SEQUENCE: list[tuple[str, str, NodeFunc]] = [
-    ("retrieve_knowledge", "knowledge_retrieval_agent", retrieve_knowledge),
-    ("generate_resource", "content_generation_agent", generate_resource),
-    ("review_resource", "review_validation_agent", review_resource),
-    ("decide_next_step", "orchestrator_agent", decide_next_step),
-]
-
-PERSIST_NODE: tuple[str, str, NodeFunc] = ("persist_resource", "orchestrator_agent", persist_resource)
-MAX_GENERATION_ROUNDS = 3
+NODE_AGENT_NAMES = {
+    "load_profile": "profile_analysis_agent",
+    "retrieve_knowledge": "knowledge_retrieval_agent",
+    "generate_resource": "content_generation_agent",
+    "review_resource": "review_validation_agent",
+    "decide_next_step": "orchestrator_agent",
+    "persist_resource": "orchestrator_agent",
+}
 
 
 def _message(
@@ -81,148 +80,6 @@ def _resource_summary(resource: LearningResource) -> dict[str, Any]:
     }
 
 
-def _review_status(report: dict[str, Any]) -> str:
-    if report.get("passed"):
-        return "passed"
-    if report.get("failure_level") == "failed":
-        return "failed"
-    return "revision_required"
-
-
-def _run_node(
-    db: Session,
-    *,
-    task: GenerationTask,
-    state: AgentGraphState,
-    step: str,
-    agent_name: str,
-    node_func: NodeFunc,
-) -> tuple[AgentGraphState, AgentRun, dict[str, Any]]:
-    started_at = time.perf_counter()
-    input_summary = {
-        "task_id": task.public_id,
-        "step": step,
-        "resource_types": task.resource_types_json or [],
-    }
-    if step == "load_profile":
-        input_summary["profile_mode"] = state.get("profile_mode")
-    if state.get("generation_round"):
-        input_summary["generation_round"] = state.get("generation_round")
-
-    current_run = AgentRun(
-        generation_task_id=task.id,
-        agent_name=agent_name,
-        status="running",
-        input_summary_json=input_summary,
-        output_summary_json={"step": step},
-        llm_calls=0,
-        tokens_used=0,
-        duration_ms=0,
-    )
-    db.add(current_run)
-    _message(
-        db,
-        task=task,
-        sender=agent_name,
-        payload={"step": step, "status": "running", "task_id": task.public_id},
-    )
-    db.commit()
-    time.sleep(0.2)
-
-    previous_trace_count = len(state.get("agent_trace", []))
-    state = node_func(state)
-    output = _latest_trace_output(state, previous_trace_count)
-
-    current_run.status = "completed"
-    current_run.output_summary_json = {"step": step, **output}
-    current_run.duration_ms = round((time.perf_counter() - started_at) * 1000)
-    _message(
-        db,
-        task=task,
-        sender=agent_name,
-        payload={
-            "step": step,
-            "status": "completed",
-            "task_id": task.public_id,
-            "output": output,
-        },
-    )
-    db.commit()
-    return state, current_run, output
-
-
-def _persist_resources(db: Session, task: GenerationTask, profile: LearnerProfile, state: AgentGraphState) -> None:
-    profile_payload = profile.ability_profile_json or {}
-    for draft in state.get("draft_resources", []):
-        report = next(
-            (
-                item
-                for item in state.get("review_reports", [])
-                if item.get("resource_type") == draft["resource_type"]
-            ),
-            {},
-        )
-        resource = LearningResource(
-            public_id=f"res_{time.time_ns()}",
-            generation_task_id=task.id,
-            resource_type=draft["resource_type"],
-            title=draft["title"],
-            content_md=draft["content"],
-            difficulty=draft["difficulty"],
-            learner_profile_type=profile_payload.get("profile_type", ""),
-            sources_json=draft["sources"],
-            version=1,
-            review_status=_review_status(report),
-        )
-        db.add(resource)
-        db.flush()
-
-        db.add(
-            ReviewReport(
-                resource_id=resource.id,
-                primary_review_json={
-                    "score": report.get("overall_score", 0),
-                    "factual_accuracy": report.get(
-                        "factual_accuracy", report.get("facts_score", 0)
-                    ),
-                    "source_traceability": report.get(
-                        "source_traceability", report.get("source_traceability_score", 0)
-                    ),
-                    "difficulty_match": report.get(
-                        "difficulty_match", report.get("difficulty_match_score", 0)
-                    ),
-                    "core_knowledge_coverage": report.get(
-                        "core_knowledge_coverage", report.get("coverage_score", 0)
-                    ),
-                    "review_notes": report.get("review_notes", []),
-                },
-                secondary_review_json={
-                    "score": report.get("overall_score", 0),
-                    "factual_accuracy": report.get(
-                        "factual_accuracy", report.get("facts_score", 0)
-                    ),
-                    "source_traceability": report.get(
-                        "source_traceability", report.get("source_traceability_score", 0)
-                    ),
-                    "difficulty_match": report.get(
-                        "difficulty_match", report.get("difficulty_match_score", 0)
-                    ),
-                    "core_knowledge_coverage": report.get(
-                        "core_knowledge_coverage", report.get("coverage_score", 0)
-                    ),
-                },
-                arbitration_json={
-                    "required": False,
-                    "reason": "mvp_rule_based_review_v1",
-                    "failure_level": report.get("failure_level", "none"),
-                    "revision_required": report.get("revision_required", False),
-                },
-                manual_review_required=False,
-                passed=bool(report.get("passed")),
-            )
-        )
-
-
 def _initial_state(
     db: Session,
     task: GenerationTask,
@@ -255,6 +112,180 @@ def _initial_state(
     }
 
 
+def _observable_node(
+    *,
+    db: Session,
+    task: GenerationTask,
+    profile: LearnerProfile,
+    step: str,
+    node_func: NodeFunc,
+) -> NodeFunc:
+    agent_name = NODE_AGENT_NAMES[step]
+
+    def wrapped(state: AgentGraphState) -> AgentGraphState:
+        started_at = time.perf_counter()
+        input_summary = {
+            "task_id": task.public_id,
+            "step": step,
+            "resource_types": task.resource_types_json or [],
+        }
+        if step == "load_profile":
+            input_summary["profile_mode"] = state.get("profile_mode")
+        if state.get("generation_round"):
+            input_summary["generation_round"] = state.get("generation_round")
+
+        current_run = AgentRun(
+            generation_task_id=task.id,
+            agent_name=agent_name,
+            status="running",
+            input_summary_json=input_summary,
+            output_summary_json={"step": step},
+            llm_calls=0,
+            tokens_used=0,
+            duration_ms=0,
+        )
+        db.add(current_run)
+        _message(
+            db,
+            task=task,
+            sender=agent_name,
+            payload={"step": step, "status": "running", "task_id": task.public_id},
+        )
+        db.commit()
+        time.sleep(0.2)
+
+        previous_trace_count = len(state.get("agent_trace", []))
+        try:
+            if step == "retrieve_knowledge":
+                state["generation_round"] = int(state.get("generation_round") or 0) + 1
+            if step == "persist_resource":
+                persist_generated_resources(db, task, profile, state)
+                db.flush()
+
+            next_state = node_func(state)
+            output = _latest_trace_output(next_state, previous_trace_count)
+            current_run.status = "completed"
+            current_run.output_summary_json = {"step": step, **output}
+            current_run.duration_ms = round((time.perf_counter() - started_at) * 1000)
+            _message(
+                db,
+                task=task,
+                sender=agent_name,
+                payload={
+                    "step": step,
+                    "status": "completed",
+                    "task_id": task.public_id,
+                    "output": output,
+                },
+            )
+            db.commit()
+            return next_state
+        except Exception as exc:
+            current_run.status = "failed"
+            current_run.error_message = str(exc)
+            current_run.output_summary_json = {
+                **(current_run.output_summary_json or {}),
+                "error": str(exc),
+            }
+            current_run.duration_ms = round((time.perf_counter() - started_at) * 1000)
+            _message(
+                db,
+                task=task,
+                sender=agent_name,
+                message_type="error",
+                payload={"step": step, "status": "failed", "task_id": task.public_id, "error": str(exc)},
+            )
+            db.commit()
+            raise
+
+    return wrapped
+
+
+def _build_observable_generation_graph(
+    db: Session,
+    task: GenerationTask,
+    profile: LearnerProfile,
+):
+    graph = StateGraph(AgentGraphState)
+    graph.add_node(
+        "load_profile",
+        _observable_node(
+            db=db,
+            task=task,
+            profile=profile,
+            step="load_profile",
+            node_func=load_profile,
+        ),
+    )
+    graph.add_node(
+        "retrieve_knowledge",
+        _observable_node(
+            db=db,
+            task=task,
+            profile=profile,
+            step="retrieve_knowledge",
+            node_func=retrieve_knowledge,
+        ),
+    )
+    graph.add_node(
+        "generate_resource",
+        _observable_node(
+            db=db,
+            task=task,
+            profile=profile,
+            step="generate_resource",
+            node_func=generate_resource,
+        ),
+    )
+    graph.add_node(
+        "review_resource",
+        _observable_node(
+            db=db,
+            task=task,
+            profile=profile,
+            step="review_resource",
+            node_func=review_resource,
+        ),
+    )
+    graph.add_node(
+        "decide_next_step",
+        _observable_node(
+            db=db,
+            task=task,
+            profile=profile,
+            step="decide_next_step",
+            node_func=decide_next_step,
+        ),
+    )
+    graph.add_node(
+        "persist_resource",
+        _observable_node(
+            db=db,
+            task=task,
+            profile=profile,
+            step="persist_resource",
+            node_func=persist_resource,
+        ),
+    )
+
+    graph.add_edge(START, "load_profile")
+    graph.add_edge("load_profile", "retrieve_knowledge")
+    graph.add_edge("retrieve_knowledge", "generate_resource")
+    graph.add_edge("generate_resource", "review_resource")
+    graph.add_edge("review_resource", "decide_next_step")
+    graph.add_conditional_edges(
+        "decide_next_step",
+        route_after_decision,
+        {
+            "persist_resource": "persist_resource",
+            "retrieve_knowledge": "retrieve_knowledge",
+            "end": END,
+        },
+    )
+    graph.add_edge("persist_resource", END)
+    return graph.compile()
+
+
 def run_generation_task(task_id: str) -> dict[str, Any]:
     with SessionLocal() as db:
         task = db.scalar(select(GenerationTask).where(GenerationTask.public_id == task_id))
@@ -274,54 +305,16 @@ def run_generation_task(task_id: str) -> dict[str, Any]:
         db.commit()
 
         state = _initial_state(db, task, learner, profile)
-        current_run: AgentRun | None = None
 
         try:
-            step, agent_name, node_func = INITIAL_NODE
-            state, current_run, _ = _run_node(
-                db,
-                task=task,
-                state=state,
-                step=step,
-                agent_name=agent_name,
-                node_func=node_func,
+            graph = _build_observable_generation_graph(db, task, profile)
+            final_state = graph.invoke(
+                state,
+                config={"configurable": {"thread_id": task.public_id}},
             )
 
-            for generation_round in range(1, MAX_GENERATION_ROUNDS + 1):
-                state["generation_round"] = generation_round
-                for step, agent_name, node_func in LOOP_NODE_SEQUENCE:
-                    state, current_run, _ = _run_node(
-                        db,
-                        task=task,
-                        state=state,
-                        step=step,
-                        agent_name=agent_name,
-                        node_func=node_func,
-                    )
-
-                if state.get("decision") == "passed":
-                    _persist_resources(db, task, profile, state)
-                    step, agent_name, node_func = PERSIST_NODE
-                    state, current_run, output = _run_node(
-                        db,
-                        task=task,
-                        state=state,
-                        step=step,
-                        agent_name=agent_name,
-                        node_func=node_func,
-                    )
-                    current_run.output_summary_json = {
-                        **(current_run.output_summary_json or {}),
-                        "persisted_resources": len(state.get("draft_resources", [])),
-                    }
-                    db.commit()
-                    break
-
-                if state.get("decision") == "failed":
-                    break
-
-            task.revision_count = state.get("revision_count", 0)
-            task.decision = state.get("decision", "failed")
+            task.revision_count = final_state.get("revision_count", 0)
+            task.decision = final_state.get("decision", "failed")
             task.status = "completed" if task.decision == "passed" else task.decision
             db.commit()
 
@@ -339,19 +332,12 @@ def run_generation_task(task_id: str) -> dict[str, Any]:
                 "resources": [_resource_summary(resource) for resource in resources],
             }
         except Exception as exc:
-            if current_run is not None:
-                current_run.status = "failed"
-                current_run.error_message = str(exc)
-                current_run.output_summary_json = {
-                    **(current_run.output_summary_json or {}),
-                    "error": str(exc),
-                }
             task.status = "failed"
             task.decision = "failed"
             _message(
                 db,
                 task=task,
-                sender=(current_run.agent_name if current_run else "generation_worker"),
+                sender="generation_worker",
                 message_type="error",
                 payload={"task_id": task.public_id, "status": "failed", "error": str(exc)},
             )

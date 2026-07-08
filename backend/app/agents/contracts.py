@@ -47,3 +47,27 @@ class AgentRunSummary(BaseModel):
     tokens_used: int = 0
     duration_ms: int = 0
     error_message: str | None = None
+
+
+class RetrievalOutput(BaseModel):
+    retrieved_chunks: list[dict[str, Any]] = Field(default_factory=list)
+    trace: dict[str, Any] = Field(default_factory=dict)
+
+
+class GenerationOutput(BaseModel):
+    generation_context: dict[str, Any] = Field(default_factory=dict)
+    draft_resources: list[dict[str, Any]] = Field(default_factory=list)
+    trace: dict[str, Any] = Field(default_factory=dict)
+
+
+class ReviewOutput(BaseModel):
+    review_reports: list[dict[str, Any]] = Field(default_factory=list)
+    trace: dict[str, Any] = Field(default_factory=dict)
+
+
+class DecisionOutput(BaseModel):
+    decision: str
+    revision_count: int = 0
+    revision_plan: dict[str, Any] = Field(default_factory=dict)
+    passed_resources: list[dict[str, Any]] = Field(default_factory=list)
+    trace: dict[str, Any] = Field(default_factory=dict)

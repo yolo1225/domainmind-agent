@@ -7,7 +7,15 @@
           展示画像、检索、生成、审核、决策和修订回路的真实运行摘要，用于解释多智能体协作过程。
         </p>
       </div>
-      <el-button type="primary" :loading="starting" @click="startDemo">启动协同流</el-button>
+      <div class="toolbar">
+        <el-button
+          v-if="canViewCurrentResources"
+          @click="router.push({ path: '/resources', query: { task_id: taskStore.currentTaskId } })"
+        >
+          查看本次资源
+        </el-button>
+        <el-button type="primary" :loading="starting" @click="startDemo">启动协同流</el-button>
+      </div>
     </div>
 
     <div class="summary-strip">
@@ -124,6 +132,7 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
 import { subscribeTaskEvents } from '@/api/client'
@@ -133,6 +142,7 @@ import { useTaskStore } from '@/stores/taskStore'
 import type { AgentStatusEvent } from '@/types/api'
 
 const taskStore = useTaskStore()
+const router = useRouter()
 const starting = ref(false)
 let source: EventSource | null = null
 const terminalStatuses = new Set(['completed', 'failed', 'revision_required'])
@@ -147,6 +157,15 @@ const hasRevisionLoop = computed(
     taskStore.events.some((event) => event.is_revision_round) ||
     taskStore.latestDecision === 'revision_required',
 )
+
+const canViewCurrentResources = computed(() => {
+  return Boolean(
+    taskStore.currentTaskId &&
+      taskStore.events.some(
+        (event) => event.step === 'task' && event.status === 'completed',
+      ),
+  )
+})
 
 const agents = [
   { step: 'load_profile', name: 'Profile Analysis Agent', role: '读取诊断画像，确定能力层级、薄弱知识点和学习目标。' },

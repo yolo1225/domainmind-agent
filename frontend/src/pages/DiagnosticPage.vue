@@ -139,7 +139,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
 import {
@@ -153,6 +153,7 @@ import { listLearners, type LearnerSummary } from '@/api/learners'
 import { useLearnerStore } from '@/stores/learnerStore'
 
 const route = useRoute()
+const router = useRouter()
 const learnerStore = useLearnerStore()
 const selectedLearnerId = ref(learnerStore.selectedLearnerId)
 const learnerOptions = ref<LearnerSummary[]>([])
@@ -281,7 +282,8 @@ async function generateResources() {
   loadingGeneration.value = true
   try {
     generation.value = await createGenerationTask(result.value.profile_id, result.value.learner_id)
-    ElMessage.success('学习资源生成完成。')
+    ElMessage.success('资源生成任务已启动，正在打开本次资源批次。')
+    await router.push({ path: '/resources', query: { task_id: generation.value.task_id } })
   } catch (error) {
     ElMessage.error('生成资源失败，请确认生成接口可用。')
   } finally {

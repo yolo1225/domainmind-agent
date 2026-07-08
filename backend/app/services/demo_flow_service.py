@@ -1,16 +1,28 @@
 from __future__ import annotations
 
+from datetime import UTC
 from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import Feedback, LearningPath, LearningResource
+from app.models import Feedback, GenerationTask, LearningPath, LearningResource
 from app.services.learner_service import get_or_create_demo_learner
 from app.services.profile_service import default_profile_for_learner
 
 
-def serialize_resource(resource: LearningResource) -> dict[str, Any]:
+def _iso(value: Any) -> str | None:
+    if not value:
+        return None
+    if getattr(value, "tzinfo", None) is None:
+        value = value.replace(tzinfo=UTC)
+    return value.isoformat()
+
+
+def serialize_resource(
+    resource: LearningResource,
+    generation_task: GenerationTask | None = None,
+) -> dict[str, Any]:
     return {
         "resource_id": resource.public_id,
         "resource_type": resource.resource_type,
@@ -22,14 +34,24 @@ def serialize_resource(resource: LearningResource) -> dict[str, Any]:
         "sources": [item.get("knowledge_id") for item in (resource.sources_json or [])],
         "source_details": resource.sources_json or [],
         "version": resource.version,
+        "generation_task_id": generation_task.public_id if generation_task else None,
+        "generation_task_status": generation_task.status if generation_task else None,
+        "generation_decision": generation_task.decision if generation_task else None,
+        "generated_at": _iso(resource.created_at),
+        "task_created_at": _iso(generation_task.created_at) if generation_task else None,
     }
 
 
 def list_resources(db: Session) -> list[dict[str, Any]]:
-    resources = list(
-        db.scalars(select(LearningResource).order_by(LearningResource.id.desc()).limit(30))
+    rows = list(
+        db.execute(
+            select(LearningResource, GenerationTask)
+            .join(GenerationTask, GenerationTask.id == LearningResource.generation_task_id)
+            .order_by(GenerationTask.created_at.desc(), LearningResource.id.asc())
+            .limit(30)
+        )
     )
-    return [serialize_resource(resource) for resource in resources]
+    return [serialize_resource(resource, task) for resource, task in rows]
 
 
 def submit_feedback(
