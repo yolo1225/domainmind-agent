@@ -1,0 +1,3011 @@
+{
+  "$defs": {
+    "AbilityScores": {
+      "additionalProperties": false,
+      "properties": {
+        "theory": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Theory",
+          "type": "integer"
+        },
+        "practice": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Practice",
+          "type": "integer"
+        },
+        "problem_solving": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Problem Solving",
+          "type": "integer"
+        },
+        "knowledge_breadth": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Knowledge Breadth",
+          "type": "integer"
+        },
+        "learning_speed": {
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Learning Speed",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "theory",
+        "practice",
+        "problem_solving",
+        "knowledge_breadth",
+        "learning_speed"
+      ],
+      "title": "AbilityScores",
+      "type": "object"
+    },
+    "AffectedScope": {
+      "additionalProperties": false,
+      "properties": {
+        "knowledge_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Knowledge Ids",
+          "type": "array"
+        },
+        "path_node_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Path Node Ids",
+          "type": "array"
+        },
+        "resource_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Resource Ids",
+          "type": "array"
+        }
+      },
+      "title": "AffectedScope",
+      "type": "object"
+    },
+    "AgentMessage": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "message_id": {
+          "title": "Message Id",
+          "type": "string"
+        },
+        "sender": {
+          "$ref": "#/$defs/AgentName"
+        },
+        "receiver": {
+          "$ref": "#/$defs/AgentName"
+        },
+        "message_type": {
+          "$ref": "#/$defs/MessageType"
+        },
+        "payload": {
+          "$ref": "#/$defs/MessagePayload"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "session_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Session Id",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "sender",
+        "receiver",
+        "message_type",
+        "payload",
+        "session_id",
+        "task_id"
+      ],
+      "title": "AgentMessage",
+      "type": "object"
+    },
+    "AgentName": {
+      "enum": [
+        "orchestrator_agent",
+        "profile_analysis_agent",
+        "knowledge_retrieval_agent",
+        "content_generation_agent",
+        "review_validation_agent",
+        "tutoring_agent"
+      ],
+      "title": "AgentName",
+      "type": "string"
+    },
+    "AnalyzeProfileInput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "context": {
+          "$ref": "#/$defs/TaskContext"
+        },
+        "current_profile": {
+          "$ref": "#/$defs/ProfileSnapshot"
+        },
+        "diagnostic_summary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DiagnosticSummary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "feedback_evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "maxItems": 100,
+          "title": "Feedback Evidence",
+          "type": "array"
+        },
+        "recommended_action": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RecommendedAction"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "task_id",
+        "context",
+        "current_profile"
+      ],
+      "title": "AnalyzeProfileInput",
+      "type": "object"
+    },
+    "AnalyzeProfileOutput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "profile": {
+          "$ref": "#/$defs/ProfileSnapshot"
+        },
+        "profile_update_required": {
+          "title": "Profile Update Required",
+          "type": "boolean"
+        },
+        "changed_dimensions": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Changed Dimensions",
+          "type": "array"
+        },
+        "evidence_refs": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "maxItems": 100,
+          "title": "Evidence Refs",
+          "type": "array"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "decision_reason": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Decision Reason",
+          "type": "string"
+        },
+        "affected_scope": {
+          "$ref": "#/$defs/AffectedScope"
+        },
+        "retrieval_plan": {
+          "$ref": "#/$defs/RetrievalPlan"
+        },
+        "needs_generation": {
+          "title": "Needs Generation",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "task_id",
+        "profile",
+        "profile_update_required",
+        "confidence",
+        "decision_reason",
+        "affected_scope",
+        "retrieval_plan",
+        "needs_generation"
+      ],
+      "title": "AnalyzeProfileOutput",
+      "type": "object"
+    },
+    "ArbitrationResult": {
+      "additionalProperties": false,
+      "properties": {
+        "required": {
+          "title": "Required",
+          "type": "boolean"
+        },
+        "retrieval_performed": {
+          "title": "Retrieval Performed",
+          "type": "boolean"
+        },
+        "query_terms": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 30,
+          "title": "Query Terms",
+          "type": "array"
+        },
+        "additional_source_ref_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 30,
+          "title": "Additional Source Ref Ids",
+          "type": "array"
+        },
+        "primary_recheck": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ModelReview"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "secondary_recheck": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ModelReview"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "disagreement_remains": {
+          "title": "Disagreement Remains",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "required",
+        "retrieval_performed",
+        "disagreement_remains"
+      ],
+      "title": "ArbitrationResult",
+      "type": "object"
+    },
+    "ConceptBlock": {
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "explanation": {
+          "maxLength": 3000,
+          "minLength": 1,
+          "title": "Explanation",
+          "type": "string"
+        },
+        "example": {
+          "anyOf": [
+            {
+              "maxLength": 3000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Example"
+        },
+        "source_ref_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Source Ref Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "title",
+        "explanation",
+        "source_ref_ids"
+      ],
+      "title": "ConceptBlock",
+      "type": "object"
+    },
+    "ConversationSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "tutoring_session_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Tutoring Session Id",
+          "type": "string"
+        },
+        "turn_count": {
+          "minimum": 1,
+          "title": "Turn Count",
+          "type": "integer"
+        },
+        "latest_message_summary": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Latest Message Summary",
+          "type": "string"
+        },
+        "previous_intents": {
+          "items": {
+            "$ref": "#/$defs/FeedbackIntent"
+          },
+          "maxItems": 20,
+          "title": "Previous Intents",
+          "type": "array"
+        }
+      },
+      "required": [
+        "tutoring_session_id",
+        "turn_count",
+        "latest_message_summary"
+      ],
+      "title": "ConversationSummary",
+      "type": "object"
+    },
+    "DiagnosticSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "diagnostic_session_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Diagnostic Session Id",
+          "type": "string"
+        },
+        "question_count": {
+          "minimum": 1,
+          "title": "Question Count",
+          "type": "integer"
+        },
+        "answered_count": {
+          "minimum": 0,
+          "title": "Answered Count",
+          "type": "integer"
+        },
+        "correct_count": {
+          "minimum": 0,
+          "title": "Correct Count",
+          "type": "integer"
+        },
+        "skipped_count": {
+          "minimum": 0,
+          "title": "Skipped Count",
+          "type": "integer"
+        },
+        "score_percent": {
+          "maximum": 100.0,
+          "minimum": 0.0,
+          "title": "Score Percent",
+          "type": "number"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "maxItems": 100,
+          "title": "Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "diagnostic_session_id",
+        "question_count",
+        "answered_count",
+        "correct_count",
+        "skipped_count",
+        "score_percent"
+      ],
+      "title": "DiagnosticSummary",
+      "type": "object"
+    },
+    "EvidenceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "evidence_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Evidence Id",
+          "type": "string"
+        },
+        "evidence_type": {
+          "$ref": "#/$defs/EvidenceType"
+        },
+        "summary": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        },
+        "knowledge_id": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Knowledge Id"
+        },
+        "source_ref_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Ref Id"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "confirmed": {
+          "default": false,
+          "title": "Confirmed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "evidence_id",
+        "evidence_type",
+        "summary",
+        "confidence"
+      ],
+      "title": "EvidenceRef",
+      "type": "object"
+    },
+    "EvidenceType": {
+      "enum": [
+        "quick_feedback",
+        "natural_language",
+        "scored_quiz",
+        "diagnostic_result",
+        "validated_behavior",
+        "manual_review"
+      ],
+      "title": "EvidenceType",
+      "type": "string"
+    },
+    "ExecutionMode": {
+      "enum": [
+        "auto",
+        "assisted"
+      ],
+      "title": "ExecutionMode",
+      "type": "string"
+    },
+    "FactCheck": {
+      "additionalProperties": false,
+      "properties": {
+        "claim": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Claim",
+          "type": "string"
+        },
+        "supported": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Supported"
+        },
+        "source_ref_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ref Ids",
+          "type": "array"
+        },
+        "reason": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        },
+        "determinable": {
+          "default": true,
+          "title": "Determinable",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "claim",
+        "reason"
+      ],
+      "title": "FactCheck",
+      "type": "object"
+    },
+    "FeedbackContext": {
+      "additionalProperties": false,
+      "properties": {
+        "resource": {
+          "$ref": "#/$defs/ResourceSummary"
+        },
+        "conversation": {
+          "$ref": "#/$defs/ConversationSummary"
+        },
+        "feedback_summary": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Feedback Summary",
+          "type": "string"
+        },
+        "quick_tag": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FeedbackIntent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "rating": {
+          "anyOf": [
+            {
+              "maximum": 5,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rating"
+        },
+        "selected_text_summary": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selected Text Summary"
+        },
+        "supporting_evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "maxItems": 50,
+          "title": "Supporting Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "resource",
+        "conversation",
+        "feedback_summary"
+      ],
+      "title": "FeedbackContext",
+      "type": "object"
+    },
+    "FeedbackIntent": {
+      "enum": [
+        "too_hard",
+        "too_easy",
+        "confusing",
+        "incorrect",
+        "helpful",
+        "other"
+      ],
+      "title": "FeedbackIntent",
+      "type": "string"
+    },
+    "FinalizeTaskInput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "context": {
+          "$ref": "#/$defs/TaskContext"
+        },
+        "resources": {
+          "items": {
+            "$ref": "#/$defs/GeneratedResourceArtifact"
+          },
+          "maxItems": 3,
+          "title": "Resources",
+          "type": "array"
+        },
+        "review_reports": {
+          "items": {
+            "$ref": "#/$defs/ReviewReport"
+          },
+          "maxItems": 3,
+          "title": "Review Reports",
+          "type": "array"
+        },
+        "revision_count": {
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Revision Count",
+          "type": "integer"
+        },
+        "tutoring_result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/InterpretFeedbackOutput"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "human_decision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/HumanDecision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "task_id",
+        "context",
+        "revision_count"
+      ],
+      "title": "FinalizeTaskInput",
+      "type": "object"
+    },
+    "FinalizeTaskOutput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "decision": {
+          "$ref": "#/$defs/TaskDecision"
+        },
+        "revision_count": {
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Revision Count",
+          "type": "integer"
+        },
+        "revision_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RevisionPlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "passed_resource_types": {
+          "items": {
+            "$ref": "#/$defs/ResourceType"
+          },
+          "maxItems": 3,
+          "title": "Passed Resource Types",
+          "type": "array"
+        },
+        "manual_review_required": {
+          "title": "Manual Review Required",
+          "type": "boolean"
+        },
+        "decision_reason": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Decision Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "decision",
+        "revision_count",
+        "manual_review_required",
+        "decision_reason"
+      ],
+      "title": "FinalizeTaskOutput",
+      "type": "object"
+    },
+    "GenerateResourceInput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "context": {
+          "$ref": "#/$defs/TaskContext"
+        },
+        "profile": {
+          "$ref": "#/$defs/ProfileSnapshot"
+        },
+        "retrieved_chunks": {
+          "items": {
+            "$ref": "#/$defs/RetrievedChunk"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Retrieved Chunks",
+          "type": "array"
+        },
+        "requirements": {
+          "$ref": "#/$defs/GenerationRequirements"
+        }
+      },
+      "required": [
+        "task_id",
+        "context",
+        "profile",
+        "retrieved_chunks",
+        "requirements"
+      ],
+      "title": "GenerateResourceInput",
+      "type": "object"
+    },
+    "GenerateResourceOutput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "resources": {
+          "items": {
+            "$ref": "#/$defs/GeneratedResourceArtifact"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Resources",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task_id",
+        "resources"
+      ],
+      "title": "GenerateResourceOutput",
+      "type": "object"
+    },
+    "GeneratedResourceArtifact": {
+      "additionalProperties": false,
+      "properties": {
+        "resource_type": {
+          "$ref": "#/$defs/ResourceType"
+        },
+        "structured_content": {
+          "discriminator": {
+            "mapping": {
+              "graded_quiz": "#/$defs/GradedQuizContent",
+              "lecture": "#/$defs/LectureContent",
+              "practice_guide": "#/$defs/PracticeGuideContent"
+            },
+            "propertyName": "resource_type"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/LectureContent"
+            },
+            {
+              "$ref": "#/$defs/PracticeGuideContent"
+            },
+            {
+              "$ref": "#/$defs/GradedQuizContent"
+            }
+          ],
+          "title": "Structured Content"
+        },
+        "content_md": {
+          "minLength": 1,
+          "title": "Content Md",
+          "type": "string"
+        },
+        "difficulty": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Difficulty",
+          "type": "integer"
+        },
+        "source_refs": {
+          "items": {
+            "$ref": "#/$defs/SourceRef"
+          },
+          "maxItems": 30,
+          "minItems": 1,
+          "title": "Source Refs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "resource_type",
+        "structured_content",
+        "content_md",
+        "difficulty",
+        "source_refs"
+      ],
+      "title": "GeneratedResourceArtifact",
+      "type": "object"
+    },
+    "GenerationRequirements": {
+      "additionalProperties": false,
+      "properties": {
+        "resource_types": {
+          "items": {
+            "$ref": "#/$defs/ResourceType"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Resource Types",
+          "type": "array"
+        },
+        "target_difficulty": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Target Difficulty",
+          "type": "integer"
+        },
+        "strategy": {
+          "$ref": "#/$defs/GenerationStrategy"
+        },
+        "required_knowledge_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 30,
+          "minItems": 1,
+          "title": "Required Knowledge Ids",
+          "type": "array"
+        },
+        "source_whitelist": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 30,
+          "minItems": 1,
+          "title": "Source Whitelist",
+          "type": "array"
+        },
+        "adaptation_notes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Adaptation Notes",
+          "type": "array"
+        },
+        "revision_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RevisionPlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "resource_types",
+        "target_difficulty",
+        "strategy",
+        "required_knowledge_ids",
+        "source_whitelist"
+      ],
+      "title": "GenerationRequirements",
+      "type": "object"
+    },
+    "GenerationStrategy": {
+      "enum": [
+        "remedial",
+        "consolidation",
+        "challenge"
+      ],
+      "title": "GenerationStrategy",
+      "type": "string"
+    },
+    "GradedQuizContent": {
+      "additionalProperties": false,
+      "properties": {
+        "resource_type": {
+          "const": "graded_quiz",
+          "default": "graded_quiz",
+          "title": "Resource Type",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "target_audience": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Target Audience",
+          "type": "string"
+        },
+        "learning_objectives": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Learning Objectives",
+          "type": "array"
+        },
+        "questions": {
+          "items": {
+            "$ref": "#/$defs/QuizQuestion"
+          },
+          "maxItems": 30,
+          "minItems": 6,
+          "title": "Questions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "title",
+        "target_audience",
+        "learning_objectives",
+        "questions"
+      ],
+      "title": "GradedQuizContent",
+      "type": "object"
+    },
+    "HumanDecision": {
+      "enum": [
+        "approve",
+        "request_revision",
+        "reject"
+      ],
+      "title": "HumanDecision",
+      "type": "string"
+    },
+    "HumanReviewInput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "context": {
+          "$ref": "#/$defs/TaskContext"
+        },
+        "review_reports": {
+          "items": {
+            "$ref": "#/$defs/ReviewReport"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Review Reports",
+          "type": "array"
+        },
+        "allowed_decisions": {
+          "items": {
+            "$ref": "#/$defs/HumanDecision"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Allowed Decisions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task_id",
+        "context",
+        "review_reports",
+        "allowed_decisions"
+      ],
+      "title": "HumanReviewInput",
+      "type": "object"
+    },
+    "HumanReviewOutput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "decision": {
+          "$ref": "#/$defs/HumanDecision"
+        },
+        "review_comment": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Review Comment",
+          "type": "string"
+        },
+        "operator_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Operator Id",
+          "type": "string"
+        },
+        "reviewed_at": {
+          "format": "date-time",
+          "title": "Reviewed At",
+          "type": "string"
+        },
+        "task_decision": {
+          "$ref": "#/$defs/TaskDecision"
+        }
+      },
+      "required": [
+        "task_id",
+        "decision",
+        "review_comment",
+        "operator_id",
+        "reviewed_at",
+        "task_decision"
+      ],
+      "title": "HumanReviewOutput",
+      "type": "object"
+    },
+    "InterpretFeedbackInput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "context": {
+          "$ref": "#/$defs/TaskContext"
+        },
+        "profile": {
+          "$ref": "#/$defs/ProfileSnapshot"
+        },
+        "feedback": {
+          "$ref": "#/$defs/FeedbackContext"
+        }
+      },
+      "required": [
+        "task_id",
+        "context",
+        "profile",
+        "feedback"
+      ],
+      "title": "InterpretFeedbackInput",
+      "type": "object"
+    },
+    "InterpretFeedbackOutput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "feedback_intent": {
+          "$ref": "#/$defs/FeedbackIntent"
+        },
+        "recommended_action": {
+          "$ref": "#/$defs/RecommendedAction"
+        },
+        "reply": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Reply",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "maxItems": 50,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "needs_generation": {
+          "title": "Needs Generation",
+          "type": "boolean"
+        },
+        "decision_reason": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Decision Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "feedback_intent",
+        "recommended_action",
+        "reply",
+        "needs_generation",
+        "decision_reason"
+      ],
+      "title": "InterpretFeedbackOutput",
+      "type": "object"
+    },
+    "LectureContent": {
+      "additionalProperties": false,
+      "properties": {
+        "resource_type": {
+          "const": "lecture",
+          "default": "lecture",
+          "title": "Resource Type",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "target_audience": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Target Audience",
+          "type": "string"
+        },
+        "learning_objectives": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Learning Objectives",
+          "type": "array"
+        },
+        "prerequisite_knowledge": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Prerequisite Knowledge",
+          "type": "array"
+        },
+        "core_concepts": {
+          "items": {
+            "$ref": "#/$defs/ConceptBlock"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "title": "Core Concepts",
+          "type": "array"
+        },
+        "misconceptions": {
+          "items": {
+            "$ref": "#/$defs/MisconceptionBlock"
+          },
+          "maxItems": 10,
+          "title": "Misconceptions",
+          "type": "array"
+        },
+        "summary": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "target_audience",
+        "learning_objectives",
+        "core_concepts",
+        "summary"
+      ],
+      "title": "LectureContent",
+      "type": "object"
+    },
+    "MasteryType": {
+      "enum": [
+        "known",
+        "partial_mastery",
+        "confused",
+        "unmastered",
+        "unassessed"
+      ],
+      "title": "MasteryType",
+      "type": "string"
+    },
+    "MessagePayload": {
+      "additionalProperties": false,
+      "properties": {
+        "node_name": {
+          "$ref": "#/$defs/NodeName"
+        },
+        "summary": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        },
+        "reference_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Reference Ids",
+          "type": "array"
+        },
+        "decision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TaskDecision"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "error_code": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error Code"
+        },
+        "metrics": {
+          "items": {
+            "$ref": "#/$defs/MetricValue"
+          },
+          "maxItems": 20,
+          "title": "Metrics",
+          "type": "array"
+        }
+      },
+      "required": [
+        "node_name",
+        "summary"
+      ],
+      "title": "MessagePayload",
+      "type": "object"
+    },
+    "MessageType": {
+      "enum": [
+        "command",
+        "observation",
+        "result",
+        "review",
+        "decision",
+        "feedback",
+        "error"
+      ],
+      "title": "MessageType",
+      "type": "string"
+    },
+    "MetricValue": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "title": "MetricValue",
+      "type": "object"
+    },
+    "MisconceptionBlock": {
+      "additionalProperties": false,
+      "properties": {
+        "misconception": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Misconception",
+          "type": "string"
+        },
+        "correction": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Correction",
+          "type": "string"
+        },
+        "source_ref_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Source Ref Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "misconception",
+        "correction",
+        "source_ref_ids"
+      ],
+      "title": "MisconceptionBlock",
+      "type": "object"
+    },
+    "ModelReview": {
+      "additionalProperties": false,
+      "properties": {
+        "model_role": {
+          "enum": [
+            "primary_review_model",
+            "secondary_review_model"
+          ],
+          "title": "Model Role",
+          "type": "string"
+        },
+        "model_name": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Model Name",
+          "type": "string"
+        },
+        "scores": {
+          "$ref": "#/$defs/ReviewCriterionScores"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "fact_checks": {
+          "items": {
+            "$ref": "#/$defs/FactCheck"
+          },
+          "maxItems": 100,
+          "title": "Fact Checks",
+          "type": "array"
+        },
+        "issues": {
+          "items": {
+            "$ref": "#/$defs/ReviewIssue"
+          },
+          "maxItems": 50,
+          "title": "Issues",
+          "type": "array"
+        },
+        "unable_to_determine": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Unable To Determine",
+          "type": "array"
+        }
+      },
+      "required": [
+        "model_role",
+        "model_name",
+        "scores",
+        "passed"
+      ],
+      "title": "ModelReview",
+      "type": "object"
+    },
+    "NodeName": {
+      "enum": [
+        "prepare_task",
+        "interpret_feedback",
+        "analyze_profile",
+        "retrieve_knowledge",
+        "generate_resource",
+        "review_resource",
+        "finalize_task",
+        "human_review"
+      ],
+      "title": "NodeName",
+      "type": "string"
+    },
+    "PracticeGuideContent": {
+      "additionalProperties": false,
+      "properties": {
+        "resource_type": {
+          "const": "practice_guide",
+          "default": "practice_guide",
+          "title": "Resource Type",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "target_audience": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Target Audience",
+          "type": "string"
+        },
+        "learning_objectives": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Learning Objectives",
+          "type": "array"
+        },
+        "environment_requirements": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "title": "Environment Requirements",
+          "type": "array"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/PracticeStep"
+          },
+          "maxItems": 30,
+          "minItems": 1,
+          "title": "Steps",
+          "type": "array"
+        },
+        "acceptance_criteria": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "title": "Acceptance Criteria",
+          "type": "array"
+        }
+      },
+      "required": [
+        "title",
+        "target_audience",
+        "learning_objectives",
+        "environment_requirements",
+        "steps",
+        "acceptance_criteria"
+      ],
+      "title": "PracticeGuideContent",
+      "type": "object"
+    },
+    "PracticeStep": {
+      "additionalProperties": false,
+      "properties": {
+        "order": {
+          "minimum": 1,
+          "title": "Order",
+          "type": "integer"
+        },
+        "title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "instruction": {
+          "maxLength": 3000,
+          "minLength": 1,
+          "title": "Instruction",
+          "type": "string"
+        },
+        "code_or_command": {
+          "anyOf": [
+            {
+              "maxLength": 6000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Code Or Command"
+        },
+        "expected_result": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Expected Result",
+          "type": "string"
+        },
+        "troubleshooting": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Troubleshooting"
+        },
+        "source_ref_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Source Ref Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "order",
+        "title",
+        "instruction",
+        "expected_result",
+        "source_ref_ids"
+      ],
+      "title": "PracticeStep",
+      "type": "object"
+    },
+    "PrepareTaskInput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "request": {
+          "$ref": "#/$defs/TaskRequest"
+        }
+      },
+      "required": [
+        "task_id",
+        "request"
+      ],
+      "title": "PrepareTaskInput",
+      "type": "object"
+    },
+    "PrepareTaskOutput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "context": {
+          "$ref": "#/$defs/TaskContext"
+        },
+        "next_node": {
+          "enum": [
+            "analyze_profile",
+            "interpret_feedback",
+            "human_review"
+          ],
+          "title": "Next Node",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "context",
+        "next_node"
+      ],
+      "title": "PrepareTaskOutput",
+      "type": "object"
+    },
+    "ProfileSnapshot": {
+      "additionalProperties": false,
+      "properties": {
+        "profile_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "profile_version": {
+          "minimum": 1,
+          "title": "Profile Version",
+          "type": "integer"
+        },
+        "profile_type": {
+          "$ref": "#/$defs/ProfileType"
+        },
+        "ability_scores": {
+          "$ref": "#/$defs/AbilityScores"
+        },
+        "weak_knowledge": {
+          "items": {
+            "$ref": "#/$defs/WeakKnowledge"
+          },
+          "maxItems": 50,
+          "title": "Weak Knowledge",
+          "type": "array"
+        },
+        "blind_spot_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Blind Spot Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "profile_id",
+        "profile_version",
+        "profile_type",
+        "ability_scores"
+      ],
+      "title": "ProfileSnapshot",
+      "type": "object"
+    },
+    "ProfileType": {
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced",
+        "practice_oriented"
+      ],
+      "title": "ProfileType",
+      "type": "string"
+    },
+    "QuestionType": {
+      "enum": [
+        "single_choice",
+        "multiple_choice",
+        "short_answer",
+        "coding"
+      ],
+      "title": "QuestionType",
+      "type": "string"
+    },
+    "QuizLevel": {
+      "enum": [
+        "foundation",
+        "improvement",
+        "challenge"
+      ],
+      "title": "QuizLevel",
+      "type": "string"
+    },
+    "QuizQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "question_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Question Id",
+          "type": "string"
+        },
+        "level": {
+          "$ref": "#/$defs/QuizLevel"
+        },
+        "question_type": {
+          "$ref": "#/$defs/QuestionType"
+        },
+        "prompt": {
+          "maxLength": 3000,
+          "minLength": 1,
+          "title": "Prompt",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Options",
+          "type": "array"
+        },
+        "correct_answer": {
+          "maxLength": 3000,
+          "minLength": 1,
+          "title": "Correct Answer",
+          "type": "string"
+        },
+        "explanation": {
+          "maxLength": 3000,
+          "minLength": 1,
+          "title": "Explanation",
+          "type": "string"
+        },
+        "knowledge_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Knowledge Id",
+          "type": "string"
+        },
+        "difficulty": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Difficulty",
+          "type": "integer"
+        },
+        "source_ref_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Source Ref Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "question_id",
+        "level",
+        "question_type",
+        "prompt",
+        "correct_answer",
+        "explanation",
+        "knowledge_id",
+        "difficulty",
+        "source_ref_ids"
+      ],
+      "title": "QuizQuestion",
+      "type": "object"
+    },
+    "RecommendedAction": {
+      "enum": [
+        "ask_follow_up",
+        "explain",
+        "challenge",
+        "review",
+        "regenerate",
+        "no_change"
+      ],
+      "title": "RecommendedAction",
+      "type": "string"
+    },
+    "ResourceSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "resource_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Resource Id",
+          "type": "string"
+        },
+        "resource_type": {
+          "$ref": "#/$defs/ResourceType"
+        },
+        "title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "difficulty": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Difficulty",
+          "type": "integer"
+        },
+        "source_ref_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Source Ref Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "resource_id",
+        "resource_type",
+        "title",
+        "difficulty"
+      ],
+      "title": "ResourceSummary",
+      "type": "object"
+    },
+    "ResourceType": {
+      "enum": [
+        "lecture",
+        "practice_guide",
+        "graded_quiz"
+      ],
+      "title": "ResourceType",
+      "type": "string"
+    },
+    "RetrievalMatchType": {
+      "enum": [
+        "priority",
+        "prerequisite",
+        "semantic",
+        "related",
+        "dependent"
+      ],
+      "title": "RetrievalMatchType",
+      "type": "string"
+    },
+    "RetrievalPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "strategy": {
+          "$ref": "#/$defs/GenerationStrategy"
+        },
+        "target_difficulty": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Target Difficulty",
+          "type": "integer"
+        },
+        "resource_types": {
+          "items": {
+            "$ref": "#/$defs/ResourceType"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Resource Types",
+          "type": "array"
+        },
+        "priority_knowledge_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Priority Knowledge Ids",
+          "type": "array"
+        },
+        "prerequisite_knowledge_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Prerequisite Knowledge Ids",
+          "type": "array"
+        },
+        "query_terms": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 30,
+          "minItems": 1,
+          "title": "Query Terms",
+          "type": "array"
+        },
+        "n_results": {
+          "default": 8,
+          "maximum": 12,
+          "minimum": 1,
+          "title": "N Results",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "strategy",
+        "target_difficulty",
+        "resource_types",
+        "query_terms"
+      ],
+      "title": "RetrievalPlan",
+      "type": "object"
+    },
+    "RetrievalPurpose": {
+      "enum": [
+        "remedial_explanation",
+        "consolidation_practice",
+        "challenge_task",
+        "source_verification"
+      ],
+      "title": "RetrievalPurpose",
+      "type": "string"
+    },
+    "RetrieveKnowledgeInput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "context": {
+          "$ref": "#/$defs/TaskContext"
+        },
+        "profile": {
+          "$ref": "#/$defs/ProfileSnapshot"
+        },
+        "retrieval_plan": {
+          "$ref": "#/$defs/RetrievalPlan"
+        },
+        "revision_plan": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RevisionPlan"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "purpose": {
+          "$ref": "#/$defs/RetrievalPurpose"
+        }
+      },
+      "required": [
+        "task_id",
+        "context",
+        "profile",
+        "retrieval_plan",
+        "purpose"
+      ],
+      "title": "RetrieveKnowledgeInput",
+      "type": "object"
+    },
+    "RetrieveKnowledgeOutput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "query_text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Query Text",
+          "type": "string"
+        },
+        "chunks": {
+          "items": {
+            "$ref": "#/$defs/RetrievedChunk"
+          },
+          "maxItems": 12,
+          "title": "Chunks",
+          "type": "array"
+        },
+        "covered_knowledge_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Covered Knowledge Ids",
+          "type": "array"
+        },
+        "missing_knowledge_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Missing Knowledge Ids",
+          "type": "array"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task_id",
+        "query_text"
+      ],
+      "title": "RetrieveKnowledgeOutput",
+      "type": "object"
+    },
+    "RetrievedChunk": {
+      "additionalProperties": false,
+      "properties": {
+        "chunk_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Chunk Id",
+          "type": "string"
+        },
+        "knowledge_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Knowledge Id",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "category": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Category",
+          "type": "string"
+        },
+        "difficulty": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Difficulty",
+          "type": "integer"
+        },
+        "content": {
+          "maxLength": 6000,
+          "minLength": 1,
+          "title": "Content",
+          "type": "string"
+        },
+        "similarity": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Similarity",
+          "type": "number"
+        },
+        "matched_by": {
+          "$ref": "#/$defs/RetrievalMatchType"
+        },
+        "used_for": {
+          "$ref": "#/$defs/RetrievalPurpose"
+        },
+        "source": {
+          "$ref": "#/$defs/SourceRef"
+        }
+      },
+      "required": [
+        "chunk_id",
+        "knowledge_id",
+        "name",
+        "category",
+        "difficulty",
+        "content",
+        "similarity",
+        "matched_by",
+        "used_for",
+        "source"
+      ],
+      "title": "RetrievedChunk",
+      "type": "object"
+    },
+    "ReviewCriterionScores": {
+      "additionalProperties": false,
+      "properties": {
+        "factual_accuracy": {
+          "maximum": 100.0,
+          "minimum": 0.0,
+          "title": "Factual Accuracy",
+          "type": "number"
+        },
+        "source_traceability": {
+          "maximum": 100.0,
+          "minimum": 0.0,
+          "title": "Source Traceability",
+          "type": "number"
+        },
+        "difficulty_match": {
+          "maximum": 100.0,
+          "minimum": 0.0,
+          "title": "Difficulty Match",
+          "type": "number"
+        },
+        "core_knowledge_coverage": {
+          "maximum": 100.0,
+          "minimum": 0.0,
+          "title": "Core Knowledge Coverage",
+          "type": "number"
+        }
+      },
+      "required": [
+        "factual_accuracy",
+        "source_traceability",
+        "difficulty_match",
+        "core_knowledge_coverage"
+      ],
+      "title": "ReviewCriterionScores",
+      "type": "object"
+    },
+    "ReviewDecision": {
+      "enum": [
+        "passed",
+        "revision_required",
+        "manual_review_required",
+        "rejected"
+      ],
+      "title": "ReviewDecision",
+      "type": "string"
+    },
+    "ReviewIssue": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ReviewIssueCode"
+        },
+        "section": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Section",
+          "type": "string"
+        },
+        "knowledge_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Knowledge Ids",
+          "type": "array"
+        },
+        "description": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        },
+        "suggested_revision": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Suggested Revision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "section",
+        "description",
+        "suggested_revision"
+      ],
+      "title": "ReviewIssue",
+      "type": "object"
+    },
+    "ReviewIssueCode": {
+      "enum": [
+        "unsupported_claim",
+        "missing_source",
+        "difficulty_mismatch",
+        "missing_knowledge",
+        "structural_error"
+      ],
+      "title": "ReviewIssueCode",
+      "type": "string"
+    },
+    "ReviewReport": {
+      "additionalProperties": false,
+      "properties": {
+        "resource_type": {
+          "$ref": "#/$defs/ResourceType"
+        },
+        "primary_review": {
+          "$ref": "#/$defs/ModelReview"
+        },
+        "secondary_review": {
+          "$ref": "#/$defs/ModelReview"
+        },
+        "final_scores": {
+          "$ref": "#/$defs/ReviewCriterionScores"
+        },
+        "arbitration": {
+          "$ref": "#/$defs/ArbitrationResult"
+        },
+        "issues": {
+          "items": {
+            "$ref": "#/$defs/ReviewIssue"
+          },
+          "maxItems": 50,
+          "title": "Issues",
+          "type": "array"
+        },
+        "evidence_ref_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 50,
+          "title": "Evidence Ref Ids",
+          "type": "array"
+        },
+        "decision": {
+          "$ref": "#/$defs/ReviewDecision"
+        },
+        "passed": {
+          "title": "Passed",
+          "type": "boolean"
+        },
+        "manual_review_required": {
+          "title": "Manual Review Required",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "resource_type",
+        "primary_review",
+        "secondary_review",
+        "final_scores",
+        "arbitration",
+        "decision",
+        "passed",
+        "manual_review_required"
+      ],
+      "title": "ReviewReport",
+      "type": "object"
+    },
+    "ReviewResourceInput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "context": {
+          "$ref": "#/$defs/TaskContext"
+        },
+        "resources": {
+          "items": {
+            "$ref": "#/$defs/GeneratedResourceArtifact"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Resources",
+          "type": "array"
+        },
+        "requirements": {
+          "$ref": "#/$defs/GenerationRequirements"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/RetrievedChunk"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task_id",
+        "context",
+        "resources",
+        "requirements",
+        "evidence"
+      ],
+      "title": "ReviewResourceInput",
+      "type": "object"
+    },
+    "ReviewResourceOutput": {
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        },
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "reports": {
+          "items": {
+            "$ref": "#/$defs/ReviewReport"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Reports",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task_id",
+        "reports"
+      ],
+      "title": "ReviewResourceOutput",
+      "type": "object"
+    },
+    "RevisionPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "revision_count": {
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Revision Count",
+          "type": "integer"
+        },
+        "resource_types": {
+          "items": {
+            "$ref": "#/$defs/ResourceType"
+          },
+          "maxItems": 3,
+          "title": "Resource Types",
+          "type": "array"
+        },
+        "issue_codes": {
+          "items": {
+            "$ref": "#/$defs/ReviewIssueCode"
+          },
+          "maxItems": 20,
+          "title": "Issue Codes",
+          "type": "array"
+        },
+        "query_terms": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 30,
+          "title": "Query Terms",
+          "type": "array"
+        },
+        "required_changes": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 30,
+          "title": "Required Changes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "revision_count"
+      ],
+      "title": "RevisionPlan",
+      "type": "object"
+    },
+    "SourceRef": {
+      "additionalProperties": false,
+      "properties": {
+        "source_ref_id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Source Ref Id",
+          "type": "string"
+        },
+        "knowledge_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Knowledge Id",
+          "type": "string"
+        },
+        "source_title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Source Title",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Url"
+        },
+        "license_note": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "License Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_ref_id",
+        "knowledge_id",
+        "source_title",
+        "license_note"
+      ],
+      "title": "SourceRef",
+      "type": "object"
+    },
+    "TaskContext": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "session_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Session Id",
+          "type": "string"
+        },
+        "trigger_type": {
+          "$ref": "#/$defs/TriggerType"
+        },
+        "execution_mode": {
+          "$ref": "#/$defs/ExecutionMode"
+        },
+        "learner_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Learner Id",
+          "type": "string"
+        },
+        "profile_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "domain_code": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Domain Code",
+          "type": "string"
+        },
+        "resource_types": {
+          "items": {
+            "$ref": "#/$defs/ResourceType"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Resource Types",
+          "type": "array"
+        },
+        "learning_goal": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Learning Goal",
+          "type": "string"
+        },
+        "resource_id": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resource Id"
+        },
+        "feedback_id": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Feedback Id"
+        },
+        "tutoring_session_id": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tutoring Session Id"
+        },
+        "tutoring_message_id": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tutoring Message Id"
+        },
+        "contract_version": {
+          "const": "agent-contract-v2",
+          "default": "agent-contract-v2",
+          "title": "Contract Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "session_id",
+        "trigger_type",
+        "execution_mode",
+        "learner_id",
+        "profile_id",
+        "domain_code",
+        "resource_types",
+        "learning_goal"
+      ],
+      "title": "TaskContext",
+      "type": "object"
+    },
+    "TaskDecision": {
+      "enum": [
+        "pending",
+        "completed",
+        "no_change",
+        "revision_required",
+        "manual_review_required",
+        "failed",
+        "rejected"
+      ],
+      "title": "TaskDecision",
+      "type": "string"
+    },
+    "TaskRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Task Id",
+          "type": "string"
+        },
+        "session_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Session Id",
+          "type": "string"
+        },
+        "trigger_type": {
+          "$ref": "#/$defs/TriggerType"
+        },
+        "execution_mode": {
+          "$ref": "#/$defs/ExecutionMode"
+        },
+        "learner_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Learner Id",
+          "type": "string"
+        },
+        "profile_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "domain_code": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Domain Code",
+          "type": "string"
+        },
+        "resource_types": {
+          "items": {
+            "$ref": "#/$defs/ResourceType"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Resource Types",
+          "type": "array"
+        },
+        "learning_goal": {
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Learning Goal",
+          "type": "string"
+        },
+        "resource_id": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resource Id"
+        },
+        "feedback_id": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Feedback Id"
+        },
+        "tutoring_session_id": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tutoring Session Id"
+        },
+        "tutoring_message_id": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tutoring Message Id"
+        }
+      },
+      "required": [
+        "task_id",
+        "session_id",
+        "trigger_type",
+        "execution_mode",
+        "learner_id",
+        "profile_id",
+        "domain_code",
+        "resource_types",
+        "learning_goal"
+      ],
+      "title": "TaskRequest",
+      "type": "object"
+    },
+    "TriggerType": {
+      "enum": [
+        "initial_generation",
+        "resource_feedback"
+      ],
+      "title": "TriggerType",
+      "type": "string"
+    },
+    "WeakKnowledge": {
+      "additionalProperties": false,
+      "properties": {
+        "knowledge_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Knowledge Id",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 255,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "category": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Category",
+          "type": "string"
+        },
+        "weakness_level": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Weakness Level",
+          "type": "integer"
+        },
+        "mastery_type": {
+          "$ref": "#/$defs/MasteryType"
+        },
+        "prerequisite_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Prerequisite Ids",
+          "type": "array"
+        },
+        "evidence_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 20,
+          "title": "Evidence Ids",
+          "type": "array"
+        },
+        "reason": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "knowledge_id",
+        "name",
+        "category",
+        "weakness_level",
+        "mastery_type",
+        "reason"
+      ],
+      "title": "WeakKnowledge",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "agent_message": {
+      "$ref": "#/$defs/AgentMessage"
+    },
+    "prepare_task_input": {
+      "$ref": "#/$defs/PrepareTaskInput"
+    },
+    "prepare_task_output": {
+      "$ref": "#/$defs/PrepareTaskOutput"
+    },
+    "interpret_feedback_input": {
+      "$ref": "#/$defs/InterpretFeedbackInput"
+    },
+    "interpret_feedback_output": {
+      "$ref": "#/$defs/InterpretFeedbackOutput"
+    },
+    "analyze_profile_input": {
+      "$ref": "#/$defs/AnalyzeProfileInput"
+    },
+    "analyze_profile_output": {
+      "$ref": "#/$defs/AnalyzeProfileOutput"
+    },
+    "retrieve_knowledge_input": {
+      "$ref": "#/$defs/RetrieveKnowledgeInput"
+    },
+    "retrieve_knowledge_output": {
+      "$ref": "#/$defs/RetrieveKnowledgeOutput"
+    },
+    "generate_resource_input": {
+      "$ref": "#/$defs/GenerateResourceInput"
+    },
+    "generate_resource_output": {
+      "$ref": "#/$defs/GenerateResourceOutput"
+    },
+    "review_resource_input": {
+      "$ref": "#/$defs/ReviewResourceInput"
+    },
+    "review_resource_output": {
+      "$ref": "#/$defs/ReviewResourceOutput"
+    },
+    "finalize_task_input": {
+      "$ref": "#/$defs/FinalizeTaskInput"
+    },
+    "finalize_task_output": {
+      "$ref": "#/$defs/FinalizeTaskOutput"
+    },
+    "human_review_input": {
+      "$ref": "#/$defs/HumanReviewInput"
+    },
+    "human_review_output": {
+      "$ref": "#/$defs/HumanReviewOutput"
+    }
+  },
+  "required": [
+    "agent_message",
+    "prepare_task_input",
+    "prepare_task_output",
+    "interpret_feedback_input",
+    "interpret_feedback_output",
+    "analyze_profile_input",
+    "analyze_profile_output",
+    "retrieve_knowledge_input",
+    "retrieve_knowledge_output",
+    "generate_resource_input",
+    "generate_resource_output",
+    "review_resource_input",
+    "review_resource_output",
+    "finalize_task_input",
+    "finalize_task_output",
+    "human_review_input",
+    "human_review_output"
+  ],
+  "title": "AgentContractSchema",
+  "type": "object"
+}

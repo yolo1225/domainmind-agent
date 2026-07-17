@@ -7,7 +7,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.types import Command, interrupt
 
 from app.agents import nodes
-from app.agents.contracts import GeneratedResourceDraft, ModelReview
+from app.agents.legacy_contracts import GeneratedResourceDraft, ModelReview
 from app.agents.graphs import build_learning_graph
 from app.agents.checkpointer import MySQLLangGraphCheckpointer
 from app.agents.base import PromptBudget

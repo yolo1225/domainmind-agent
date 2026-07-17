@@ -7,7 +7,7 @@ from app.agents.orchestrator import ORCHESTRATOR_AGENT_NAME, OrchestratorAgent
 from app.agents.profile_agent import PROFILE_AGENT_NAME, ProfileAnalysisAgent
 from app.agents.retrieval_agent import KnowledgeRetrievalAgent, RETRIEVAL_AGENT_NAME
 from app.agents.review_agent import REVIEW_AGENT_NAME, ReviewValidationAgent
-from app.agents.state import AgentGraphState
+from app.agents.legacy_state import AgentGraphState
 from app.agents.tutoring_agent import TutoringAgent
 from app.core.compatibility import AGENT_CONTRACT_VERSION
 from app.rag.embeddings import embed_texts

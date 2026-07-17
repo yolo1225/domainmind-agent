@@ -1,0 +1,20 @@
+{
+  "contract_version": "agent-contract-v2",
+  "message_id": "message_contract_example",
+  "sender": "orchestrator_agent",
+  "receiver": "knowledge_retrieval_agent",
+  "message_type": "command",
+  "payload": {
+    "node_name": "retrieve_knowledge",
+    "summary": "按画像薄弱点检索 RAG 来源证据",
+    "reference_ids": [
+      "AIAPP-K029"
+    ],
+    "decision": null,
+    "error_code": null,
+    "metrics": []
+  },
+  "timestamp": "2026-07-17T12:00:00Z",
+  "session_id": "task_contract_example",
+  "task_id": "task_contract_example"
+}

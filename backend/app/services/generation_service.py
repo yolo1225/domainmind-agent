@@ -1,5 +1,5 @@
 from app.agents.orchestrator import create_initial_state
-from app.agents.state import AgentGraphState
+from app.agents.legacy_state import AgentGraphState
 from app.models import GenerationTask, LearnerProfile, LearningResource, ReviewReport
 
 

@@ -4,9 +4,9 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
 from app.agents.base import BaseAgent, PromptBudget
-from app.agents.contracts import AgentMessage, ModelReview, ReviewOutput
+from app.agents.legacy_contracts import AgentMessage, ModelReview, ReviewOutput
 from app.agents.generation_agent import build_generation_context
-from app.agents.state import AgentGraphState
+from app.agents.legacy_state import AgentGraphState
 from app.core.config import settings
 from app.services.llm_service import gateway
 from app.services.llm_service import ModelConfigurationError

@@ -22,7 +22,7 @@ from app.agents.nodes import (
 )
 from app.agents.graphs import build_learning_graph
 from app.agents.checkpointer import MySQLLangGraphCheckpointer
-from app.agents.state import AgentGraphState
+from app.agents.legacy_state import AgentGraphState
 from app.core.db import SessionLocal
 from app.models import (
     AgentMessageRecord,

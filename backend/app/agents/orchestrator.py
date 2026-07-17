@@ -1,9 +1,9 @@
 from typing import Any
 
 from app.agents.base import BaseAgent
-from app.agents.contracts import AgentMessage, DecisionOutput
+from app.agents.legacy_contracts import AgentMessage, DecisionOutput
 from app.agents.generation_agent import build_generation_context
-from app.agents.state import AgentGraphState
+from app.agents.legacy_state import AgentGraphState
 from app.core.compatibility import AGENT_CONTRACT_VERSION
 
 

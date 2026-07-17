@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.agents.nodes import load_profile
-from app.agents.state import AgentGraphState
+from app.agents.legacy_state import AgentGraphState
 from app.models import AgentMessageRecord, AgentRun, DiagnosticQuestion
 from app.services.learner_service import get_or_create_demo_learner
 from app.services.profile_service import public_id

@@ -1,0 +1,197 @@
+[
+  {
+    "resource_type": "lecture",
+    "structured_content": {
+      "resource_type": "lecture",
+      "title": "RAG 检索与来源追溯讲义",
+      "target_audience": "RAG 初学者",
+      "learning_objectives": [
+        "能说明检索片段与来源引用的关系"
+      ],
+      "prerequisite_knowledge": [
+        "文本向量基础"
+      ],
+      "core_concepts": [
+        {
+          "title": "可追溯检索",
+          "explanation": "检索结果必须携带稳定的来源标识。",
+          "example": "生成讲义中的事实引用 AIAPP-K029::chunk::0。",
+          "source_ref_ids": [
+            "AIAPP-K029::chunk::0"
+          ]
+        }
+      ],
+      "misconceptions": [
+        {
+          "misconception": "只要语义相似就不需要来源。",
+          "correction": "语义匹配负责召回，来源标识负责追溯。",
+          "source_ref_ids": [
+            "AIAPP-K029::chunk::0"
+          ]
+        }
+      ],
+      "summary": "可靠 RAG 需要同时保留检索内容和来源引用。"
+    },
+    "content_md": "# RAG 检索与来源追溯讲义\n\n## 适配对象\nRAG 初学者\n\n## 学习目标\n- 能说明检索片段与来源引用的关系\n\n## 前置知识\n- 文本向量基础\n\n## 核心概念\n### 可追溯检索\n检索结果必须携带稳定的来源标识。\n\n示例：生成讲义中的事实引用 AIAPP-K029::chunk::0。\n\n来源：AIAPP-K029::chunk::0\n\n## 常见误区\n- 误区：只要语义相似就不需要来源。\n  纠正：语义匹配负责召回，来源标识负责追溯。\n  来源：AIAPP-K029::chunk::0\n\n## 小结\n可靠 RAG 需要同时保留检索内容和来源引用。\n\n## 知识来源\n- [AIAPP-K029::chunk::0] 自建 AI 应用开发实训知识库 (team-authored)\n",
+    "difficulty": 2,
+    "source_refs": [
+      {
+        "source_ref_id": "AIAPP-K029::chunk::0",
+        "knowledge_id": "AIAPP-K029",
+        "source_title": "自建 AI 应用开发实训知识库",
+        "source_url": null,
+        "license_note": "team-authored"
+      }
+    ]
+  },
+  {
+    "resource_type": "practice_guide",
+    "structured_content": {
+      "resource_type": "practice_guide",
+      "title": "RAG 检索证据链实操",
+      "target_audience": "具备 Python 基础的初学者",
+      "learning_objectives": [
+        "完成一次带来源的向量检索"
+      ],
+      "environment_requirements": [
+        "Python 3.12",
+        "ChromaDB"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "title": "执行检索",
+          "instruction": "使用学习目标构造查询并保留来源标识。",
+          "code_or_command": "python -m app.scripts.build_chroma_index --json",
+          "expected_result": "返回知识点 ID 和来源标题。",
+          "troubleshooting": "无结果时检查索引状态。",
+          "source_ref_ids": [
+            "AIAPP-K029::chunk::0"
+          ]
+        }
+      ],
+      "acceptance_criteria": [
+        "检索结果包含 knowledge_id 和 source_ref_id"
+      ]
+    },
+    "content_md": "# RAG 检索证据链实操\n\n## 适配对象\n具备 Python 基础的初学者\n\n## 学习目标\n- 完成一次带来源的向量检索\n\n## 环境准备\n- Python 3.12\n- ChromaDB\n\n## 操作步骤\n### 1. 执行检索\n使用学习目标构造查询并保留来源标识。\n\n```text\npython -m app.scripts.build_chroma_index --json\n```\n\n预期结果：返回知识点 ID 和来源标题。\n排错：无结果时检查索引状态。\n来源：AIAPP-K029::chunk::0\n\n## 验收标准\n- 检索结果包含 knowledge_id 和 source_ref_id\n\n## 知识来源\n- [AIAPP-K029::chunk::0] 自建 AI 应用开发实训知识库 (team-authored)\n",
+    "difficulty": 2,
+    "source_refs": [
+      {
+        "source_ref_id": "AIAPP-K029::chunk::0",
+        "knowledge_id": "AIAPP-K029",
+        "source_title": "自建 AI 应用开发实训知识库",
+        "source_url": null,
+        "license_note": "team-authored"
+      }
+    ]
+  },
+  {
+    "resource_type": "graded_quiz",
+    "structured_content": {
+      "resource_type": "graded_quiz",
+      "title": "RAG 检索分级测验",
+      "target_audience": "RAG 初学者",
+      "learning_objectives": [
+        "检查检索和来源追溯能力"
+      ],
+      "questions": [
+        {
+          "question_id": "Q1",
+          "level": "foundation",
+          "question_type": "short_answer",
+          "prompt": "说明 RAG 证据链检查点 1。",
+          "options": [],
+          "correct_answer": "结果应包含知识点、片段和来源标识。",
+          "explanation": "完整证据链用于事实复核。",
+          "knowledge_id": "AIAPP-K029",
+          "difficulty": 1,
+          "source_ref_ids": [
+            "AIAPP-K029::chunk::0"
+          ]
+        },
+        {
+          "question_id": "Q2",
+          "level": "foundation",
+          "question_type": "short_answer",
+          "prompt": "说明 RAG 证据链检查点 2。",
+          "options": [],
+          "correct_answer": "结果应包含知识点、片段和来源标识。",
+          "explanation": "完整证据链用于事实复核。",
+          "knowledge_id": "AIAPP-K029",
+          "difficulty": 2,
+          "source_ref_ids": [
+            "AIAPP-K029::chunk::0"
+          ]
+        },
+        {
+          "question_id": "Q3",
+          "level": "improvement",
+          "question_type": "short_answer",
+          "prompt": "说明 RAG 证据链检查点 3。",
+          "options": [],
+          "correct_answer": "结果应包含知识点、片段和来源标识。",
+          "explanation": "完整证据链用于事实复核。",
+          "knowledge_id": "AIAPP-K029",
+          "difficulty": 2,
+          "source_ref_ids": [
+            "AIAPP-K029::chunk::0"
+          ]
+        },
+        {
+          "question_id": "Q4",
+          "level": "improvement",
+          "question_type": "short_answer",
+          "prompt": "说明 RAG 证据链检查点 4。",
+          "options": [],
+          "correct_answer": "结果应包含知识点、片段和来源标识。",
+          "explanation": "完整证据链用于事实复核。",
+          "knowledge_id": "AIAPP-K029",
+          "difficulty": 3,
+          "source_ref_ids": [
+            "AIAPP-K029::chunk::0"
+          ]
+        },
+        {
+          "question_id": "Q5",
+          "level": "challenge",
+          "question_type": "short_answer",
+          "prompt": "说明 RAG 证据链检查点 5。",
+          "options": [],
+          "correct_answer": "结果应包含知识点、片段和来源标识。",
+          "explanation": "完整证据链用于事实复核。",
+          "knowledge_id": "AIAPP-K029",
+          "difficulty": 3,
+          "source_ref_ids": [
+            "AIAPP-K029::chunk::0"
+          ]
+        },
+        {
+          "question_id": "Q6",
+          "level": "challenge",
+          "question_type": "short_answer",
+          "prompt": "说明 RAG 证据链检查点 6。",
+          "options": [],
+          "correct_answer": "结果应包含知识点、片段和来源标识。",
+          "explanation": "完整证据链用于事实复核。",
+          "knowledge_id": "AIAPP-K029",
+          "difficulty": 4,
+          "source_ref_ids": [
+            "AIAPP-K029::chunk::0"
+          ]
+        }
+      ]
+    },
+    "content_md": "# RAG 检索分级测验\n\n## 适配对象\nRAG 初学者\n\n## 学习目标\n- 检查检索和来源追溯能力\n\n## 基础巩固\n\n### Q1\n说明 RAG 证据链检查点 1。\n参考答案：结果应包含知识点、片段和来源标识。\n解析：完整证据链用于事实复核。\n知识点：AIAPP-K029\n来源：AIAPP-K029::chunk::0\n\n### Q2\n说明 RAG 证据链检查点 2。\n参考答案：结果应包含知识点、片段和来源标识。\n解析：完整证据链用于事实复核。\n知识点：AIAPP-K029\n来源：AIAPP-K029::chunk::0\n\n## 能力提升\n\n### Q3\n说明 RAG 证据链检查点 3。\n参考答案：结果应包含知识点、片段和来源标识。\n解析：完整证据链用于事实复核。\n知识点：AIAPP-K029\n来源：AIAPP-K029::chunk::0\n\n### Q4\n说明 RAG 证据链检查点 4。\n参考答案：结果应包含知识点、片段和来源标识。\n解析：完整证据链用于事实复核。\n知识点：AIAPP-K029\n来源：AIAPP-K029::chunk::0\n\n## 挑战突破\n\n### Q5\n说明 RAG 证据链检查点 5。\n参考答案：结果应包含知识点、片段和来源标识。\n解析：完整证据链用于事实复核。\n知识点：AIAPP-K029\n来源：AIAPP-K029::chunk::0\n\n### Q6\n说明 RAG 证据链检查点 6。\n参考答案：结果应包含知识点、片段和来源标识。\n解析：完整证据链用于事实复核。\n知识点：AIAPP-K029\n来源：AIAPP-K029::chunk::0\n\n## 知识来源\n- [AIAPP-K029::chunk::0] 自建 AI 应用开发实训知识库 (team-authored)\n",
+    "difficulty": 2,
+    "source_refs": [
+      {
+        "source_ref_id": "AIAPP-K029::chunk::0",
+        "knowledge_id": "AIAPP-K029",
+        "source_title": "自建 AI 应用开发实训知识库",
+        "source_url": null,
+        "license_note": "team-authored"
+      }
+    ]
+  }
+]

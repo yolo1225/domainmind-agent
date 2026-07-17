@@ -1,0 +1,115 @@
+{
+  "human_review": {
+    "input": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "context": {
+        "task_id": "task_contract_example",
+        "session_id": "task_contract_example",
+        "trigger_type": "initial_generation",
+        "execution_mode": "assisted",
+        "learner_id": "learner_001",
+        "profile_id": "profile_contract_example",
+        "domain_code": "ai_app_dev",
+        "resource_types": [
+          "lecture"
+        ],
+        "learning_goal": "掌握 RAG 检索与来源追溯",
+        "resource_id": null,
+        "feedback_id": null,
+        "tutoring_session_id": null,
+        "tutoring_message_id": null,
+        "contract_version": "agent-contract-v2"
+      },
+      "review_reports": [
+        {
+          "resource_type": "lecture",
+          "primary_review": {
+            "model_role": "primary_review_model",
+            "model_name": "review-primary",
+            "scores": {
+              "factual_accuracy": 95.0,
+              "source_traceability": 96.0,
+              "difficulty_match": 92.0,
+              "core_knowledge_coverage": 94.0
+            },
+            "passed": true,
+            "fact_checks": [
+              {
+                "claim": "RAG 资源需保留来源标识。",
+                "supported": true,
+                "source_ref_ids": [
+                  "AIAPP-K029::chunk::0"
+                ],
+                "reason": "检索证据明确支持该声明。",
+                "determinable": true
+              }
+            ],
+            "issues": [],
+            "unable_to_determine": []
+          },
+          "secondary_review": {
+            "model_role": "secondary_review_model",
+            "model_name": "review-secondary",
+            "scores": {
+              "factual_accuracy": 95.0,
+              "source_traceability": 96.0,
+              "difficulty_match": 92.0,
+              "core_knowledge_coverage": 94.0
+            },
+            "passed": true,
+            "fact_checks": [
+              {
+                "claim": "RAG 资源需保留来源标识。",
+                "supported": true,
+                "source_ref_ids": [
+                  "AIAPP-K029::chunk::0"
+                ],
+                "reason": "检索证据明确支持该声明。",
+                "determinable": true
+              }
+            ],
+            "issues": [],
+            "unable_to_determine": []
+          },
+          "final_scores": {
+            "factual_accuracy": 95.0,
+            "source_traceability": 96.0,
+            "difficulty_match": 92.0,
+            "core_knowledge_coverage": 94.0
+          },
+          "arbitration": {
+            "required": false,
+            "retrieval_performed": false,
+            "query_terms": [],
+            "additional_source_ref_ids": [],
+            "primary_recheck": null,
+            "secondary_recheck": null,
+            "disagreement_remains": false
+          },
+          "issues": [],
+          "evidence_ref_ids": [
+            "AIAPP-K029::chunk::0"
+          ],
+          "decision": "passed",
+          "passed": true,
+          "manual_review_required": false
+        }
+      ],
+      "allowed_decisions": [
+        "approve",
+        "request_revision",
+        "reject"
+      ]
+    },
+    "output": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "decision": "approve",
+      "review_comment": "人工核对来源后批准。",
+      "operator_id": "admin_demo",
+      "reviewed_at": "2026-07-17T12:00:00Z",
+      "task_decision": "completed"
+    }
+  }
+}

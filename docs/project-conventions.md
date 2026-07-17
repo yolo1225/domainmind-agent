@@ -152,6 +152,25 @@ human_review -> finalize_task         when approve or reject
 - 单次 `too_hard/too_easy` 不得直接修改画像；证据不足时保存 `no_change` 和理由。
 - 临时材料上传属于紧随 P0 的 P1；未来实现时必须任务级隔离，不得自动入库或直接更新画像。
 
+### 5.1 Agent 契约修改规范
+
+`docs/agent-contract-v2.md`、`backend/app/agents/contracts.py`、`backend/app/agents/state.py` 和对应 Schema 是已冻结契约。契约由一名指定负责人统一维护，其他成员及开发代理在实现具体 Agent 时必须将以下文件视为只读：
+
+- `backend/app/agents/contracts.py`
+- `backend/app/agents/state.py`
+- `backend/app/agents/contract_adapters.py`
+- `backend/app/agents/legacy_contracts.py`
+- `backend/app/agents/legacy_state.py`
+- `backend/tests/contracts/`
+- `docs/agent-contract-v2.md`
+- `docs/contracts/v2/`
+
+具体 Agent 实现者不得为了让代码、Prompt 或测试通过，擅自修改字段名、类型、枚举、必填性、默认值、State 字段所有权、Schema 或顶层图。实现与契约不一致时，先在 Agent 内按已有契约适配；确实无法表达时，停止修改共享文件并提交契约变更申请。
+
+变更申请必须说明申请字段或规则、所属输入/输出、生产与消费节点、使用原因、是否可空、默认值和兼容性影响。只有契约负责人可以决定是否修改，并统一更新模型、State、适配器、示例、Schema、测试和文档。破坏性变更必须升级契约版本。
+
+当前 V1 运行链只允许导入 `legacy_contracts` 和 `legacy_state`；新 Agent 只允许导入正式 `contracts` 和 `state`。禁止只替换 import 而保留 V1 数据结构。
+
 ## 6. 审核与反幻觉规范
 
 Review and Validation Agent 是评分关键组件。

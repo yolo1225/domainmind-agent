@@ -4,7 +4,7 @@ from typing import Any
 from langgraph.graph import END, START, StateGraph
 
 from app.agents import nodes
-from app.agents.state import AgentGraphState
+from app.agents.legacy_state import AgentGraphState
 
 NodeFunc = Callable[[AgentGraphState], AgentGraphState]
 

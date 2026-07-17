@@ -1,0 +1,792 @@
+{
+  "prepare_task": {
+    "input": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "request": {
+        "task_id": "task_contract_example",
+        "session_id": "task_contract_example",
+        "trigger_type": "initial_generation",
+        "execution_mode": "auto",
+        "learner_id": "learner_001",
+        "profile_id": "profile_contract_example",
+        "domain_code": "ai_app_dev",
+        "resource_types": [
+          "lecture"
+        ],
+        "learning_goal": "掌握 RAG 检索与来源追溯",
+        "resource_id": null,
+        "feedback_id": null,
+        "tutoring_session_id": null,
+        "tutoring_message_id": null
+      }
+    },
+    "output": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "context": {
+        "task_id": "task_contract_example",
+        "session_id": "task_contract_example",
+        "trigger_type": "initial_generation",
+        "execution_mode": "auto",
+        "learner_id": "learner_001",
+        "profile_id": "profile_contract_example",
+        "domain_code": "ai_app_dev",
+        "resource_types": [
+          "lecture"
+        ],
+        "learning_goal": "掌握 RAG 检索与来源追溯",
+        "resource_id": null,
+        "feedback_id": null,
+        "tutoring_session_id": null,
+        "tutoring_message_id": null,
+        "contract_version": "agent-contract-v2"
+      },
+      "next_node": "analyze_profile"
+    }
+  },
+  "analyze_profile": {
+    "input": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "context": {
+        "task_id": "task_contract_example",
+        "session_id": "task_contract_example",
+        "trigger_type": "initial_generation",
+        "execution_mode": "auto",
+        "learner_id": "learner_001",
+        "profile_id": "profile_contract_example",
+        "domain_code": "ai_app_dev",
+        "resource_types": [
+          "lecture"
+        ],
+        "learning_goal": "掌握 RAG 检索与来源追溯",
+        "resource_id": null,
+        "feedback_id": null,
+        "tutoring_session_id": null,
+        "tutoring_message_id": null,
+        "contract_version": "agent-contract-v2"
+      },
+      "current_profile": {
+        "profile_id": "profile_contract_example",
+        "profile_version": 1,
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 55,
+          "practice": 40,
+          "problem_solving": 48,
+          "knowledge_breadth": 52,
+          "learning_speed": 60
+        },
+        "weak_knowledge": [
+          {
+            "knowledge_id": "AIAPP-K029",
+            "name": "RAG 检索与来源追溯",
+            "category": "RAG",
+            "weakness_level": 4,
+            "mastery_type": "partial_mastery",
+            "prerequisite_ids": [
+              "AIAPP-K028"
+            ],
+            "evidence_ids": [
+              "evidence_diag_1"
+            ],
+            "reason": "检索和重排题目得分较低"
+          }
+        ],
+        "blind_spot_ids": []
+      },
+      "diagnostic_summary": {
+        "diagnostic_session_id": "diagnostic_001",
+        "question_count": 10,
+        "answered_count": 10,
+        "correct_count": 5,
+        "skipped_count": 0,
+        "score_percent": 50.0,
+        "evidence": [
+          {
+            "evidence_id": "evidence_diag_1",
+            "evidence_type": "diagnostic_result",
+            "summary": "RAG 检索题目得分较低",
+            "knowledge_id": "AIAPP-K029",
+            "source_ref_id": null,
+            "confidence": 0.95,
+            "confirmed": true
+          }
+        ]
+      },
+      "feedback_evidence": [],
+      "recommended_action": null
+    },
+    "output": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "profile": {
+        "profile_id": "profile_contract_example",
+        "profile_version": 1,
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 55,
+          "practice": 40,
+          "problem_solving": 48,
+          "knowledge_breadth": 52,
+          "learning_speed": 60
+        },
+        "weak_knowledge": [
+          {
+            "knowledge_id": "AIAPP-K029",
+            "name": "RAG 检索与来源追溯",
+            "category": "RAG",
+            "weakness_level": 4,
+            "mastery_type": "partial_mastery",
+            "prerequisite_ids": [
+              "AIAPP-K028"
+            ],
+            "evidence_ids": [
+              "evidence_diag_1"
+            ],
+            "reason": "检索和重排题目得分较低"
+          }
+        ],
+        "blind_spot_ids": []
+      },
+      "profile_update_required": false,
+      "changed_dimensions": [],
+      "evidence_refs": [
+        {
+          "evidence_id": "evidence_diag_1",
+          "evidence_type": "diagnostic_result",
+          "summary": "RAG 检索题目得分较低",
+          "knowledge_id": "AIAPP-K029",
+          "source_ref_id": null,
+          "confidence": 0.95,
+          "confirmed": true
+        }
+      ],
+      "confidence": 0.95,
+      "decision_reason": "初次生成使用已有诊断画像",
+      "affected_scope": {
+        "knowledge_ids": [
+          "AIAPP-K029"
+        ],
+        "path_node_ids": [],
+        "resource_ids": []
+      },
+      "retrieval_plan": {
+        "strategy": "remedial",
+        "target_difficulty": 2,
+        "resource_types": [
+          "lecture"
+        ],
+        "priority_knowledge_ids": [
+          "AIAPP-K029"
+        ],
+        "prerequisite_knowledge_ids": [
+          "AIAPP-K028"
+        ],
+        "query_terms": [
+          "RAG 检索",
+          "来源追溯"
+        ],
+        "n_results": 8
+      },
+      "needs_generation": true
+    }
+  },
+  "retrieve_knowledge": {
+    "input": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "context": {
+        "task_id": "task_contract_example",
+        "session_id": "task_contract_example",
+        "trigger_type": "initial_generation",
+        "execution_mode": "auto",
+        "learner_id": "learner_001",
+        "profile_id": "profile_contract_example",
+        "domain_code": "ai_app_dev",
+        "resource_types": [
+          "lecture"
+        ],
+        "learning_goal": "掌握 RAG 检索与来源追溯",
+        "resource_id": null,
+        "feedback_id": null,
+        "tutoring_session_id": null,
+        "tutoring_message_id": null,
+        "contract_version": "agent-contract-v2"
+      },
+      "profile": {
+        "profile_id": "profile_contract_example",
+        "profile_version": 1,
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 55,
+          "practice": 40,
+          "problem_solving": 48,
+          "knowledge_breadth": 52,
+          "learning_speed": 60
+        },
+        "weak_knowledge": [
+          {
+            "knowledge_id": "AIAPP-K029",
+            "name": "RAG 检索与来源追溯",
+            "category": "RAG",
+            "weakness_level": 4,
+            "mastery_type": "partial_mastery",
+            "prerequisite_ids": [
+              "AIAPP-K028"
+            ],
+            "evidence_ids": [
+              "evidence_diag_1"
+            ],
+            "reason": "检索和重排题目得分较低"
+          }
+        ],
+        "blind_spot_ids": []
+      },
+      "retrieval_plan": {
+        "strategy": "remedial",
+        "target_difficulty": 2,
+        "resource_types": [
+          "lecture"
+        ],
+        "priority_knowledge_ids": [
+          "AIAPP-K029"
+        ],
+        "prerequisite_knowledge_ids": [
+          "AIAPP-K028"
+        ],
+        "query_terms": [
+          "RAG 检索",
+          "来源追溯"
+        ],
+        "n_results": 8
+      },
+      "revision_plan": null,
+      "purpose": "remedial_explanation"
+    },
+    "output": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "query_text": "RAG 检索 来源追溯",
+      "chunks": [
+        {
+          "chunk_id": "AIAPP-K029::chunk::0",
+          "knowledge_id": "AIAPP-K029",
+          "name": "RAG 检索与来源追溯",
+          "category": "RAG",
+          "difficulty": 2,
+          "content": "RAG 检索需要保留知识片段与来源标识，生成内容只能引用已检索证据。",
+          "similarity": 0.92,
+          "matched_by": "priority",
+          "used_for": "remedial_explanation",
+          "source": {
+            "source_ref_id": "AIAPP-K029::chunk::0",
+            "knowledge_id": "AIAPP-K029",
+            "source_title": "自建 AI 应用开发实训知识库",
+            "source_url": null,
+            "license_note": "team-authored"
+          }
+        }
+      ],
+      "covered_knowledge_ids": [
+        "AIAPP-K029"
+      ],
+      "missing_knowledge_ids": [
+        "AIAPP-K028"
+      ],
+      "warnings": [
+        "前置知识将在后续关系扩展中补充"
+      ]
+    }
+  },
+  "generate_resource": {
+    "input": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "context": {
+        "task_id": "task_contract_example",
+        "session_id": "task_contract_example",
+        "trigger_type": "initial_generation",
+        "execution_mode": "auto",
+        "learner_id": "learner_001",
+        "profile_id": "profile_contract_example",
+        "domain_code": "ai_app_dev",
+        "resource_types": [
+          "lecture"
+        ],
+        "learning_goal": "掌握 RAG 检索与来源追溯",
+        "resource_id": null,
+        "feedback_id": null,
+        "tutoring_session_id": null,
+        "tutoring_message_id": null,
+        "contract_version": "agent-contract-v2"
+      },
+      "profile": {
+        "profile_id": "profile_contract_example",
+        "profile_version": 1,
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 55,
+          "practice": 40,
+          "problem_solving": 48,
+          "knowledge_breadth": 52,
+          "learning_speed": 60
+        },
+        "weak_knowledge": [
+          {
+            "knowledge_id": "AIAPP-K029",
+            "name": "RAG 检索与来源追溯",
+            "category": "RAG",
+            "weakness_level": 4,
+            "mastery_type": "partial_mastery",
+            "prerequisite_ids": [
+              "AIAPP-K028"
+            ],
+            "evidence_ids": [
+              "evidence_diag_1"
+            ],
+            "reason": "检索和重排题目得分较低"
+          }
+        ],
+        "blind_spot_ids": []
+      },
+      "retrieved_chunks": [
+        {
+          "chunk_id": "AIAPP-K029::chunk::0",
+          "knowledge_id": "AIAPP-K029",
+          "name": "RAG 检索与来源追溯",
+          "category": "RAG",
+          "difficulty": 2,
+          "content": "RAG 检索需要保留知识片段与来源标识，生成内容只能引用已检索证据。",
+          "similarity": 0.92,
+          "matched_by": "priority",
+          "used_for": "remedial_explanation",
+          "source": {
+            "source_ref_id": "AIAPP-K029::chunk::0",
+            "knowledge_id": "AIAPP-K029",
+            "source_title": "自建 AI 应用开发实训知识库",
+            "source_url": null,
+            "license_note": "team-authored"
+          }
+        }
+      ],
+      "requirements": {
+        "resource_types": [
+          "lecture"
+        ],
+        "target_difficulty": 2,
+        "strategy": "remedial",
+        "required_knowledge_ids": [
+          "AIAPP-K029"
+        ],
+        "source_whitelist": [
+          "AIAPP-K029::chunk::0"
+        ],
+        "adaptation_notes": [
+          "使用小步解释和明确检查点"
+        ],
+        "revision_plan": null
+      }
+    },
+    "output": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "resources": [
+        {
+          "resource_type": "lecture",
+          "structured_content": {
+            "resource_type": "lecture",
+            "title": "RAG 检索与来源追溯讲义",
+            "target_audience": "RAG 初学者",
+            "learning_objectives": [
+              "能说明检索片段与来源引用的关系"
+            ],
+            "prerequisite_knowledge": [
+              "文本向量基础"
+            ],
+            "core_concepts": [
+              {
+                "title": "可追溯检索",
+                "explanation": "检索结果必须携带稳定的来源标识。",
+                "example": "生成讲义中的事实引用 AIAPP-K029::chunk::0。",
+                "source_ref_ids": [
+                  "AIAPP-K029::chunk::0"
+                ]
+              }
+            ],
+            "misconceptions": [
+              {
+                "misconception": "只要语义相似就不需要来源。",
+                "correction": "语义匹配负责召回，来源标识负责追溯。",
+                "source_ref_ids": [
+                  "AIAPP-K029::chunk::0"
+                ]
+              }
+            ],
+            "summary": "可靠 RAG 需要同时保留检索内容和来源引用。"
+          },
+          "content_md": "# RAG 检索与来源追溯讲义\n\n## 适配对象\nRAG 初学者\n\n## 学习目标\n- 能说明检索片段与来源引用的关系\n\n## 前置知识\n- 文本向量基础\n\n## 核心概念\n### 可追溯检索\n检索结果必须携带稳定的来源标识。\n\n示例：生成讲义中的事实引用 AIAPP-K029::chunk::0。\n\n来源：AIAPP-K029::chunk::0\n\n## 常见误区\n- 误区：只要语义相似就不需要来源。\n  纠正：语义匹配负责召回，来源标识负责追溯。\n  来源：AIAPP-K029::chunk::0\n\n## 小结\n可靠 RAG 需要同时保留检索内容和来源引用。\n\n## 知识来源\n- [AIAPP-K029::chunk::0] 自建 AI 应用开发实训知识库 (team-authored)\n",
+          "difficulty": 2,
+          "source_refs": [
+            {
+              "source_ref_id": "AIAPP-K029::chunk::0",
+              "knowledge_id": "AIAPP-K029",
+              "source_title": "自建 AI 应用开发实训知识库",
+              "source_url": null,
+              "license_note": "team-authored"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "review_resource": {
+    "input": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "context": {
+        "task_id": "task_contract_example",
+        "session_id": "task_contract_example",
+        "trigger_type": "initial_generation",
+        "execution_mode": "auto",
+        "learner_id": "learner_001",
+        "profile_id": "profile_contract_example",
+        "domain_code": "ai_app_dev",
+        "resource_types": [
+          "lecture"
+        ],
+        "learning_goal": "掌握 RAG 检索与来源追溯",
+        "resource_id": null,
+        "feedback_id": null,
+        "tutoring_session_id": null,
+        "tutoring_message_id": null,
+        "contract_version": "agent-contract-v2"
+      },
+      "resources": [
+        {
+          "resource_type": "lecture",
+          "structured_content": {
+            "resource_type": "lecture",
+            "title": "RAG 检索与来源追溯讲义",
+            "target_audience": "RAG 初学者",
+            "learning_objectives": [
+              "能说明检索片段与来源引用的关系"
+            ],
+            "prerequisite_knowledge": [
+              "文本向量基础"
+            ],
+            "core_concepts": [
+              {
+                "title": "可追溯检索",
+                "explanation": "检索结果必须携带稳定的来源标识。",
+                "example": "生成讲义中的事实引用 AIAPP-K029::chunk::0。",
+                "source_ref_ids": [
+                  "AIAPP-K029::chunk::0"
+                ]
+              }
+            ],
+            "misconceptions": [
+              {
+                "misconception": "只要语义相似就不需要来源。",
+                "correction": "语义匹配负责召回，来源标识负责追溯。",
+                "source_ref_ids": [
+                  "AIAPP-K029::chunk::0"
+                ]
+              }
+            ],
+            "summary": "可靠 RAG 需要同时保留检索内容和来源引用。"
+          },
+          "content_md": "# RAG 检索与来源追溯讲义\n\n## 适配对象\nRAG 初学者\n\n## 学习目标\n- 能说明检索片段与来源引用的关系\n\n## 前置知识\n- 文本向量基础\n\n## 核心概念\n### 可追溯检索\n检索结果必须携带稳定的来源标识。\n\n示例：生成讲义中的事实引用 AIAPP-K029::chunk::0。\n\n来源：AIAPP-K029::chunk::0\n\n## 常见误区\n- 误区：只要语义相似就不需要来源。\n  纠正：语义匹配负责召回，来源标识负责追溯。\n  来源：AIAPP-K029::chunk::0\n\n## 小结\n可靠 RAG 需要同时保留检索内容和来源引用。\n\n## 知识来源\n- [AIAPP-K029::chunk::0] 自建 AI 应用开发实训知识库 (team-authored)\n",
+          "difficulty": 2,
+          "source_refs": [
+            {
+              "source_ref_id": "AIAPP-K029::chunk::0",
+              "knowledge_id": "AIAPP-K029",
+              "source_title": "自建 AI 应用开发实训知识库",
+              "source_url": null,
+              "license_note": "team-authored"
+            }
+          ]
+        }
+      ],
+      "requirements": {
+        "resource_types": [
+          "lecture"
+        ],
+        "target_difficulty": 2,
+        "strategy": "remedial",
+        "required_knowledge_ids": [
+          "AIAPP-K029"
+        ],
+        "source_whitelist": [
+          "AIAPP-K029::chunk::0"
+        ],
+        "adaptation_notes": [
+          "使用小步解释和明确检查点"
+        ],
+        "revision_plan": null
+      },
+      "evidence": [
+        {
+          "chunk_id": "AIAPP-K029::chunk::0",
+          "knowledge_id": "AIAPP-K029",
+          "name": "RAG 检索与来源追溯",
+          "category": "RAG",
+          "difficulty": 2,
+          "content": "RAG 检索需要保留知识片段与来源标识，生成内容只能引用已检索证据。",
+          "similarity": 0.92,
+          "matched_by": "priority",
+          "used_for": "remedial_explanation",
+          "source": {
+            "source_ref_id": "AIAPP-K029::chunk::0",
+            "knowledge_id": "AIAPP-K029",
+            "source_title": "自建 AI 应用开发实训知识库",
+            "source_url": null,
+            "license_note": "team-authored"
+          }
+        }
+      ]
+    },
+    "output": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "reports": [
+        {
+          "resource_type": "lecture",
+          "primary_review": {
+            "model_role": "primary_review_model",
+            "model_name": "review-primary",
+            "scores": {
+              "factual_accuracy": 95.0,
+              "source_traceability": 96.0,
+              "difficulty_match": 92.0,
+              "core_knowledge_coverage": 94.0
+            },
+            "passed": true,
+            "fact_checks": [
+              {
+                "claim": "RAG 资源需保留来源标识。",
+                "supported": true,
+                "source_ref_ids": [
+                  "AIAPP-K029::chunk::0"
+                ],
+                "reason": "检索证据明确支持该声明。",
+                "determinable": true
+              }
+            ],
+            "issues": [],
+            "unable_to_determine": []
+          },
+          "secondary_review": {
+            "model_role": "secondary_review_model",
+            "model_name": "review-secondary",
+            "scores": {
+              "factual_accuracy": 95.0,
+              "source_traceability": 96.0,
+              "difficulty_match": 92.0,
+              "core_knowledge_coverage": 94.0
+            },
+            "passed": true,
+            "fact_checks": [
+              {
+                "claim": "RAG 资源需保留来源标识。",
+                "supported": true,
+                "source_ref_ids": [
+                  "AIAPP-K029::chunk::0"
+                ],
+                "reason": "检索证据明确支持该声明。",
+                "determinable": true
+              }
+            ],
+            "issues": [],
+            "unable_to_determine": []
+          },
+          "final_scores": {
+            "factual_accuracy": 95.0,
+            "source_traceability": 96.0,
+            "difficulty_match": 92.0,
+            "core_knowledge_coverage": 94.0
+          },
+          "arbitration": {
+            "required": false,
+            "retrieval_performed": false,
+            "query_terms": [],
+            "additional_source_ref_ids": [],
+            "primary_recheck": null,
+            "secondary_recheck": null,
+            "disagreement_remains": false
+          },
+          "issues": [],
+          "evidence_ref_ids": [
+            "AIAPP-K029::chunk::0"
+          ],
+          "decision": "passed",
+          "passed": true,
+          "manual_review_required": false
+        }
+      ]
+    }
+  },
+  "finalize_task": {
+    "input": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "context": {
+        "task_id": "task_contract_example",
+        "session_id": "task_contract_example",
+        "trigger_type": "initial_generation",
+        "execution_mode": "auto",
+        "learner_id": "learner_001",
+        "profile_id": "profile_contract_example",
+        "domain_code": "ai_app_dev",
+        "resource_types": [
+          "lecture"
+        ],
+        "learning_goal": "掌握 RAG 检索与来源追溯",
+        "resource_id": null,
+        "feedback_id": null,
+        "tutoring_session_id": null,
+        "tutoring_message_id": null,
+        "contract_version": "agent-contract-v2"
+      },
+      "resources": [
+        {
+          "resource_type": "lecture",
+          "structured_content": {
+            "resource_type": "lecture",
+            "title": "RAG 检索与来源追溯讲义",
+            "target_audience": "RAG 初学者",
+            "learning_objectives": [
+              "能说明检索片段与来源引用的关系"
+            ],
+            "prerequisite_knowledge": [
+              "文本向量基础"
+            ],
+            "core_concepts": [
+              {
+                "title": "可追溯检索",
+                "explanation": "检索结果必须携带稳定的来源标识。",
+                "example": "生成讲义中的事实引用 AIAPP-K029::chunk::0。",
+                "source_ref_ids": [
+                  "AIAPP-K029::chunk::0"
+                ]
+              }
+            ],
+            "misconceptions": [
+              {
+                "misconception": "只要语义相似就不需要来源。",
+                "correction": "语义匹配负责召回，来源标识负责追溯。",
+                "source_ref_ids": [
+                  "AIAPP-K029::chunk::0"
+                ]
+              }
+            ],
+            "summary": "可靠 RAG 需要同时保留检索内容和来源引用。"
+          },
+          "content_md": "# RAG 检索与来源追溯讲义\n\n## 适配对象\nRAG 初学者\n\n## 学习目标\n- 能说明检索片段与来源引用的关系\n\n## 前置知识\n- 文本向量基础\n\n## 核心概念\n### 可追溯检索\n检索结果必须携带稳定的来源标识。\n\n示例：生成讲义中的事实引用 AIAPP-K029::chunk::0。\n\n来源：AIAPP-K029::chunk::0\n\n## 常见误区\n- 误区：只要语义相似就不需要来源。\n  纠正：语义匹配负责召回，来源标识负责追溯。\n  来源：AIAPP-K029::chunk::0\n\n## 小结\n可靠 RAG 需要同时保留检索内容和来源引用。\n\n## 知识来源\n- [AIAPP-K029::chunk::0] 自建 AI 应用开发实训知识库 (team-authored)\n",
+          "difficulty": 2,
+          "source_refs": [
+            {
+              "source_ref_id": "AIAPP-K029::chunk::0",
+              "knowledge_id": "AIAPP-K029",
+              "source_title": "自建 AI 应用开发实训知识库",
+              "source_url": null,
+              "license_note": "team-authored"
+            }
+          ]
+        }
+      ],
+      "review_reports": [
+        {
+          "resource_type": "lecture",
+          "primary_review": {
+            "model_role": "primary_review_model",
+            "model_name": "review-primary",
+            "scores": {
+              "factual_accuracy": 95.0,
+              "source_traceability": 96.0,
+              "difficulty_match": 92.0,
+              "core_knowledge_coverage": 94.0
+            },
+            "passed": true,
+            "fact_checks": [
+              {
+                "claim": "RAG 资源需保留来源标识。",
+                "supported": true,
+                "source_ref_ids": [
+                  "AIAPP-K029::chunk::0"
+                ],
+                "reason": "检索证据明确支持该声明。",
+                "determinable": true
+              }
+            ],
+            "issues": [],
+            "unable_to_determine": []
+          },
+          "secondary_review": {
+            "model_role": "secondary_review_model",
+            "model_name": "review-secondary",
+            "scores": {
+              "factual_accuracy": 95.0,
+              "source_traceability": 96.0,
+              "difficulty_match": 92.0,
+              "core_knowledge_coverage": 94.0
+            },
+            "passed": true,
+            "fact_checks": [
+              {
+                "claim": "RAG 资源需保留来源标识。",
+                "supported": true,
+                "source_ref_ids": [
+                  "AIAPP-K029::chunk::0"
+                ],
+                "reason": "检索证据明确支持该声明。",
+                "determinable": true
+              }
+            ],
+            "issues": [],
+            "unable_to_determine": []
+          },
+          "final_scores": {
+            "factual_accuracy": 95.0,
+            "source_traceability": 96.0,
+            "difficulty_match": 92.0,
+            "core_knowledge_coverage": 94.0
+          },
+          "arbitration": {
+            "required": false,
+            "retrieval_performed": false,
+            "query_terms": [],
+            "additional_source_ref_ids": [],
+            "primary_recheck": null,
+            "secondary_recheck": null,
+            "disagreement_remains": false
+          },
+          "issues": [],
+          "evidence_ref_ids": [
+            "AIAPP-K029::chunk::0"
+          ],
+          "decision": "passed",
+          "passed": true,
+          "manual_review_required": false
+        }
+      ],
+      "revision_count": 0,
+      "tutoring_result": null,
+      "human_decision": null
+    },
+    "output": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_contract_example",
+      "decision": "completed",
+      "revision_count": 0,
+      "revision_plan": null,
+      "passed_resource_types": [
+        "lecture"
+      ],
+      "manual_review_required": false,
+      "decision_reason": "两路审核通过"
+    }
+  }
+}

@@ -1,8 +1,8 @@
 from typing import Any
 
 from app.agents.base import BaseAgent
-from app.agents.contracts import AgentMessage, RetrievalOutput
-from app.agents.state import AgentGraphState
+from app.agents.legacy_contracts import AgentMessage, RetrievalOutput
+from app.agents.legacy_state import AgentGraphState
 from app.rag.embeddings import embed_texts
 from app.rag.vector_store import VectorStore
 

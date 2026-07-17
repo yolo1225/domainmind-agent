@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
 
-from app.agents.contracts import AgentMessage, AgentName
+from app.agents.legacy_contracts import AgentMessage, AgentName
 
 
 class BaseAgent(ABC):

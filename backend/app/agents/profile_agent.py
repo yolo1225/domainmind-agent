@@ -4,8 +4,8 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.agents.base import BaseAgent
-from app.agents.contracts import AgentMessage
-from app.agents.state import AgentGraphState
+from app.agents.legacy_contracts import AgentMessage
+from app.agents.legacy_state import AgentGraphState
 from app.models import DiagnosticQuestion, Learner, LearnerProfile
 from app.services.profile_service import (
     generate_profile_from_diagnostic,

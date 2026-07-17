@@ -1,4 +1,4 @@
-from app.agents.contracts import AgentName
+from app.agents.legacy_contracts import AgentName
 
 
 AGENT_TOOL_WHITELIST: dict[AgentName, set[str]] = {

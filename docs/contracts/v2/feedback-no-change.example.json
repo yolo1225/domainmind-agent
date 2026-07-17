@@ -1,0 +1,339 @@
+{
+  "prepare_task": {
+    "input": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_feedback_example",
+      "request": {
+        "task_id": "task_feedback_example",
+        "session_id": "task_feedback_example",
+        "trigger_type": "resource_feedback",
+        "execution_mode": "auto",
+        "learner_id": "learner_001",
+        "profile_id": "profile_contract_example",
+        "domain_code": "ai_app_dev",
+        "resource_types": [
+          "lecture"
+        ],
+        "learning_goal": "理解 RAG 检索",
+        "resource_id": "resource_lecture_v1",
+        "feedback_id": "feedback_001",
+        "tutoring_session_id": "tutoring_001",
+        "tutoring_message_id": "message_001"
+      }
+    },
+    "output": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_feedback_example",
+      "context": {
+        "task_id": "task_feedback_example",
+        "session_id": "task_feedback_example",
+        "trigger_type": "resource_feedback",
+        "execution_mode": "auto",
+        "learner_id": "learner_001",
+        "profile_id": "profile_contract_example",
+        "domain_code": "ai_app_dev",
+        "resource_types": [
+          "lecture"
+        ],
+        "learning_goal": "理解 RAG 检索",
+        "resource_id": "resource_lecture_v1",
+        "feedback_id": "feedback_001",
+        "tutoring_session_id": "tutoring_001",
+        "tutoring_message_id": "message_001",
+        "contract_version": "agent-contract-v2"
+      },
+      "next_node": "interpret_feedback"
+    }
+  },
+  "interpret_feedback": {
+    "input": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_feedback_example",
+      "context": {
+        "task_id": "task_feedback_example",
+        "session_id": "task_feedback_example",
+        "trigger_type": "resource_feedback",
+        "execution_mode": "auto",
+        "learner_id": "learner_001",
+        "profile_id": "profile_contract_example",
+        "domain_code": "ai_app_dev",
+        "resource_types": [
+          "lecture"
+        ],
+        "learning_goal": "理解 RAG 检索",
+        "resource_id": "resource_lecture_v1",
+        "feedback_id": "feedback_001",
+        "tutoring_session_id": "tutoring_001",
+        "tutoring_message_id": "message_001",
+        "contract_version": "agent-contract-v2"
+      },
+      "profile": {
+        "profile_id": "profile_contract_example",
+        "profile_version": 1,
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 55,
+          "practice": 40,
+          "problem_solving": 48,
+          "knowledge_breadth": 52,
+          "learning_speed": 60
+        },
+        "weak_knowledge": [
+          {
+            "knowledge_id": "AIAPP-K029",
+            "name": "RAG 检索与来源追溯",
+            "category": "RAG",
+            "weakness_level": 4,
+            "mastery_type": "partial_mastery",
+            "prerequisite_ids": [
+              "AIAPP-K028"
+            ],
+            "evidence_ids": [
+              "evidence_diag_1"
+            ],
+            "reason": "检索和重排题目得分较低"
+          }
+        ],
+        "blind_spot_ids": []
+      },
+      "feedback": {
+        "resource": {
+          "resource_id": "resource_lecture_v1",
+          "resource_type": "lecture",
+          "title": "RAG 讲义",
+          "difficulty": 2,
+          "source_ref_ids": [
+            "AIAPP-K029::chunk::0"
+          ]
+        },
+        "conversation": {
+          "tutoring_session_id": "tutoring_001",
+          "turn_count": 1,
+          "latest_message_summary": "这一节有点难",
+          "previous_intents": []
+        },
+        "feedback_summary": "学习者表示当前讲解偏难",
+        "quick_tag": "too_hard",
+        "rating": 2,
+        "selected_text_summary": null,
+        "supporting_evidence": []
+      }
+    },
+    "output": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_feedback_example",
+      "feedback_intent": "too_hard",
+      "recommended_action": "ask_follow_up",
+      "reply": "请说明是检索过程还是来源引用不易理解。",
+      "evidence": [
+        {
+          "evidence_id": "evidence_feedback_1",
+          "evidence_type": "quick_feedback",
+          "summary": "单次 too_hard 快捷反馈",
+          "knowledge_id": "AIAPP-K029",
+          "source_ref_id": null,
+          "confidence": 0.3,
+          "confirmed": false
+        }
+      ],
+      "needs_generation": false,
+      "decision_reason": "单次主观反馈证据不足"
+    }
+  },
+  "analyze_profile": {
+    "input": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_feedback_example",
+      "context": {
+        "task_id": "task_feedback_example",
+        "session_id": "task_feedback_example",
+        "trigger_type": "resource_feedback",
+        "execution_mode": "auto",
+        "learner_id": "learner_001",
+        "profile_id": "profile_contract_example",
+        "domain_code": "ai_app_dev",
+        "resource_types": [
+          "lecture"
+        ],
+        "learning_goal": "理解 RAG 检索",
+        "resource_id": "resource_lecture_v1",
+        "feedback_id": "feedback_001",
+        "tutoring_session_id": "tutoring_001",
+        "tutoring_message_id": "message_001",
+        "contract_version": "agent-contract-v2"
+      },
+      "current_profile": {
+        "profile_id": "profile_contract_example",
+        "profile_version": 1,
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 55,
+          "practice": 40,
+          "problem_solving": 48,
+          "knowledge_breadth": 52,
+          "learning_speed": 60
+        },
+        "weak_knowledge": [
+          {
+            "knowledge_id": "AIAPP-K029",
+            "name": "RAG 检索与来源追溯",
+            "category": "RAG",
+            "weakness_level": 4,
+            "mastery_type": "partial_mastery",
+            "prerequisite_ids": [
+              "AIAPP-K028"
+            ],
+            "evidence_ids": [
+              "evidence_diag_1"
+            ],
+            "reason": "检索和重排题目得分较低"
+          }
+        ],
+        "blind_spot_ids": []
+      },
+      "diagnostic_summary": null,
+      "feedback_evidence": [
+        {
+          "evidence_id": "evidence_feedback_1",
+          "evidence_type": "quick_feedback",
+          "summary": "单次 too_hard 快捷反馈",
+          "knowledge_id": "AIAPP-K029",
+          "source_ref_id": null,
+          "confidence": 0.3,
+          "confirmed": false
+        }
+      ],
+      "recommended_action": "ask_follow_up"
+    },
+    "output": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_feedback_example",
+      "profile": {
+        "profile_id": "profile_contract_example",
+        "profile_version": 1,
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 55,
+          "practice": 40,
+          "problem_solving": 48,
+          "knowledge_breadth": 52,
+          "learning_speed": 60
+        },
+        "weak_knowledge": [
+          {
+            "knowledge_id": "AIAPP-K029",
+            "name": "RAG 检索与来源追溯",
+            "category": "RAG",
+            "weakness_level": 4,
+            "mastery_type": "partial_mastery",
+            "prerequisite_ids": [
+              "AIAPP-K028"
+            ],
+            "evidence_ids": [
+              "evidence_diag_1"
+            ],
+            "reason": "检索和重排题目得分较低"
+          }
+        ],
+        "blind_spot_ids": []
+      },
+      "profile_update_required": false,
+      "changed_dimensions": [],
+      "evidence_refs": [
+        {
+          "evidence_id": "evidence_feedback_1",
+          "evidence_type": "quick_feedback",
+          "summary": "单次 too_hard 快捷反馈",
+          "knowledge_id": "AIAPP-K029",
+          "source_ref_id": null,
+          "confidence": 0.3,
+          "confirmed": false
+        }
+      ],
+      "confidence": 0.3,
+      "decision_reason": "证据不足，保留原画像",
+      "affected_scope": {
+        "knowledge_ids": [],
+        "path_node_ids": [],
+        "resource_ids": []
+      },
+      "retrieval_plan": {
+        "strategy": "remedial",
+        "target_difficulty": 2,
+        "resource_types": [
+          "lecture"
+        ],
+        "priority_knowledge_ids": [
+          "AIAPP-K029"
+        ],
+        "prerequisite_knowledge_ids": [
+          "AIAPP-K028"
+        ],
+        "query_terms": [
+          "RAG 检索",
+          "来源追溯"
+        ],
+        "n_results": 8
+      },
+      "needs_generation": false
+    }
+  },
+  "finalize_task": {
+    "input": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_feedback_example",
+      "context": {
+        "task_id": "task_feedback_example",
+        "session_id": "task_feedback_example",
+        "trigger_type": "resource_feedback",
+        "execution_mode": "auto",
+        "learner_id": "learner_001",
+        "profile_id": "profile_contract_example",
+        "domain_code": "ai_app_dev",
+        "resource_types": [
+          "lecture"
+        ],
+        "learning_goal": "理解 RAG 检索",
+        "resource_id": "resource_lecture_v1",
+        "feedback_id": "feedback_001",
+        "tutoring_session_id": "tutoring_001",
+        "tutoring_message_id": "message_001",
+        "contract_version": "agent-contract-v2"
+      },
+      "resources": [],
+      "review_reports": [],
+      "revision_count": 0,
+      "tutoring_result": {
+        "contract_version": "agent-contract-v2",
+        "task_id": "task_feedback_example",
+        "feedback_intent": "too_hard",
+        "recommended_action": "ask_follow_up",
+        "reply": "请说明是检索过程还是来源引用不易理解。",
+        "evidence": [
+          {
+            "evidence_id": "evidence_feedback_1",
+            "evidence_type": "quick_feedback",
+            "summary": "单次 too_hard 快捷反馈",
+            "knowledge_id": "AIAPP-K029",
+            "source_ref_id": null,
+            "confidence": 0.3,
+            "confirmed": false
+          }
+        ],
+        "needs_generation": false,
+        "decision_reason": "单次主观反馈证据不足"
+      },
+      "human_decision": null
+    },
+    "output": {
+      "contract_version": "agent-contract-v2",
+      "task_id": "task_feedback_example",
+      "decision": "no_change",
+      "revision_count": 0,
+      "revision_plan": null,
+      "passed_resource_types": [],
+      "manual_review_required": false,
+      "decision_reason": "证据不足，仅继续追问"
+    }
+  }
+}
