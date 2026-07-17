@@ -1,5 +1,4 @@
 from collections.abc import Sequence
-from pathlib import Path
 from typing import Any
 
 import chromadb
@@ -9,15 +8,21 @@ from app.core.config import settings
 
 
 class VectorStore:
-    def __init__(self, persist_directory: str | None = None) -> None:
-        self.persist_directory = persist_directory or settings.resolved_chroma_persist_directory
-        Path(self.persist_directory).mkdir(parents=True, exist_ok=True)
+    def __init__(
+        self,
+        host: str | None = None,
+        port: int | None = None,
+    ) -> None:
+        self.host = host if host is not None else settings.chroma_host
+        self.port = port or settings.chroma_port
+        if not self.host:
+            raise ValueError("CHROMA_HOST is required; ChromaDB runs as an independent service")
         self._client: Any | None = None
 
     @property
     def client(self) -> Any:
         if self._client is None:
-            self._client = chromadb.PersistentClient(path=self.persist_directory)
+            self._client = chromadb.HttpClient(host=self.host, port=self.port)
         return self._client
 
     def collection_name(self, domain_code: str) -> str:
@@ -46,6 +51,23 @@ class VectorStore:
             metadatas=list(metadatas),
         )
 
+    def delete_knowledge_chunks(
+        self, *, domain_code: str, knowledge_ids: Sequence[str]
+    ) -> int:
+        normalized = sorted({item for item in knowledge_ids if item})
+        if not normalized:
+            return 0
+        collection = self.get_collection(domain_code)
+        where: dict[str, Any]
+        if len(normalized) == 1:
+            where = {"knowledge_id": normalized[0]}
+        else:
+            where = {"knowledge_id": {"$in": normalized}}
+        existing = collection.get(where=where, include=["metadatas"])
+        existing_ids = existing.get("ids", [])
+        collection.delete(where=where)
+        return len(existing_ids)
+
     def query(
         self,
         *,
@@ -71,11 +93,17 @@ class VectorStore:
 
     def health_check(self) -> dict[str, str | int]:
         collections = self.client.list_collections()
-        return {
+        result: dict[str, str | int] = {
             "status": "ok",
-            "persist_directory": self.persist_directory,
             "collections": len(collections),
         }
+        result["mode"] = "http"
+        result["host"] = self.host
+        result["port"] = self.port
+        return result
+
+    def connection_info(self) -> dict[str, str | int]:
+        return {"mode": "http", "host": self.host, "port": self.port}
 
 
 def get_vector_store() -> VectorStore:

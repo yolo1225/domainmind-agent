@@ -1,4 +1,4 @@
-import { getData } from './client'
+import { getData, postData } from './client'
 
 export interface LearnerSummary {
   learner_id: string
@@ -60,8 +60,20 @@ export interface LearnerProfileDetail {
   }
 }
 
+export interface LearnerCreatePayload {
+  learner_id: string
+  background: string
+  target_domain: string
+  experience_years: number
+  learning_style: 'theory' | 'practice' | 'mixed'
+}
+
 export function listLearners() {
   return getData<LearnerSummary[]>('/learners')
+}
+
+export function createLearner(payload: LearnerCreatePayload) {
+  return postData<LearnerSummary>('/learners', payload)
 }
 
 export function getLearnerProfile(learnerId: string) {

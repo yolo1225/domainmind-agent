@@ -62,7 +62,7 @@ def test_list_knowledge_items_reads_database() -> None:
     assert body["data"]["items"][0]["tags"] == ["rag", "retrieval"]
 
 
-def test_create_knowledge_item_marks_index_and_learning_paths() -> None:
+def test_create_knowledge_item_marks_index_without_refreshing_unrelated_paths() -> None:
     testing_session = build_test_session()
     with testing_session() as db:
         learner = Learner(public_id="learner_001", target_domain="ai_app_dev")
@@ -120,13 +120,54 @@ def test_create_knowledge_item_marks_index_and_learning_paths() -> None:
     assert body["item"]["name"] == "提示词变量控制"
     assert body["item"]["needs_reembedding"] is True
     assert body["index_status"] == "needs_rebuild"
-    assert body["affected_learning_paths"] == 1
+    assert body["affected_learning_paths"] == 0
 
     with testing_session() as db:
         path = db.scalar(select(LearningPath).where(LearningPath.public_id == "path_001"))
         assert path is not None
-        assert path.needs_refresh is True
-        assert path.path_json["knowledge_update_reason"] == "manual_import"
+        assert path.needs_refresh is False
+
+
+def test_update_knowledge_item_marks_pending_index() -> None:
+    testing_session = build_test_session()
+    with testing_session() as db:
+        db.add(
+            KnowledgeItem(
+                public_id="knowledge_update_target",
+                domain_code="ai_app_dev",
+                name="旧名称",
+                category="RAG",
+                difficulty=2,
+                tags_json=[],
+                content_md="这是修改之前的知识点内容。",
+                source_title="测试来源",
+                license_note="test",
+                needs_reembedding=False,
+            )
+        )
+        db.commit()
+
+    def override_get_db() -> Generator[Session, None, None]:
+        db = testing_session()
+        try:
+            yield db
+        finally:
+            db.close()
+
+    app.dependency_overrides[get_db] = override_get_db
+    try:
+        response = TestClient(app).patch(
+            "/api/v1/knowledge/items/knowledge_update_target",
+            json={"name": "新名称", "content": "这是修改之后的知识点内容，必须重新生成向量。"},
+        )
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert data["item"]["name"] == "新名称"
+    assert data["item"]["needs_reembedding"] is True
+    assert data["affected_knowledge_ids"] == ["knowledge_update_target"]
 
 
 def test_search_knowledge_returns_vector_matches() -> None:
@@ -162,3 +203,77 @@ def test_search_knowledge_returns_vector_matches() -> None:
     body = response.json()
     assert body["data"]["matches"][0]["knowledge_id"] == "rag_chunking"
     assert body["data"]["matches"][0]["distance"] == 0.12
+
+
+def test_rebuild_index_executes_pending_item_synchronously(monkeypatch) -> None:
+    testing_session = build_test_session()
+    with testing_session() as db:
+        db.add(
+            KnowledgeItem(
+                public_id="pending_index_item",
+                domain_code="ai_app_dev",
+                name="待同步知识",
+                category="RAG",
+                difficulty=2,
+                tags_json=["rag"],
+                content_md="这是需要同步到向量数据库的完整知识内容。",
+                source_title="测试来源",
+                license_note="test",
+                needs_reembedding=True,
+            )
+        )
+        db.commit()
+
+    class FakeCollection:
+        def count(self):
+            return 1
+
+    class FakeVectorStore:
+        def __init__(self):
+            self.upserted = []
+
+        def delete_knowledge_chunks(self, **kwargs):
+            return 2
+
+        def upsert_chunks(self, **kwargs):
+            self.upserted.extend(kwargs["ids"])
+
+        def get_collection(self, domain_code):
+            return FakeCollection()
+
+        def collection_name(self, domain_code):
+            return f"knowledge_{domain_code}"
+
+        def connection_info(self):
+            return {"mode": "test"}
+
+    fake_store = FakeVectorStore()
+
+    def override_get_db() -> Generator[Session, None, None]:
+        db = testing_session()
+        try:
+            yield db
+        finally:
+            db.close()
+
+    app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_vector_store] = lambda: fake_store
+    monkeypatch.setattr(
+        "app.scripts.build_chroma_index.embed_texts",
+        lambda documents: [[0.1, 0.2] for _ in documents],
+    )
+    try:
+        response = TestClient(app).post("/api/v1/knowledge/rebuild-index")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert data["status"] == "completed"
+    assert data["indexed_items"] == 1
+    assert data["deleted_chunks"] == 2
+    assert fake_store.upserted == ["pending_index_item::chunk::0"]
+    with testing_session() as db:
+        item = db.scalar(select(KnowledgeItem))
+        assert item is not None
+        assert item.needs_reembedding is False

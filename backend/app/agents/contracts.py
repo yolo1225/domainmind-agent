@@ -60,6 +60,21 @@ class GenerationOutput(BaseModel):
     trace: dict[str, Any] = Field(default_factory=dict)
 
 
+class GeneratedSourceRef(BaseModel):
+    knowledge_id: str
+    name: str = ""
+    source_title: str = ""
+    matched_plan: str = "semantic"
+    used_for: str | None = None
+
+
+class GeneratedResourceDraft(BaseModel):
+    title: str = Field(min_length=1)
+    content: str = Field(min_length=1)
+    difficulty: int = Field(ge=1, le=5)
+    sources: list[GeneratedSourceRef] = Field(default_factory=list)
+
+
 class ReviewOutput(BaseModel):
     review_reports: list[dict[str, Any]] = Field(default_factory=list)
     trace: dict[str, Any] = Field(default_factory=dict)
@@ -71,3 +86,54 @@ class DecisionOutput(BaseModel):
     revision_plan: dict[str, Any] = Field(default_factory=dict)
     passed_resources: list[dict[str, Any]] = Field(default_factory=list)
     trace: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProfileAnalysisOutput(BaseModel):
+    profile_id: str | None = None
+    profile_update_required: bool = False
+    changed_dimensions: list[str] = Field(default_factory=list)
+    evidence_refs: list[dict[str, Any]] = Field(default_factory=list)
+    confidence: float = 0
+    decision_reason: str = ""
+    affected_knowledge_ids: list[str] = Field(default_factory=list)
+    affected_path_node_ids: list[str] = Field(default_factory=list)
+    affected_resource_ids: list[str] = Field(default_factory=list)
+
+
+class TutoringOutput(BaseModel):
+    feedback_intent: str
+    recommended_action: str
+    reply: str
+    profile_update_required: bool = False
+    evidence: list[dict[str, Any]] = Field(default_factory=list)
+    decision_reason: str
+
+
+class FactCheck(BaseModel):
+    claim: str
+    supported: bool | None = None
+    source_ids: list[str] = Field(default_factory=list)
+    reason: str = ""
+    determinable: bool = True
+
+
+class ModelReview(BaseModel):
+    model_role: str = ""
+    factual_score: float
+    source_trace_score: float
+    difficulty_match_score: float
+    coverage_score: float
+    passed: bool
+    issues: list[str] = Field(default_factory=list)
+    evidence_refs: list[str] = Field(default_factory=list)
+    fact_checks: list[FactCheck] = Field(default_factory=list)
+    unsupported_claims: list[str] = Field(default_factory=list)
+    verified_claim_count: int = Field(default=0, ge=0)
+    source_coverage: float = Field(default=0, ge=0, le=100)
+    unable_to_determine: list[str] = Field(default_factory=list)
+    provider_mode: str = "live"
+
+
+class ManualReviewDecision(BaseModel):
+    decision: Literal["approve", "request_revision", "reject"]
+    review_comment: str = Field(min_length=1, max_length=2000)

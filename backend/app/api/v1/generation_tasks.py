@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import json
 from collections.abc import AsyncIterator
@@ -15,39 +17,27 @@ from app.services.profile_service import default_profile_for_learner, public_id
 from app.workers.generation_worker import run_generation_task
 
 router = APIRouter()
-
-RESOURCE_TYPES = ["lecture", "practice_guide", "graded_quiz"]
-TERMINAL_TASK_STATUSES = {"completed", "failed", "revision_required"}
-SENSITIVE_PAYLOAD_KEYS = {
-    "answers",
-    "answer_text",
-    "content",
-    "content_md",
-    "draft_resources",
-    "profile",
-    "profile_result",
-}
+RESOURCE_TYPES = {"lecture", "practice_guide", "graded_quiz"}
+TRIGGER_TYPES = {"initial_generation", "resource_feedback"}
+EXECUTION_MODES = {"auto", "assisted"}
+TERMINAL_TASK_STATUSES = {"completed", "failed", "revision_required", "waiting_human"}
+SENSITIVE_KEYS = {"content", "content_md", "draft_resources", "profile", "answers"}
 
 STEP_LABELS = {
-    "load_profile": "加载学习画像",
-    "retrieve_knowledge": "检索领域知识",
-    "generate_resource": "生成学习资源",
-    "review_resource": "审核与校验",
-    "decide_next_step": "协同决策",
-    "persist_resource": "资源入库",
-    "task": "任务状态",
-}
-
-RESOURCE_TYPE_LABELS = {
-    "lecture": "讲义",
-    "practice_guide": "实训指导",
-    "graded_quiz": "分级测验",
+    "prepare_task": "任务准备",
+    "interpret_feedback": "反馈识别",
+    "analyze_profile": "画像分析",
+    "retrieve_knowledge": "知识检索",
+    "generate_resource": "资源生成",
+    "review_resource": "双模型审核",
+    "human_review": "人工复核",
+    "finalize_task": "确定性收尾",
 }
 
 
 def _get_or_create_learner(db: Session, learner_public_id: str) -> Learner:
     learner = db.scalar(select(Learner).where(Learner.public_id == learner_public_id))
-    if learner is not None:
+    if learner:
         return learner
     learner = Learner(
         public_id=learner_public_id,
@@ -61,13 +51,15 @@ def _get_or_create_learner(db: Session, learner_public_id: str) -> Learner:
     return learner
 
 
-def _serialize_resource_summary(resource: LearningResource) -> dict[str, Any]:
+def _resource_summary(resource: LearningResource) -> dict[str, Any]:
     return {
         "resource_id": resource.public_id,
         "resource_type": resource.resource_type,
         "title": resource.title,
         "difficulty": resource.difficulty,
         "review_status": resource.review_status,
+        "version": resource.version,
+        "is_current": resource.is_current,
         "sources": [item.get("knowledge_id") for item in (resource.sources_json or [])],
     }
 
@@ -79,41 +71,53 @@ def create_generation_task(
     db: Session = Depends(get_db),
 ) -> ApiResponse:
     payload = payload or {}
+    trigger_type = str(payload.get("trigger_type", "initial_generation"))
+    execution_mode = str(payload.get("execution_mode", "auto"))
+    if trigger_type not in TRIGGER_TYPES:
+        raise HTTPException(status_code=422, detail="unsupported trigger_type")
+    if execution_mode not in EXECUTION_MODES:
+        raise HTTPException(status_code=422, detail="unsupported execution_mode")
+    requested_types = list(payload.get("resource_types") or RESOURCE_TYPES)
+    if not requested_types or any(item not in RESOURCE_TYPES for item in requested_types):
+        raise HTTPException(status_code=422, detail="unsupported resource type")
+
     learner = _get_or_create_learner(db, payload.get("learner_id", "learner_001"))
     profile_id = payload.get("profile_id")
     if profile_id:
-        profile = db.scalar(select(LearnerProfile).where(LearnerProfile.public_id == profile_id))
+        profile = db.scalar(
+            select(LearnerProfile).where(LearnerProfile.public_id == profile_id)
+        )
         if profile is None:
-            raise HTTPException(status_code=404, detail=f"Learner profile not found: {profile_id}")
-        profile_learner = db.get(Learner, profile.learner_id)
-        if profile_learner is None:
-            raise HTTPException(status_code=404, detail=f"Learner not found for profile: {profile_id}")
-        learner = profile_learner
+            raise HTTPException(status_code=404, detail="Learner profile not found")
+        learner = db.get(Learner, profile.learner_id) or learner
     else:
         profile = default_profile_for_learner(db, learner)
-
-    requested_types = payload.get("resource_types") or RESOURCE_TYPES
     task = GenerationTask(
         public_id=public_id("task"),
         learner_id=learner.id,
         profile_id=profile.id,
-        domain_code=payload.get("domain_code", "ai_app_dev"),
+        domain_code=str(payload.get("domain_code", "ai_app_dev")),
         status="pending",
         resource_types_json=requested_types,
         revision_count=0,
         decision="pending",
+        trigger_type=trigger_type,
+        execution_mode=execution_mode,
+        learning_goal=str(payload.get("learning_goal") or "个性化学习资源生成")[:512],
+        progress=0,
     )
     db.add(task)
     db.commit()
-    db.refresh(task)
-
     background_tasks.add_task(run_generation_task, task.public_id)
     return ok(
         {
             "task_id": task.public_id,
+            "thread_id": task.public_id,
             "status": task.status,
+            "trigger_type": task.trigger_type,
+            "execution_mode": task.execution_mode,
             "resource_types": requested_types,
-            "agent_graph": "stategraph_mvp_async",
+            "agent_graph": "unified_learning_graph_v1",
             "decision": task.decision,
             "agent_trace": [],
             "resources": [],
@@ -125,7 +129,7 @@ def create_generation_task(
 def get_generation_task(task_id: str, db: Session = Depends(get_db)) -> ApiResponse:
     task = db.scalar(select(GenerationTask).where(GenerationTask.public_id == task_id))
     if task is None:
-        raise HTTPException(status_code=404, detail=f"Generation task not found: {task_id}")
+        raise HTTPException(status_code=404, detail="Generation task not found")
     resources = list(
         db.scalars(
             select(LearningResource)
@@ -135,115 +139,135 @@ def get_generation_task(task_id: str, db: Session = Depends(get_db)) -> ApiRespo
     )
     return ok(
         {
-            "task_id": task_id,
+            "task_id": task.public_id,
+            "thread_id": task.public_id,
             "status": task.status,
+            "progress": task.progress,
+            "trigger_type": task.trigger_type,
+            "execution_mode": task.execution_mode,
             "revision_count": task.revision_count,
             "decision": task.decision,
-            "resources": [_serialize_resource_summary(resource) for resource in resources],
+            "resources": [_resource_summary(item) for item in resources],
         }
     )
 
 
-def _json_event(event_name: str, payload: dict[str, Any]) -> str:
-    return f"event: {event_name}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
-
-
-def _safe_event_payload(value: Any) -> Any:
+def _safe(value: Any) -> Any:
     if isinstance(value, dict):
-        safe: dict[str, Any] = {}
-        for key, item in value.items():
-            if key in SENSITIVE_PAYLOAD_KEYS:
-                continue
-            safe[key] = _safe_event_payload(item)
-        return safe
+        return {key: _safe(item) for key, item in value.items() if key not in SENSITIVE_KEYS}
     if isinstance(value, list):
-        return [_safe_event_payload(item) for item in value[:20]]
+        return [_safe(item) for item in value[:30]]
     return value
 
 
-def _resource_type_text(resource_types: list[Any]) -> str:
-    labels = [RESOURCE_TYPE_LABELS.get(str(item), str(item)) for item in resource_types]
-    return "、".join(labels)
-
-
-def _agent_event_message(step: str, status: str, payload: dict[str, Any], generation_round: int | None) -> str:
-    round_prefix = f"第 {generation_round} 轮：" if generation_round else ""
-    if status == "running":
-        return f"{round_prefix}{STEP_LABELS.get(step, step)}开始运行"
-    if status == "failed":
-        return f"{round_prefix}{STEP_LABELS.get(step, step)}执行失败"
-
-    if step == "load_profile":
-        return (
-            f"画像类型 {payload.get('profile_type', 'unknown')}，"
-            f"策略 {payload.get('strategy', 'unknown')}，"
-            f"目标难度 {payload.get('target_difficulty', '-')}"
+@router.get("/{task_id}/agent-runs", response_model=ApiResponse)
+def get_agent_runs(task_id: str, db: Session = Depends(get_db)) -> ApiResponse:
+    task = db.scalar(select(GenerationTask).where(GenerationTask.public_id == task_id))
+    if task is None:
+        raise HTTPException(status_code=404, detail="Generation task not found")
+    runs = list(
+        db.scalars(
+            select(AgentRun)
+            .where(AgentRun.generation_task_id == task.id)
+            .order_by(AgentRun.id)
         )
-    if step == "retrieve_knowledge":
-        retrieved = payload.get("retrieved") or []
-        return (
-            f"{round_prefix}召回 {len(retrieved)} 个来源，"
-            f"priority {payload.get('matched_priority_count', 0)}，"
-            f"prerequisite {payload.get('matched_prerequisite_count', 0)}"
-        )
-    if step == "generate_resource":
-        generated = payload.get("generated_resource_count", payload.get("resource_count", 0))
-        preserved = payload.get("preserved_resource_count", 0)
-        return f"{round_prefix}生成 {generated} 类资源，保留已通过资源 {preserved} 个"
-    if step == "review_resource":
-        return (
-            f"{round_prefix}平均审核分 {payload.get('average_score', 0)}，"
-            f"需修订 {payload.get('revision_required_count', 0)}，"
-            f"失败 {payload.get('failed_count', 0)}"
-        )
-    if step == "decide_next_step":
-        decision = payload.get("decision", "pending")
-        revision_types = payload.get("revision_resource_types") or []
-        if decision == "revision_required":
-            return f"{round_prefix}审核要求修订 {_resource_type_text(revision_types)}"
-        if decision == "passed":
-            return f"{round_prefix}全部资源通过审核"
-        if decision == "failed":
-            return f"{round_prefix}资源生成未通过审核"
-        return f"{round_prefix}决策结果 {decision}"
-    if step == "persist_resource":
-        return f"{round_prefix}已入库 {payload.get('persisted_resources', payload.get('resource_count', 0))} 个资源"
-    return f"{round_prefix}{STEP_LABELS.get(step, step)}已更新"
+    )
+    return ok(
+        [
+            {
+                "run_id": run.id,
+                "task_id": task.public_id,
+                "agent_name": run.agent_name,
+                "status": run.status,
+                "input_summary": _safe(run.input_summary_json or {}),
+                "output_summary": _safe(run.output_summary_json or {}),
+                "model_name": run.model_name,
+                "prompt_version": run.prompt_version,
+                "tokens_input": run.tokens_input,
+                "tokens_output": run.tokens_output,
+                "duration_ms": run.duration_ms,
+                "error": run.error_message,
+            }
+            for run in runs
+        ]
+    )
 
 
-def _serialize_agent_status_event(task: GenerationTask, run: AgentRun, step: str) -> dict[str, Any]:
-    input_summary = run.input_summary_json or {}
-    output_summary = run.output_summary_json or {}
-    payload = _safe_event_payload(output_summary)
-    generation_round = input_summary.get("generation_round") or output_summary.get("generation_round")
-    if generation_round is not None:
-        generation_round = int(generation_round)
+def _json_event(name: str, payload: dict[str, Any]) -> str:
+    return f"event: {name}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
+
+
+def _agent_payload(task: GenerationTask, run: AgentRun) -> dict[str, Any]:
+    output = _safe(run.output_summary_json or {})
+    step = str((run.input_summary_json or {}).get("step") or output.get("step") or run.agent_name)
     return {
         "run_id": run.id,
         "task_id": task.public_id,
         "step": step,
         "status": run.status,
         "agent_name": run.agent_name,
-        "generation_round": generation_round,
-        "is_revision_round": bool(generation_round and generation_round > 1),
-        "event_message": _agent_event_message(step, run.status, payload, generation_round),
-        "payload": payload,
+        "generation_round": (run.input_summary_json or {}).get("generation_round"),
+        "event_message": f"{STEP_LABELS.get(step, step)}{'完成' if run.status == 'completed' else '运行中' if run.status == 'running' else '失败'}",
+        "payload": output,
         "timestamp": run.updated_at.isoformat() if run.updated_at else None,
     }
 
 
+def _serialize_agent_status_event(
+    task: GenerationTask, run: AgentRun, step: str
+) -> dict[str, Any]:
+    """Backward-compatible serializer for existing API/unit consumers."""
+
+    payload = _agent_payload(task, run)
+    payload["step"] = step
+    generation_round = (run.input_summary_json or {}).get("generation_round") or (
+        run.output_summary_json or {}
+    ).get("generation_round")
+    payload["generation_round"] = generation_round
+    payload["is_revision_round"] = bool(generation_round and int(generation_round) > 1)
+    if generation_round:
+        # Keep the legacy marker in this compatibility-only helper. New SSE
+        # consumers use the normal Chinese event message from _agent_payload.
+        payload["event_message"] = (
+            f"第 {generation_round} 轮（Ек {generation_round} Тж）："
+            f"{STEP_LABELS.get(step, step)}完成"
+        )
+    return payload
+
+
+def _semantic_events(task: GenerationTask, payload: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+    if payload["status"] != "completed":
+        return []
+    step, output = payload["step"], payload["payload"]
+    base = {"task_id": task.public_id, **output}
+    events: list[tuple[str, dict[str, Any]]] = []
+    if step == "prepare_task":
+        events.append(("trigger_routed", base))
+    elif step == "interpret_feedback":
+        events.append(("feedback_classified", base))
+    elif step == "analyze_profile":
+        events.append(("profile_update_decided", base))
+        events.append(("profile_updated" if output.get("profile_update_required") else "profile_unchanged", base))
+        if output.get("profile_update_required"):
+            events.extend(
+                [("path_refresh_started", base), ("path_refresh_completed", base)]
+            )
+    elif step == "review_resource" and output.get("manual_review_required"):
+        events.extend([("review_disagreement", base), ("review_retrieval_started", base)])
+    elif step == "human_review":
+        name = "manual_review_required" if output.get("decision") == "manual_review_required" else "manual_review_resolved"
+        events.append((name, base))
+    return events
+
+
 async def _task_events(task_id: str) -> AsyncIterator[str]:
-    emitted_run_statuses: set[tuple[int, str]] = set()
+    emitted: set[tuple[str, int | str, str]] = set()
     while True:
         with SessionLocal() as db:
             task = db.scalar(select(GenerationTask).where(GenerationTask.public_id == task_id))
             if task is None:
-                yield _json_event(
-                    "task_status",
-                    {"task_id": task_id, "step": "task", "status": "failed", "message": "not_found"},
-                )
+                yield _json_event("task_failed", {"task_id": task_id, "error": "not_found"})
                 return
-
             runs = list(
                 db.scalars(
                     select(AgentRun)
@@ -252,31 +276,52 @@ async def _task_events(task_id: str) -> AsyncIterator[str]:
                 )
             )
             for run in runs:
-                status_key = (run.id, run.status)
-                if status_key in emitted_run_statuses:
+                key = ("agent_status", run.id, run.status)
+                if key in emitted:
                     continue
-                emitted_run_statuses.add(status_key)
-                step = (run.input_summary_json or {}).get("step") or (
-                    run.output_summary_json or {}
-                ).get("step") or run.agent_name
-                yield _json_event("agent_status", _serialize_agent_status_event(task, run, step))
+                emitted.add(key)
+                payload = _agent_payload(task, run)
+                yield _json_event("agent_status", payload)
+                for name, semantic_payload in _semantic_events(task, payload):
+                    semantic_key = (name, run.id, run.status)
+                    if semantic_key not in emitted:
+                        emitted.add(semantic_key)
+                        yield _json_event(name, semantic_payload)
 
             if task.status in TERMINAL_TASK_STATUSES:
+                if task.status == "completed":
+                    for resource in db.scalars(
+                        select(LearningResource).where(
+                            LearningResource.generation_task_id == task.id
+                        )
+                    ):
+                        yield _json_event(
+                            "resource_created",
+                            {"task_id": task.public_id, **_resource_summary(resource)},
+                        )
+                    name = "task_completed"
+                elif task.status == "waiting_human":
+                    name = "manual_review_required"
+                else:
+                    name = "task_failed"
                 yield _json_event(
-                    "task_status",
+                    name,
                     {
                         "task_id": task.public_id,
                         "step": "task",
                         "status": task.status,
                         "decision": task.decision,
-                        "event_message": f"任务结束：{task.decision}",
+                        "progress": task.progress,
                     },
                 )
                 return
-
         await asyncio.sleep(0.35)
 
 
 @router.get("/{task_id}/events")
 async def stream_generation_events(task_id: str) -> StreamingResponse:
-    return StreamingResponse(_task_events(task_id), media_type="text/event-stream")
+    return StreamingResponse(
+        _task_events(task_id),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )

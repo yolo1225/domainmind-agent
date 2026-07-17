@@ -58,6 +58,58 @@ def test_list_learners_returns_not_started_without_profile() -> None:
     assert data["ability_level"] == 0
 
 
+def test_create_learner_returns_not_started_summary_and_is_listed() -> None:
+    testing_session = build_test_session()
+    app.dependency_overrides[get_db] = make_override(testing_session)
+    try:
+        client = TestClient(app)
+        response = client.post(
+            "/api/v1/learners",
+            json={
+                "learner_id": "learner_new",
+                "background": "有一点 Python 基础，准备学习 RAG 应用开发",
+                "target_domain": "ai_app_dev",
+                "experience_years": 1,
+                "learning_style": "practice",
+            },
+        )
+        list_response = client.get("/api/v1/learners")
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert data["learner_id"] == "learner_new"
+    assert data["target_domain"] == "ai_app_dev"
+    assert data["profile_status"] == "not_started"
+    assert data["ability_level"] == 0
+    assert any(item["learner_id"] == "learner_new" for item in list_response.json()["data"])
+
+
+def test_create_learner_rejects_duplicate_public_id() -> None:
+    testing_session = build_test_session()
+    with testing_session() as db:
+        db.add(Learner(public_id="learner_exists", target_domain="ai_app_dev"))
+        db.commit()
+
+    app.dependency_overrides[get_db] = make_override(testing_session)
+    try:
+        response = TestClient(app).post(
+            "/api/v1/learners",
+            json={
+                "learner_id": "learner_exists",
+                "background": "重复学习者",
+                "target_domain": "ai_app_dev",
+                "experience_years": 0,
+                "learning_style": "mixed",
+            },
+        )
+    finally:
+        app.dependency_overrides.clear()
+
+    assert response.status_code == 409
+
+
 def test_get_profile_and_report_share_radar_values() -> None:
     testing_session = build_test_session()
     with testing_session() as db:

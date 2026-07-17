@@ -1,12 +1,17 @@
 from typing import Any
 
+from langgraph.types import interrupt
+
 from app.agents.generation_agent import ContentGenerationAgent, GENERATION_AGENT_NAME
 from app.agents.orchestrator import ORCHESTRATOR_AGENT_NAME, OrchestratorAgent
 from app.agents.profile_agent import PROFILE_AGENT_NAME, ProfileAnalysisAgent
 from app.agents.retrieval_agent import KnowledgeRetrievalAgent, RETRIEVAL_AGENT_NAME
 from app.agents.review_agent import REVIEW_AGENT_NAME, ReviewValidationAgent
 from app.agents.state import AgentGraphState
+from app.agents.tutoring_agent import TutoringAgent
 from app.core.compatibility import AGENT_CONTRACT_VERSION
+from app.rag.embeddings import embed_texts
+from app.rag.vector_store import VectorStore
 
 
 def append_trace(state: AgentGraphState, agent_name: str, status: str, output: dict) -> None:
@@ -155,7 +160,127 @@ def load_profile(state: AgentGraphState) -> AgentGraphState:
     return state
 
 
+def prepare_task(state: AgentGraphState) -> AgentGraphState:
+    state["contract_version"] = AGENT_CONTRACT_VERSION
+    state.setdefault("trigger_type", "initial_generation")
+    state.setdefault("execution_mode", "auto")
+    state.setdefault("profile_change_evidence", [])
+    state.setdefault("affected_knowledge_ids", [])
+    state.setdefault("affected_path_node_ids", [])
+    state.setdefault("affected_resource_ids", [])
+    state.setdefault("agent_contexts", {})
+    state.setdefault("manual_review_required", False)
+    state.setdefault("revision_count", 0)
+    state.setdefault("decision", "pending")
+    append_trace(
+        state,
+        ORCHESTRATOR_AGENT_NAME,
+        "completed",
+        {
+            "step": "prepare_task",
+            "trigger_type": state["trigger_type"],
+            "execution_mode": state["execution_mode"],
+            "resume_node": state.get("resume_node"),
+        },
+    )
+    return state
+
+
+def interpret_feedback(state: AgentGraphState) -> AgentGraphState:
+    output = TutoringAgent().execute(state)
+    state["feedback_intent"] = output["feedback_intent"]
+    state["recommended_action"] = output["recommended_action"]
+    state["profile_change_evidence"] = [
+        *state.get("profile_change_evidence", []),
+        *output.get("evidence", []),
+    ]
+    state["decision_reason"] = output["decision_reason"]
+    state.setdefault("agent_contexts", {})["tutoring"] = {
+        "reply": output["reply"],
+        "feedback_intent": output["feedback_intent"],
+    }
+    append_trace(
+        state,
+        "tutoring_agent",
+        "completed",
+        {"step": "interpret_feedback", **output},
+    )
+    return state
+
+
+def _evidence_supports_profile_update(evidence: list[dict[str, Any]]) -> bool:
+    scored = [
+        item
+        for item in evidence
+        if item.get("type") in {"scored_quiz", "diagnostic_result", "validated_behavior"}
+        and float(item.get("confidence", 0)) >= 0.7
+    ]
+    confirmed = [item for item in evidence if item.get("confirmed") is True]
+    return bool(scored) or len(confirmed) >= 2
+
+
+def analyze_profile(state: AgentGraphState) -> AgentGraphState:
+    if state.get("trigger_type") != "resource_feedback":
+        return load_profile(state)
+
+    state.setdefault("affected_knowledge_ids", [])
+    state.setdefault("affected_path_node_ids", [])
+    state.setdefault("affected_resource_ids", [])
+
+    payload = ProfileAnalysisAgent().execute(state)
+    _apply_profile_payload(state, payload)
+    retrieval_plan = build_retrieval_plan(payload, state.get("learning_goal", ""))
+    if state.get("recommended_action") == "challenge":
+        retrieval_plan["strategy"] = "challenge"
+        retrieval_plan["target_difficulty"] = min(
+            5, int(retrieval_plan.get("target_difficulty", 3)) + 1
+        )
+    elif state.get("recommended_action") == "explain":
+        retrieval_plan["strategy"] = "remedial"
+        retrieval_plan["target_difficulty"] = max(
+            1, int(retrieval_plan.get("target_difficulty", 2)) - 1
+        )
+    state["retrieval_plan"] = retrieval_plan
+    evidence = state.get("profile_change_evidence", [])
+    update_required = _evidence_supports_profile_update(evidence)
+    state["profile_update_required"] = update_required
+    if update_required:
+        knowledge_ids = _unique_non_empty(
+            [item.get("knowledge_id") for item in evidence if isinstance(item, dict)]
+        )
+        state["affected_knowledge_ids"] = knowledge_ids
+        state["affected_path_node_ids"] = [f"path:{item}" for item in knowledge_ids]
+        state["affected_resource_ids"] = list(state.get("affected_resource_ids", []))
+        state["decision_reason"] = "计分或多轮一致证据足以支持画像变化"
+    else:
+        state["decision_reason"] = state.get("decision_reason") or "证据不足，保留当前画像"
+
+    action = state.get("recommended_action")
+    turn_count = int(state.get("tutoring_turn_count") or 1)
+    needs_generation = update_required or action in {"challenge", "review", "regenerate"}
+    if action == "explain" and turn_count >= 2:
+        needs_generation = True
+    state["needs_generation"] = needs_generation
+    append_trace(
+        state,
+        PROFILE_AGENT_NAME,
+        "completed",
+        {
+            "step": "analyze_profile",
+            "profile_update_required": update_required,
+            "decision_reason": state["decision_reason"],
+            "affected_knowledge_ids": state["affected_knowledge_ids"],
+            "needs_generation": needs_generation,
+        },
+    )
+    return state
+
+
 def retrieve_knowledge(state: AgentGraphState) -> AgentGraphState:
+    import app.agents.retrieval_agent as retrieval_module
+
+    retrieval_module.embed_texts = embed_texts
+    retrieval_module.VectorStore = VectorStore
     output = KnowledgeRetrievalAgent().execute(state)
     state["retrieved_chunks"] = output["retrieved_chunks"]
     append_trace(state, RETRIEVAL_AGENT_NAME, "completed", output["trace"])
@@ -174,6 +299,95 @@ def review_resource(state: AgentGraphState) -> AgentGraphState:
     output = ReviewValidationAgent().execute(state)
     state["review_reports"] = output["review_reports"]
     append_trace(state, REVIEW_AGENT_NAME, "completed", output["trace"])
+    return state
+
+
+def finalize_task(state: AgentGraphState) -> AgentGraphState:
+    # A human decision is authoritative.  Do not send an approved/rejected
+    # checkpoint back through model arbitration, otherwise the same conflict
+    # would immediately reopen the manual-review node.
+    if state.get("human_review_decision") == "approve":
+        state["decision"] = "completed"
+        state["manual_review_required"] = False
+        state["passed_resources"] = list(state.get("draft_resources", []))
+        append_trace(
+            state,
+            ORCHESTRATOR_AGENT_NAME,
+            "completed",
+            {"step": "finalize_task", "decision": "completed", "resolved_by": "human"},
+        )
+        return state
+    if state.get("human_review_decision") == "reject":
+        state["decision"] = "rejected"
+        state["manual_review_required"] = False
+        append_trace(
+            state,
+            ORCHESTRATOR_AGENT_NAME,
+            "completed",
+            {"step": "finalize_task", "decision": "rejected", "resolved_by": "human"},
+        )
+        return state
+    if state.get("trigger_type") == "resource_feedback" and not state.get("needs_generation"):
+        state["decision"] = "no_change"
+        append_trace(
+            state,
+            ORCHESTRATOR_AGENT_NAME,
+            "completed",
+            {
+                "step": "finalize_task",
+                "decision": "no_change",
+                "profile_update_required": False,
+                "decision_reason": state.get("decision_reason"),
+            },
+        )
+        return state
+
+    output = OrchestratorAgent().decide(state)
+    state["decision"] = "completed" if output["decision"] == "passed" else output["decision"]
+    state["revision_count"] = output["revision_count"]
+    state["revision_plan"] = output["revision_plan"]
+    state["passed_resources"] = output["passed_resources"]
+    if state["decision"] == "manual_review_required":
+        state["manual_review_required"] = True
+    append_trace(
+        state,
+        ORCHESTRATOR_AGENT_NAME,
+        "completed",
+        {"step": "finalize_task", **output["trace"], "decision": state["decision"]},
+    )
+    return state
+
+
+def human_review(state: AgentGraphState) -> AgentGraphState:
+    decision = state.get("human_review_decision")
+    if not decision:
+        decision = interrupt(
+            {
+                "task_id": state.get("task_id"),
+                "reason": "review_model_disagreement",
+                "allowed_decisions": ["approve", "request_revision", "reject"],
+            }
+        )
+        state["human_review_decision"] = decision
+    if decision == "approve":
+        state["decision"] = "completed"
+        state["manual_review_required"] = False
+    elif decision == "request_revision":
+        state["decision"] = "revision_required"
+        state["revision_count"] = int(state.get("revision_count") or 0) + 1
+        state["manual_review_required"] = False
+    elif decision == "reject":
+        state["decision"] = "rejected"
+        state["manual_review_required"] = False
+    else:
+        state["decision"] = "manual_review_required"
+        state["manual_review_required"] = True
+    append_trace(
+        state,
+        ORCHESTRATOR_AGENT_NAME,
+        "completed",
+        {"step": "human_review", "decision": state["decision"]},
+    )
     return state
 
 
@@ -199,3 +413,35 @@ def route_after_decision(state: AgentGraphState) -> str:
     if state["decision"] == "revision_required" and state["revision_count"] <= 2:
         return "retrieve_knowledge"
     return "end"
+
+
+def route_after_prepare(state: AgentGraphState) -> str:
+    if state.get("resume_node") == "human_review":
+        return "human_review"
+    if state.get("trigger_type") == "resource_feedback":
+        return "interpret_feedback"
+    return "analyze_profile"
+
+
+def route_after_profile(state: AgentGraphState) -> str:
+    return "retrieve_knowledge" if state.get("needs_generation", True) else "finalize_task"
+
+
+def route_after_finalize(state: AgentGraphState) -> str:
+    if state.get("decision") == "revision_required" and int(state.get("revision_count") or 0) <= 2:
+        return "retrieve_knowledge"
+    if state.get("decision") == "manual_review_required" or (
+        state.get("execution_mode") == "assisted"
+        and state.get("decision") == "completed"
+        and not state.get("human_review_decision")
+    ):
+        return "human_review"
+    return "end"
+
+
+def route_after_human_review(state: AgentGraphState) -> str:
+    if not state.get("human_review_decision"):
+        return "end"
+    if state.get("decision") == "revision_required" and int(state.get("revision_count") or 0) <= 2:
+        return "retrieve_knowledge"
+    return "finalize_task"

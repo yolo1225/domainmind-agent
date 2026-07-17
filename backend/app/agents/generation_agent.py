@@ -1,8 +1,11 @@
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
-from app.agents.base import BaseAgent
-from app.agents.contracts import AgentMessage, GenerationOutput
+from app.agents.base import BaseAgent, PromptBudget
+from app.agents.contracts import AgentMessage, GeneratedResourceDraft, GenerationOutput
 from app.agents.state import AgentGraphState
+from app.core.config import settings
+from app.services.llm_service import gateway
 
 
 GENERATION_AGENT_NAME = "content_generation_agent"
@@ -201,11 +204,12 @@ class ContentGenerationAgent(BaseAgent):
         profile_type = generation_context["profile"].get("profile_type", "beginner")
         revision_plan = generation_context.get("revision_plan") or {}
         target_resource_types = set(generation_context["resource_types"])
-        drafts = [
+        preserved_drafts = [
             resource
             for resource in state.get("passed_resources", [])
             if resource.get("resource_type") not in target_resource_types
         ]
+        fixture_drafts: list[dict[str, Any]] = []
         for resource_type in generation_context["resource_types"]:
             if resource_type == "lecture":
                 content = _lecture_content(
@@ -223,7 +227,7 @@ class ContentGenerationAgent(BaseAgent):
                     source_lines=source_lines,
                 )
             content = f"{content}{_revision_requirement_block(requirements)}"
-            drafts.append(
+            fixture_drafts.append(
                 {
                     "resource_type": resource_type,
                     "title": f"{main_title}个性化{resource_type}",
@@ -241,6 +245,40 @@ class ContentGenerationAgent(BaseAgent):
                     ],
                 }
             )
+        def generate_one(fixture: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+            payload = {
+                "profile": generation_context["profile"],
+                "resource_type": fixture["resource_type"],
+                "requirements": requirements,
+                "retrieved_sources": generation_context["sources"],
+                "output_contract": {
+                    "title": "string",
+                    "content": "markdown string",
+                    "difficulty": "integer 1-5",
+                    "sources": "retrieved source references only",
+                },
+            }
+            budget = PromptBudget(12_000, 4_000).validate(str(payload))
+            result, metadata = gateway.complete_json(
+                model=settings.primary_llm_model,
+                system_prompt=self.system_prompt(),
+                payload=payload,
+                fixture_factory=lambda: fixture,
+                response_model=GeneratedResourceDraft,
+            )
+            normalized = {
+                **fixture,
+                "title": str(result.get("title") or fixture["title"]),
+                "content": str(result.get("content") or fixture["content"]),
+                "difficulty": int(result.get("difficulty") or fixture["difficulty"]),
+                "sources": result.get("sources") or fixture["sources"],
+            }
+            return normalized, {**metadata, "resource_type": fixture["resource_type"], "budget": budget}
+
+        with ThreadPoolExecutor(max_workers=max(1, len(fixture_drafts))) as executor:
+            generated = list(executor.map(generate_one, fixture_drafts))
+        drafts = [*preserved_drafts, *[item[0] for item in generated]]
+        model_calls = [item[1] for item in generated]
         return GenerationOutput(
             generation_context=generation_context,
             draft_resources=drafts,
@@ -253,5 +291,6 @@ class ContentGenerationAgent(BaseAgent):
                 "difficulty": requirements["difficulty"],
                 "source_count": len(sources),
                 "revision_required": bool(revision_plan.get("revision_required")),
+                "model_calls": model_calls,
             },
         ).model_dump()

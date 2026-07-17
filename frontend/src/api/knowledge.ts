@@ -1,4 +1,4 @@
-import { getData, postData } from '@/api/client'
+import { getData, patchData, postData } from '@/api/client'
 
 export interface KnowledgeItem {
   knowledge_id: string
@@ -58,7 +58,32 @@ export interface KnowledgeItemCreateResponse {
   item: KnowledgeItem
   index_status: string
   affected_learning_paths: number
+  affected_resources: number
+  affected_knowledge_ids: string[]
   next_action: string
+}
+
+export interface KnowledgeItemUpdateRequest {
+  name?: string
+  category?: string
+  difficulty?: number
+  tags?: string[]
+  content?: string
+  source_title?: string
+  source_url?: string | null
+  license_note?: string
+  prerequisites?: string[]
+  related?: string[]
+}
+
+export interface KnowledgeIndexResult {
+  status: 'completed'
+  affected_domain: string
+  indexed_items: number
+  indexed_chunks: number
+  deleted_chunks: number
+  collection_count: number
+  embedding_model: string
 }
 
 export function listKnowledgeItems(domainCode = 'ai_app_dev', limit = 100) {
@@ -82,6 +107,10 @@ export function createKnowledgeItem(payload: KnowledgeItemCreateRequest) {
   return postData<KnowledgeItemCreateResponse>('/knowledge/items', payload)
 }
 
+export function updateKnowledgeItem(knowledgeId: string, payload: KnowledgeItemUpdateRequest) {
+  return patchData<KnowledgeItemCreateResponse>(`/knowledge/items/${knowledgeId}`, payload)
+}
+
 export function rebuildKnowledgeIndex() {
-  return postData<{ status: string; affected_domain: string }>('/knowledge/rebuild-index')
+  return postData<KnowledgeIndexResult>('/knowledge/rebuild-index?domain_code=ai_app_dev')
 }

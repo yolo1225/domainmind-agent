@@ -117,17 +117,25 @@ Agent messages should use a standardized shape containing:
 The main workflow is:
 
 ```text
-START
- -> load_profile
- -> retrieve_knowledge
- -> generate_resource
- -> review_resource
- -> decide_next_step
-    -> persist_resource when passed
-    -> retrieve_knowledge when revision_required and revision_count < 2
-    -> END when failed
- -> END
+START -> prepare_task
+prepare_task -> analyze_profile       when trigger_type = initial_generation
+prepare_task -> interpret_feedback    when trigger_type = resource_feedback
+interpret_feedback -> analyze_profile
+analyze_profile -> finalize_task      when no generation, review, or regeneration is required
+analyze_profile -> retrieve_knowledge when generation, review, or regeneration is required
+retrieve_knowledge -> generate_resource -> review_resource -> finalize_task
+finalize_task -> END                  when decision in [completed, no_change, failed, rejected]
+finalize_task -> retrieve_knowledge   when decision = revision_required and revision_count < 2
+finalize_task -> human_review         when decision = manual_review_required or assisted approval is pending
+human_review -> retrieve_knowledge    when the administrator requests revision
+human_review -> finalize_task         when the administrator approves or rejects
 ```
+
+`build_learning_graph()` is the only top-level graph builder. Initial generation and
+feedback-triggered adjustment reuse the same `generation_tasks.public_id` as the public
+`task_id` and LangGraph `thread_id`. Natural-language feedback enters through a tutoring
+session. Quick tags, ratings, and selected-text reports are supporting evidence only and
+must not directly overwrite a learner profile.
 
 ## Review And Anti-Hallucination Rules
 

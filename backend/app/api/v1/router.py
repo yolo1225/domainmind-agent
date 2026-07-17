@@ -9,8 +9,10 @@ from app.api.v1 import (
     health,
     knowledge,
     learners,
+    manual_reviews,
     reports,
     resources,
+    tutoring,
 )
 
 api_router = APIRouter()
@@ -21,6 +23,10 @@ api_router.include_router(diagnostics.router, prefix="/diagnostics", tags=["diag
 api_router.include_router(knowledge.router, prefix="/knowledge", tags=["knowledge"])
 api_router.include_router(generation_tasks.router, prefix="/generation-tasks", tags=["generation-tasks"])
 api_router.include_router(resources.router, prefix="/resources", tags=["resources"])
+api_router.include_router(tutoring.router, prefix="/tutoring", tags=["tutoring"])
+api_router.include_router(
+    manual_reviews.router, prefix="/manual-reviews", tags=["manual-reviews"]
+)
 api_router.include_router(reports.router, prefix="/reports", tags=["reports"])
 api_router.include_router(domains.router, prefix="/domains", tags=["domains"])
 api_router.include_router(evaluations.router, prefix="/evaluations", tags=["evaluations"])

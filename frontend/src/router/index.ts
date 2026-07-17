@@ -11,6 +11,7 @@ const routes = [
   { path: '/knowledge', component: () => import('@/pages/KnowledgeAdminPage.vue') },
   { path: '/domains', component: () => import('@/pages/DomainConfigPage.vue') },
   { path: '/metrics', component: () => import('@/pages/MetricsPage.vue') },
+  { path: '/manual-reviews', component: () => import('@/pages/ManualReviewPage.vue') },
 ]
 
 export const router = createRouter({

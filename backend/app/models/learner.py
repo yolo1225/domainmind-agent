@@ -1,4 +1,6 @@
-from sqlalchemy import JSON, ForeignKey, String
+from datetime import datetime
+
+from sqlalchemy import JSON, DateTime, Float, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, TimestampMixin
@@ -24,6 +26,18 @@ class LearnerProfile(TimestampMixin, Base):
     domain_code: Mapped[str] = mapped_column(String(64), default="ai_app_dev")
     ability_profile_json: Mapped[dict] = mapped_column(JSON, default=dict)
     weak_knowledge_json: Mapped[list] = mapped_column(JSON, default=list)
+    profile_version: Mapped[int] = mapped_column(default=1)
+    previous_profile_id: Mapped[int | None] = mapped_column(
+        ForeignKey("learner_profiles.id"), nullable=True
+    )
+    changed_dimensions_json: Mapped[list] = mapped_column(JSON, default=list)
+    evidence_refs_json: Mapped[list] = mapped_column(JSON, default=list)
+    confidence: Mapped[float] = mapped_column(Float, default=0)
+    trigger_feedback_id: Mapped[int | None] = mapped_column(
+        ForeignKey("resource_feedback.id", use_alter=True), nullable=True
+    )
+    decision_reason: Mapped[str] = mapped_column(Text, default="initial profile")
+    profile_changed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 class LearningPath(TimestampMixin, Base):

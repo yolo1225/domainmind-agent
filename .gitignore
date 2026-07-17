@@ -10,8 +10,10 @@ node_modules/
 dist/
 coverage/
 
+# Legacy local Chroma files are not part of the Docker service runtime.
 data/chroma/*
 !data/chroma/.gitkeep
+
 storage/exports/*
 !storage/exports/.gitkeep
 
@@ -25,3 +27,12 @@ yarn-error.log*
 
 frontend/vite.config.js
 frontend/vite.config.d.ts
+
+# Local verification artifacts
+backend/tmp_p0_migration.db
+backend/uv.lock
+/tmp/
+
+# Local competition source documents
+/XH-202630*.pdf
+/docs/设计方案-*.docx

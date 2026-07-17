@@ -80,7 +80,8 @@
     "content": "上下文设计决定模型能看到哪些事实、约束和示例。上下文应避免堆砌无关材料，并把关键背景放在模型容易引用的位置。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["prompt_basic"]
+    "prerequisites": ["prompt_basic"],
+    "related": ["token_context_budget"]
   },
   {
     "knowledge_id": "prompt_output_format",
@@ -92,7 +93,8 @@
     "content": "输出格式约束要求模型按 JSON、Markdown 或固定字段返回结果，方便后续程序解析。结构化输出要配合校验逻辑，不能只依赖自然语言承诺。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["prompt_basic"]
+    "prerequisites": ["prompt_basic"],
+    "related": ["structured_output_validation"]
   },
   {
     "knowledge_id": "prompt_evaluation",
@@ -128,7 +130,8 @@
     "content": "OpenAI 兼容接口通常复用 chat completions 或 responses 风格的消息结构，使系统可以替换模型服务商。应用代码应通过配置管理 base_url、api_key 和 model。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["llm_api_calling"]
+    "prerequisites": ["llm_api_calling"],
+    "related": ["fastapi_endpoint_design"]
   },
   {
     "knowledge_id": "token_context_budget",
@@ -176,7 +179,8 @@
     "content": "结构化输出校验用于确认模型返回字段齐全、类型正确且取值合法。校验失败时可以重试、降级或进入人工复核流程。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["prompt_output_format", "data_schema_design"]
+    "prerequisites": ["prompt_output_format", "data_schema_design"],
+    "related": ["pydantic_schema_validation"]
   },
   {
     "knowledge_id": "embedding_basics",
@@ -224,7 +228,8 @@
     "content": "RAG 切片需要平衡语义完整性、召回粒度和上下文窗口占用，常见策略包括按标题、段落、固定窗口和滑动窗口切片。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["rag_pipeline_overview"]
+    "prerequisites": ["rag_pipeline_overview"],
+    "related": ["token_context_budget"]
   },
   {
     "knowledge_id": "metadata_filtering",
@@ -236,7 +241,8 @@
     "content": "元数据过滤可按领域、难度、资源类型或知识标签限制召回范围。个性化学习系统应优先检索与学习者目标和薄弱点匹配的资料。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["rag_pipeline_overview"]
+    "prerequisites": ["rag_pipeline_overview"],
+    "related": ["learner_profile_model"]
   },
   {
     "knowledge_id": "retrieval_reranking",
@@ -260,7 +266,8 @@
     "content": "生成内容应记录引用的知识点、标题和来源，便于评审智能体核对事实。没有来源的关键结论应降低可信度或进入复核。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["rag_pipeline_overview"]
+    "prerequisites": ["rag_pipeline_overview"],
+    "related": ["privacy_log_policy"]
   },
   {
     "knowledge_id": "hallucination_guardrails",
@@ -284,7 +291,8 @@
     "content": "知识库导入应包括字段校验、去重、关系生成、向量重建和影响标记。每次导入都要可重复执行，避免演示环境出现重复数据。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["data_schema_design", "rag_pipeline_overview"]
+    "prerequisites": ["data_schema_design", "rag_pipeline_overview"],
+    "related": ["alembic_migrations"]
   },
   {
     "knowledge_id": "document_parsing",
@@ -320,7 +328,8 @@
     "content": "Pydantic 用于定义请求、响应和内部结构的字段类型与约束。它能让接口错误更早暴露，也让前后端契约更清晰。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["fastapi_endpoint_design"]
+    "prerequisites": ["fastapi_endpoint_design"],
+    "related": ["structured_output_validation"]
   },
   {
     "knowledge_id": "sqlalchemy_modeling",
@@ -344,7 +353,8 @@
     "content": "Alembic 用迁移脚本记录数据库结构变更，使不同环境可以升级到同一 schema。迁移应小步、可审查，并与模型变更保持一致。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["sqlalchemy_modeling"]
+    "prerequisites": ["sqlalchemy_modeling"],
+    "related": ["knowledge_base_ingestion"]
   },
   {
     "knowledge_id": "mysql_indexing",
@@ -392,7 +402,8 @@
     "content": "前端 API 客户端应统一 baseURL、错误处理、请求 ID 和响应解包。这样页面组件可以关注业务状态，而不是重复处理网络细节。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["frontend_vue_state", "fastapi_endpoint_design"]
+    "prerequisites": ["frontend_vue_state", "fastapi_endpoint_design"],
+    "related": ["sse_progress_events"]
   },
   {
     "knowledge_id": "agent_role_design",
@@ -416,7 +427,8 @@
     "content": "StateGraph 用状态对象连接多个节点，每个节点读取并更新状态，再由边或条件边决定下一步。它适合表达可追踪的智能体工作流。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["agent_role_design"]
+    "prerequisites": ["agent_role_design"],
+    "related": ["orchestrator_workflow"]
   },
   {
     "knowledge_id": "orchestrator_workflow",
@@ -548,7 +560,8 @@
     "content": "双模型交叉评审用 primary 和 secondary 两个评审通道检查事实与来源。如果评分差异过大或结论冲突，应重新检索并仲裁。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["review_validation_agent"]
+    "prerequisites": ["review_validation_agent"],
+    "related": ["hallucination_guardrails"]
   },
   {
     "knowledge_id": "evaluation_metrics",
@@ -560,7 +573,8 @@
     "content": "MVP 评测应关注幻觉率、难度匹配准确率、核心知识覆盖率和学习路径顺序准确率。离线测试脚本是复现实验结果的依据。",
     "source_title": "自建 AI 应用开发实训知识库",
     "license_note": "team-authored",
-    "prerequisites": ["prompt_evaluation", "review_validation_agent"]
+    "prerequisites": ["prompt_evaluation", "review_validation_agent"],
+    "related": ["demo_script_design"]
   },
   {
     "knowledge_id": "privacy_log_policy",

@@ -31,145 +31,240 @@
       <p>请先完成诊断测评，或在 Agent 协同页启动一次生成流程。</p>
     </div>
 
-    <div v-else class="resource-layout">
-      <aside class="panel batch-list">
-        <div class="section-head">
-          <h2 class="panel-title">生成批次</h2>
-          <el-tag effect="plain">{{ batches.length }} 批</el-tag>
+    <div v-else class="resource-workspace">
+      <div v-if="selectedBatch" class="current-batch-bar">
+        <div class="current-batch-copy">
+          <span class="batch-eyebrow">
+            {{ isRequestedBatch(selectedBatch.taskId) ? '本次生成' : '当前查看批次' }}
+          </span>
+          <h2>{{ selectedBatch.taskId }}</h2>
+          <p>
+            {{ formatDateTime(selectedBatch.taskCreatedAt) }} 创建，{{
+              selectedBatch.resources.length
+            }}/3 类资源已入库，决策 {{ decisionLabel(selectedBatch.decision) }}。
+          </p>
         </div>
-        <button
-          v-for="batch in batches"
-          :key="batch.taskId"
-          class="batch-tab"
-          :class="{ 'is-active': selectedBatch?.taskId === batch.taskId }"
-          type="button"
-          @click="selectBatch(batch.taskId)"
-        >
-          <span class="batch-topline">
-            <el-tag
-              size="small"
-              :type="isRequestedBatch(batch.taskId) ? 'success' : 'info'"
-              effect="plain"
-            >
-              {{ isRequestedBatch(batch.taskId) ? '本次生成' : '历史生成' }}
-            </el-tag>
-            <small>{{ formatDateTime(batch.taskCreatedAt) }}</small>
-          </span>
-          <strong>{{ batch.taskId }}</strong>
-          <span class="batch-meta">
-            {{ batch.resources.length }} 类资源 · {{ decisionLabel(batch.decision) }}
-          </span>
-          <span class="batch-meta">
-            画像 {{ batch.profileType || '未标注' }} · 难度 {{ batch.targetDifficulty || '-' }}
-          </span>
-        </button>
-      </aside>
-
-      <main v-if="selectedBatch" class="resource-main">
-        <div class="panel batch-summary">
+        <div class="current-batch-metrics" aria-label="当前批次资源状态">
           <div>
-            <div class="summary-kicker">
-              <el-tag :type="isRequestedBatch(selectedBatch.taskId) ? 'success' : 'info'" effect="plain">
-                {{ isRequestedBatch(selectedBatch.taskId) ? '本次生成' : '当前批次' }}
-              </el-tag>
-              <span>{{ selectedBatch.taskId }}</span>
-            </div>
-            <h2>生成结果</h2>
-            <p class="muted">
-              {{ formatDateTime(selectedBatch.taskCreatedAt) }} 创建，{{
-                selectedBatch.resources.length
-              }} 类资源，决策 {{ decisionLabel(selectedBatch.decision) }}。
-            </p>
+            <span>任务状态</span>
+            <strong>{{ statusLabel(selectedBatch.status) }}</strong>
           </div>
-          <div class="summary-stats">
-            <span>{{ statusLabel(selectedBatch.status) }}</span>
-            <strong>{{ selectedBatch.resources.length }}/3</strong>
+          <div>
+            <span>审核通过</span>
+            <strong>{{ batchPassedCount(selectedBatch) }}/{{ selectedBatch.resources.length }}</strong>
+          </div>
+          <div>
+            <span>知识来源</span>
+            <strong>{{ batchSourceCount(selectedBatch) }}</strong>
           </div>
         </div>
+      </div>
 
-        <div class="panel resource-detail">
-          <el-tabs v-model="selectedResourceId" class="resource-tabs">
-            <el-tab-pane
+      <div class="resource-layout">
+        <aside class="panel batch-list">
+          <div class="section-head">
+            <div>
+              <h2 class="panel-title">生成批次</h2>
+              <p class="panel-caption">按任务查看每次生成的三类资源</p>
+            </div>
+            <el-tag effect="plain">{{ batches.length }} 批</el-tag>
+          </div>
+          <button
+            v-for="batch in batches"
+            :key="batch.taskId"
+            class="batch-tab"
+            :class="{ 'is-active': selectedBatch?.taskId === batch.taskId }"
+            type="button"
+            @click="selectBatch(batch.taskId)"
+          >
+            <span class="batch-marker" aria-hidden="true" />
+            <span class="batch-topline">
+              <el-tag
+                size="small"
+                :type="isRequestedBatch(batch.taskId) ? 'success' : 'info'"
+                effect="plain"
+              >
+                {{ isRequestedBatch(batch.taskId) ? '本次生成' : '历史生成' }}
+              </el-tag>
+              <small>{{ formatDateTime(batch.taskCreatedAt) }}</small>
+            </span>
+            <strong>{{ shortTaskId(batch.taskId) }}</strong>
+            <span class="batch-meta">
+              {{ batch.resources.length }} 类资源 · {{ decisionLabel(batch.decision) }}
+            </span>
+            <span class="batch-meta">
+              画像 {{ batch.profileType || '未标注' }} · 难度 {{ batch.targetDifficulty || '-' }}
+            </span>
+            <span class="batch-resource-dots" aria-label="资源类型">
+              <i
+                v-for="item in resourceTypeChecklist(batch)"
+                :key="item.type"
+                :class="{ 'is-ready': item.ready }"
+              >
+                {{ item.label }}
+              </i>
+            </span>
+          </button>
+        </aside>
+
+        <main v-if="selectedBatch" class="resource-main">
+          <div class="resource-switcher">
+            <button
               v-for="resource in orderedBatchResources"
               :key="resource.resource_id"
-              :label="typeLabel(resource.resource_type)"
-              :name="resource.resource_id"
-            />
-          </el-tabs>
+              class="resource-chip"
+              :class="{ 'is-active': selectedResourceId === resource.resource_id }"
+              type="button"
+              @click="selectedResourceId = resource.resource_id"
+            >
+              <span>{{ typeLabel(resource.resource_type) }}</span>
+              <strong>{{ resource.title }}</strong>
+              <small>难度 {{ resource.difficulty }} · {{ reviewLabel(resource.review_status) }}</small>
+            </button>
+          </div>
 
-          <template v-if="selected">
-            <div class="resource-head">
-              <div>
-                <h2>{{ selected.title }}</h2>
-                <p class="muted">
-                  {{ typeLabel(selected.resource_type) }} · 难度 {{ selected.difficulty }} ·
-                  {{ formatDateTime(selected.generated_at) }}
-                </p>
+          <div class="panel resource-detail">
+            <template v-if="selected">
+              <div class="resource-head">
+                <div>
+                  <h2>{{ selected.title }}</h2>
+                  <p class="muted">
+                    {{ typeLabel(selected.resource_type) }} · 难度 {{ selected.difficulty }} ·
+                    {{ formatDateTime(selected.generated_at) }}
+                  </p>
+                </div>
+                <div class="resource-actions">
+                  <el-tag :type="selected.review_status === 'passed' ? 'success' : 'warning'">
+                    {{ reviewLabel(selected.review_status) }}
+                  </el-tag>
+                  <el-button size="small" @click="showVersions">版本记录</el-button>
+                  <el-dropdown @command="downloadResource">
+                    <el-button size="small">导出</el-button>
+                    <template #dropdown>
+                      <el-dropdown-menu>
+                        <el-dropdown-item command="markdown:learner">Markdown 学习者版</el-dropdown-item>
+                        <el-dropdown-item command="pdf:learner">PDF 学习者版</el-dropdown-item>
+                        <el-dropdown-item v-if="selected.resource_type === 'graded_quiz'" command="markdown:teacher">Markdown 教师版</el-dropdown-item>
+                        <el-dropdown-item v-if="selected.resource_type === 'graded_quiz'" command="pdf:teacher">PDF 教师版</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                </div>
               </div>
-              <el-tag :type="selected.review_status === 'passed' ? 'success' : 'warning'">
-                {{ reviewLabel(selected.review_status) }}
-              </el-tag>
-            </div>
 
-            <section>
-              <h3>知识来源</h3>
-              <div class="source-list">
-                <el-tag
-                  v-for="source in selected.source_details?.length ? selected.source_details : selected.sources"
-                  :key="sourceKey(source)"
-                  effect="plain"
-                >
-                  {{ sourceLabel(source) }}
-                </el-tag>
+              <div class="resource-facts">
+                <div>
+                  <span>资源类型</span>
+                  <strong>{{ typeLabel(selected.resource_type) }}</strong>
+                </div>
+                <div>
+                  <span>目标难度</span>
+                  <strong>{{ selected.difficulty }}</strong>
+                </div>
+                <div>
+                  <span>知识来源</span>
+                  <strong>{{ resourceSourceCount(selected) }}</strong>
+                </div>
               </div>
-            </section>
 
-            <section>
-              <h3>资源内容</h3>
-              <ResourceMarkdownViewer v-if="selected.content" :content="selected.content" />
-              <p v-else class="muted">当前资源只有摘要，完整内容将在生成任务完成后写入。</p>
-            </section>
+              <section class="source-section">
+                <div class="section-title-row">
+                  <h3>知识来源</h3>
+                  <span>{{ resourceSourceCount(selected) }} 条可追溯引用</span>
+                </div>
+                <div class="source-list">
+                  <el-tag
+                    v-for="source in selected.source_details?.length ? selected.source_details : selected.sources"
+                    :key="sourceKey(source)"
+                    effect="plain"
+                  >
+                    {{ sourceLabel(source) }}
+                  </el-tag>
+                </div>
+              </section>
 
-            <section class="feedback-panel">
-              <h3>学习反馈</h3>
-              <p class="muted">选择学习者最直接的感受，系统会触发对应辅导动作。</p>
-              <div class="feedback-row">
-                <el-button @click="sendFeedback(selected.resource_id, 'too_easy')">
-                  太简单，给挑战任务
-                </el-button>
-                <el-button @click="sendFeedback(selected.resource_id, 'too_hard')">
-                  太难，补救解释
-                </el-button>
-                <el-button @click="sendFeedback(selected.resource_id, 'confusing')">
-                  看不懂，重新讲解
-                </el-button>
-                <el-button type="warning" @click="sendFeedback(selected.resource_id, 'incorrect')">
-                  有错误，触发修订
-                </el-button>
-              </div>
-            </section>
-          </template>
-        </div>
-      </main>
+              <section class="content-section">
+                <h3>资源内容</h3>
+                <ResourceMarkdownViewer v-if="selected.content" :content="selected.content" />
+                <p v-else class="muted">当前资源只有摘要，完整内容将在生成任务完成后写入。</p>
+              </section>
+
+              <section class="feedback-panel">
+                <div>
+                  <h3>学习反馈</h3>
+                  <p class="muted">选择学习者最直接的感受，系统会触发对应辅导动作。</p>
+                </div>
+                <div class="feedback-row">
+                  <el-button @click="sendFeedback(selected.resource_id, 'too_easy')">
+                    太简单，给挑战任务
+                  </el-button>
+                  <el-button @click="sendFeedback(selected.resource_id, 'too_hard')">
+                    太难，补救解释
+                  </el-button>
+                  <el-button @click="sendFeedback(selected.resource_id, 'confusing')">
+                    看不懂，重新讲解
+                  </el-button>
+                  <el-button type="warning" @click="sendFeedback(selected.resource_id, 'incorrect')">
+                    有错误，触发修订
+                  </el-button>
+                </div>
+                <div class="tutoring-box">
+                  <div class="section-title-row">
+                    <h3>连续导学</h3>
+                    <el-tag v-if="tutoringSessionId" effect="plain">会话进行中</el-tag>
+                  </div>
+                  <div v-if="tutoringMessages.length" class="tutoring-messages">
+                    <p v-for="message in tutoringMessages" :key="message.id" :class="message.sender">
+                      <strong>{{ message.sender === 'learner' ? '我' : '导学 Agent' }}</strong>
+                      <span>{{ message.content }}</span>
+                    </p>
+                  </div>
+                  <div class="tutoring-input">
+                    <el-input
+                      v-model="tutoringInput"
+                      placeholder="描述你具体不理解的地方"
+                      @keyup.enter="sendTutorMessage"
+                    />
+                    <el-button type="primary" :loading="tutoringSending" @click="sendTutorMessage">发送</el-button>
+                  </div>
+                </div>
+              </section>
+            </template>
+          </div>
+        </main>
+      </div>
     </div>
 
     <div v-if="lastFeedback" class="panel feedback-result">
       <div>
         <h2 class="panel-title">反馈触发结果</h2>
         <p class="page-subtitle">
-          {{ actionLabel(lastFeedback.triggered_action) }}，学习路径已标记为需要刷新。
+          {{ actionLabel(lastFeedback.recommended_action) }}。{{ lastFeedback.decision_reason }}
         </p>
       </div>
       <el-descriptions :column="3" border>
         <el-descriptions-item label="资源">{{ lastFeedback.resource_id }}</el-descriptions-item>
-        <el-descriptions-item label="触发智能体">{{ lastFeedback.triggered_agent }}</el-descriptions-item>
-        <el-descriptions-item label="动作">{{ actionLabel(lastFeedback.triggered_action) }}</el-descriptions-item>
-        <el-descriptions-item label="画像">{{ lastFeedback.profile_id }}</el-descriptions-item>
-        <el-descriptions-item label="路径刷新">
-          {{ lastFeedback.learning_path_needs_refresh ? '是' : '否' }}
+        <el-descriptions-item label="反馈意图">{{ lastFeedback.feedback_intent || '未知状态' }}</el-descriptions-item>
+        <el-descriptions-item label="建议动作">{{ actionLabel(lastFeedback.recommended_action) }}</el-descriptions-item>
+        <el-descriptions-item label="画像更新">
+          {{ lastFeedback.profile_update_required ? '已更新' : '证据不足，不更新' }}
+        </el-descriptions-item>
+        <el-descriptions-item label="后续任务">
+          {{ lastFeedback.task_id || '无需创建任务' }}
         </el-descriptions-item>
       </el-descriptions>
     </div>
+
+    <el-drawer v-model="versionsVisible" title="资源版本记录" size="420px">
+      <el-timeline v-if="versions.length">
+        <el-timeline-item v-for="item in versions" :key="item.resource_id" :timestamp="formatDateTime(item.created_at)">
+          <strong>版本 {{ item.version }}</strong>
+          <el-tag v-if="item.is_current" size="small" type="success">当前版本</el-tag>
+          <p>{{ reviewLabel(item.review_status) }} · {{ item.adaptation_reason || '首次生成' }}</p>
+        </el-timeline-item>
+      </el-timeline>
+      <el-empty v-else description="暂无版本记录" />
+    </el-drawer>
   </section>
 </template>
 
@@ -178,16 +273,25 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
-import { listResources, submitFeedback, type ResourceSummary } from '@/api/resources'
+import {
+  exportResource,
+  listResources,
+  listResourceVersions,
+  submitFeedback,
+  type ResourceSummary,
+} from '@/api/resources'
+import { createTutoringSession, sendTutoringMessage } from '@/api/tutoring'
 import ResourceMarkdownViewer from '@/components/ResourceViewer/ResourceMarkdownViewer.vue'
+import { useLearnerStore } from '@/stores/learnerStore'
 
 interface FeedbackResult {
   resource_id: string
   feedback_status: string
-  triggered_agent: string
-  triggered_action: string
-  profile_id: string
-  learning_path_needs_refresh: boolean
+  feedback_intent: string | null
+  recommended_action: string
+  profile_update_required: boolean
+  decision_reason: string
+  task_id: string | null
 }
 
 interface ResourceBatch {
@@ -202,11 +306,18 @@ interface ResourceBatch {
 
 const route = useRoute()
 const router = useRouter()
+const learnerStore = useLearnerStore()
 const resources = ref<ResourceSummary[]>([])
 const selectedTaskId = ref('')
 const selectedResourceId = ref('')
 const loading = ref(false)
 const lastFeedback = ref<FeedbackResult | null>(null)
+const versionsVisible = ref(false)
+const versions = ref<Awaited<ReturnType<typeof listResourceVersions>>>([])
+const tutoringSessionId = ref('')
+const tutoringInput = ref('')
+const tutoringSending = ref(false)
+const tutoringMessages = ref<Array<{ id: string; sender: 'learner' | 'agent'; content: string }>>([])
 
 const requestedTaskId = computed(() => {
   const raw = route.query.task_id
@@ -275,7 +386,7 @@ function reviewLabel(status: string) {
       failed: '审核未通过',
       revision_required: '需要修订',
       pending: '等待审核',
-    }[status] ?? status
+    }[status] ?? '未知状态'
   )
 }
 
@@ -287,7 +398,7 @@ function statusLabel(status: string) {
       failed: '任务失败',
       revision_required: '需要修订',
       pending: '等待生成',
-    }[status] ?? status
+    }[status] ?? '未知状态'
   )
 }
 
@@ -298,17 +409,20 @@ function decisionLabel(decision: string) {
       failed: '未通过',
       revision_required: '需要修订',
       pending: '等待决策',
-    }[decision] ?? decision
+    }[decision] ?? '未知状态'
   )
 }
 
 function actionLabel(action: string) {
   return (
     {
-      challenge_task: '生成挑战任务',
-      remedial_explanation: '生成补救解释',
-      revision_required: '要求资源修订',
-      profile_update: '更新学习画像',
+      challenge: '生成挑战任务',
+      explain: '给出补救解释',
+      review: '复核资源事实',
+      regenerate: '局部重新生成',
+      update_profile: '更新学习画像',
+      update_path: '刷新学习路径',
+      no_change: '记录反馈，不修改画像',
     }[action] ?? action
   )
 }
@@ -322,6 +436,38 @@ function sourceLabel(source: string | { knowledge_id: string; name?: string; sou
   return source.name ? `${source.name}（${source.knowledge_id}）` : source.knowledge_id
 }
 
+function shortTaskId(taskId: string) {
+  if (taskId.length <= 18) return taskId
+  return `${taskId.slice(0, 10)}...${taskId.slice(-6)}`
+}
+
+function resourceSourceCount(resource: ResourceSummary) {
+  return resource.source_details?.length || resource.sources?.length || 0
+}
+
+function batchSourceCount(batch: ResourceBatch) {
+  return new Set(
+    batch.resources.flatMap((resource) =>
+      resource.source_details?.length
+        ? resource.source_details.map((source) => source.knowledge_id)
+        : resource.sources,
+    ),
+  ).size
+}
+
+function batchPassedCount(batch: ResourceBatch) {
+  return batch.resources.filter((resource) => resource.review_status === 'passed').length
+}
+
+function resourceTypeChecklist(batch: ResourceBatch) {
+  const readyTypes = new Set(batch.resources.map((resource) => resource.resource_type))
+  return [
+    { type: 'lecture', label: '讲义', ready: readyTypes.has('lecture') },
+    { type: 'practice_guide', label: '实训', ready: readyTypes.has('practice_guide') },
+    { type: 'graded_quiz', label: '测验', ready: readyTypes.has('graded_quiz') },
+  ]
+}
+
 function formatDateTime(value?: string | null) {
   if (!value) return '时间未记录'
   const normalizedValue = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(value)
@@ -331,6 +477,7 @@ function formatDateTime(value?: string | null) {
   if (Number.isNaN(date.getTime())) return value
   return date.toLocaleString('zh-CN', {
     timeZone: 'Asia/Shanghai',
+    year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
@@ -384,12 +531,52 @@ async function load() {
 
 async function sendFeedback(resourceId: string, feedbackType: string) {
   try {
-    lastFeedback.value = (await submitFeedback(resourceId, feedbackType)) as FeedbackResult
+    lastFeedback.value = (await submitFeedback(
+      resourceId,
+      feedbackType,
+      3,
+      learnerStore.selectedLearnerId,
+    )) as FeedbackResult
     ElMessage.success('反馈已触发辅导动作。')
     await load()
   } catch (error) {
     ElMessage.error('反馈提交失败，请稍后重试。')
   }
+}
+
+async function showVersions() {
+  if (!selected.value) return
+  versionsVisible.value = true
+  try { versions.value = await listResourceVersions(selected.value.resource_id) }
+  catch { ElMessage.error('版本记录加载失败') }
+}
+
+async function downloadResource(command: string) {
+  if (!selected.value) return
+  const [format, audience] = command.split(':') as ['markdown' | 'pdf', 'learner' | 'teacher']
+  try {
+    const result = await exportResource(selected.value.resource_id, format, audience)
+    window.open(result.download_url, '_blank', 'noopener')
+    ElMessage.success(`已生成版本 ${result.resource_version} 的${audience === 'teacher' ? '教师版' : '学习者版'}${format === 'pdf' ? ' PDF' : ' Markdown'}文件`)
+  } catch { ElMessage.error('资源导出失败') }
+}
+
+async function sendTutorMessage() {
+  if (!selected.value || !tutoringInput.value.trim()) return
+  const content = tutoringInput.value.trim()
+  tutoringSending.value = true
+  try {
+    if (!tutoringSessionId.value) {
+      const session = await createTutoringSession(selected.value.resource_id, learnerStore.selectedLearnerId)
+      tutoringSessionId.value = session.session_id
+    }
+    tutoringMessages.value.push({ id: `local-${Date.now()}`, sender: 'learner', content })
+    tutoringInput.value = ''
+    const result = await sendTutoringMessage(tutoringSessionId.value, content)
+    tutoringMessages.value.push({ id: result.reply.message_id, sender: 'agent', content: result.reply.content })
+    ElMessage.info(result.profile_update_required ? '画像已基于证据创建新版本' : '当前证据不足，画像保持不变')
+  } catch { ElMessage.error('导学消息发送失败') }
+  finally { tutoringSending.value = false }
 }
 
 watch(
@@ -399,9 +586,13 @@ watch(
 
 watch(batches, syncSelectionFromRoute)
 
-watch(selected, (next) => {
+watch(selected, (next, previous) => {
   if (next && selectedResourceId.value !== next.resource_id) {
     selectedResourceId.value = next.resource_id
+  }
+  if (next?.resource_id !== previous?.resource_id) {
+    tutoringSessionId.value = ''
+    tutoringMessages.value = []
   }
 })
 
@@ -411,6 +602,44 @@ onMounted(load)
 <style scoped>
 .resource-page {
   gap: 18px;
+}
+
+.resource-actions,
+.tutoring-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tutoring-box {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+  border-top: 1px solid var(--app-border);
+  padding-top: 16px;
+}
+
+.tutoring-messages {
+  display: grid;
+  gap: 8px;
+  max-height: 260px;
+  overflow: auto;
+}
+
+.tutoring-messages p {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-panel-soft);
+  padding: 7px 10px;
+  color: var(--app-muted);
+}
+
+.tutoring-messages p.agent {
+  border-color: #b9cdf8;
+  background: var(--app-accent-soft);
 }
 
 .loading-panel {
@@ -424,9 +653,95 @@ onMounted(load)
   margin-top: 14px;
 }
 
+.resource-workspace {
+  display: grid;
+  gap: 16px;
+}
+
+.current-batch-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.72fr);
+  gap: 16px;
+  border: 1px solid #b9cdf8;
+  border-radius: 10px;
+  background:
+    linear-gradient(90deg, rgb(37 99 235 / 0.11), rgb(8 145 178 / 0.08)),
+    var(--app-panel);
+  padding: 18px;
+}
+
+.current-batch-copy {
+  min-width: 0;
+}
+
+.batch-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgb(37 99 235 / 0.25);
+  border-radius: 999px;
+  background: #fff;
+  padding: 3px 10px;
+  color: var(--app-accent);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.current-batch-copy h2 {
+  margin: 10px 0 6px;
+  overflow-wrap: anywhere;
+  color: var(--app-text);
+  font-size: 20px;
+  line-height: 1.35;
+}
+
+.current-batch-copy p {
+  margin: 0;
+  color: #344054;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.current-batch-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-self: stretch;
+}
+
+.current-batch-metrics div,
+.resource-facts div {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  border: 1px solid rgb(219 228 239 / 0.9);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.82);
+  padding: 12px;
+}
+
+.current-batch-metrics span,
+.resource-facts span,
+.panel-caption {
+  color: var(--app-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.current-batch-metrics strong,
+.resource-facts strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--app-text);
+  font-size: 16px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .resource-layout {
   display: grid;
-  grid-template-columns: 330px minmax(0, 1fr);
+  grid-template-columns: 320px minmax(0, 1fr);
   gap: 16px;
 }
 
@@ -445,19 +760,25 @@ onMounted(load)
   gap: 12px;
 }
 
+.panel-caption {
+  margin: -6px 0 0;
+}
+
 .batch-tab {
+  position: relative;
   display: grid;
   gap: 7px;
   border: 1px solid var(--app-border);
-  border-radius: 10px;
-  background: var(--app-panel-soft);
-  padding: 12px;
+  border-radius: 8px;
+  background: #fff;
+  padding: 12px 12px 12px 18px;
   color: var(--app-text);
   text-align: left;
   cursor: pointer;
   transition:
     border-color 160ms ease,
-    background 160ms ease;
+    background 160ms ease,
+    transform 160ms ease;
 }
 
 .batch-tab:hover,
@@ -466,8 +787,25 @@ onMounted(load)
   background: var(--app-accent-soft);
 }
 
-.batch-topline,
-.summary-kicker {
+.batch-tab:hover {
+  transform: translateY(-1px);
+}
+
+.batch-marker {
+  position: absolute;
+  top: 13px;
+  bottom: 13px;
+  left: 8px;
+  width: 3px;
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+
+.batch-tab.is-active .batch-marker {
+  background: var(--app-accent);
+}
+
+.batch-topline {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -475,8 +813,7 @@ onMounted(load)
 }
 
 .batch-topline small,
-.batch-meta,
-.summary-kicker span {
+.batch-meta {
   color: var(--app-muted);
   font-size: 12px;
 }
@@ -487,42 +824,74 @@ onMounted(load)
   line-height: 1.4;
 }
 
-.batch-summary {
+.batch-resource-dots {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.batch-summary h2 {
-  margin: 8px 0 0;
-  font-size: 20px;
-  line-height: 1.3;
-}
-
-.summary-stats {
-  display: grid;
+  flex-wrap: wrap;
   gap: 6px;
-  min-width: 90px;
-  border: 1px solid var(--app-border);
-  border-radius: 10px;
-  background: var(--app-panel-soft);
-  padding: 12px;
-  text-align: right;
 }
 
-.summary-stats span {
+.batch-resource-dots i {
+  border: 1px solid var(--app-border);
+  border-radius: 999px;
+  background: var(--app-panel-soft);
+  padding: 2px 7px;
   color: var(--app-muted);
   font-size: 12px;
+  font-style: normal;
+  line-height: 1.5;
 }
 
-.summary-stats strong {
-  font-size: 24px;
-  line-height: 1;
+.batch-resource-dots i.is-ready {
+  border-color: rgb(22 163 74 / 0.28);
+  background: rgb(22 163 74 / 0.08);
+  color: #15803d;
 }
 
-.resource-tabs {
+.resource-switcher {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.resource-chip {
+  display: grid;
+  gap: 5px;
   min-width: 0;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-panel);
+  padding: 13px;
+  color: var(--app-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.resource-chip:hover,
+.resource-chip.is-active {
+  border-color: #9bb8f5;
+  background: var(--app-accent-soft);
+}
+
+.resource-chip span {
+  color: var(--app-accent);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.resource-chip strong {
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.resource-chip small {
+  color: var(--app-muted);
+  font-size: 12px;
 }
 
 .resource-head {
@@ -538,9 +907,27 @@ onMounted(load)
   line-height: 1.35;
 }
 
+.resource-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
 .resource-detail h3 {
   margin: 0 0 10px;
   font-size: 15px;
+}
+
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-title-row span {
+  color: var(--app-muted);
+  font-size: 12px;
 }
 
 .source-list,
@@ -550,14 +937,46 @@ onMounted(load)
   gap: 8px;
 }
 
+.source-section,
+.content-section,
 .feedback-panel {
   border-top: 1px solid var(--app-border);
   padding-top: 16px;
 }
 
+.feedback-panel {
+  display: grid;
+  gap: 12px;
+  border-radius: 8px;
+  background: var(--app-panel-soft);
+  padding: 16px;
+}
+
+.feedback-panel h3,
+.feedback-panel p {
+  margin-left: 0;
+}
+
 .feedback-result {
   display: grid;
   gap: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .batch-tab,
+  .resource-chip {
+    transition: none;
+  }
+
+  .batch-tab:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 1160px) {
+  .current-batch-bar {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 980px) {
@@ -567,13 +986,15 @@ onMounted(load)
 }
 
 @media (max-width: 760px) {
-  .batch-summary,
-  .resource-head {
-    display: grid;
+  .current-batch-metrics,
+  .resource-switcher,
+  .resource-facts {
+    grid-template-columns: 1fr;
   }
 
-  .summary-stats {
-    text-align: left;
+  .resource-head,
+  .section-title-row {
+    display: grid;
   }
 }
 </style>

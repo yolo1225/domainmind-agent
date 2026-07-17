@@ -130,17 +130,27 @@ API 规则：
 主流程：
 
 ```text
-START
- -> load_profile
- -> retrieve_knowledge
- -> generate_resource
- -> review_resource
- -> decide_next_step
-    -> persist_resource when passed
-    -> retrieve_knowledge when revision_required and revision_count < 2
-    -> END when failed
- -> END
+START -> prepare_task
+prepare_task -> analyze_profile       when trigger_type = initial_generation
+prepare_task -> interpret_feedback    when trigger_type = resource_feedback
+interpret_feedback -> analyze_profile
+analyze_profile -> finalize_task      when no generation, review or regeneration is required
+analyze_profile -> retrieve_knowledge when generation, review or regeneration is required
+retrieve_knowledge -> generate_resource -> review_resource -> finalize_task
+finalize_task -> END                  when completed, no_change, failed or rejected
+finalize_task -> retrieve_knowledge   when revision_required and revision_count < 2
+finalize_task -> human_review         when manual_review_required or assisted approval is pending
+human_review -> retrieve_knowledge    when request_revision
+human_review -> finalize_task         when approve or reject
 ```
+
+约束：
+
+- `build_learning_graph()` 是唯一顶层图构建函数，worker 不得复制一套图定义。
+- 首次生成和反馈调优都使用 `generation_tasks.public_id` 作为 `task_id/thread_id`。
+- 自然语言反馈进入导学会话；快捷标签、评分和选中文本只作为辅助证据。
+- 单次 `too_hard/too_easy` 不得直接修改画像；证据不足时保存 `no_change` 和理由。
+- 临时材料上传属于紧随 P0 的 P1；未来实现时必须任务级隔离，不得自动入库或直接更新画像。
 
 ## 6. 审核与反幻觉规范
 

@@ -9,6 +9,7 @@
       </div>
       <div class="toolbar">
         <el-button :loading="loadingLearners" @click="loadLearners">刷新画像</el-button>
+        <el-button @click="openCreateDialog">新增学习者</el-button>
         <el-button type="primary" @click="goDiagnostics">创建诊断测评</el-button>
       </div>
     </div>
@@ -195,6 +196,74 @@
         </template>
       </main>
     </div>
+
+    <el-dialog
+      v-model="createDialogVisible"
+      title="新增学习者"
+      width="520px"
+      destroy-on-close
+    >
+      <el-form label-position="top" @submit.prevent>
+        <div class="create-form-grid">
+          <el-form-item label="学习者代号" required>
+            <el-input
+              v-model="createForm.learner_id"
+              maxlength="64"
+              placeholder="例如 learner_004"
+            />
+          </el-form-item>
+          <el-form-item label="相关经验年限" required>
+            <el-input-number
+              v-model="createForm.experience_years"
+              :min="0"
+              :max="50"
+              controls-position="right"
+            />
+          </el-form-item>
+        </div>
+        <div class="create-form-grid">
+          <el-form-item label="目标领域" required>
+            <el-select
+              v-model="createForm.target_domain"
+              :loading="loadingDomains"
+              placeholder="请选择目标领域"
+            >
+              <el-option
+                v-for="domain in domainOptions"
+                :key="domain.domain_code"
+                :label="`${domain.name}（${domain.domain_code}）`"
+                :value="domain.domain_code"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="学习风格" required>
+            <el-select v-model="createForm.learning_style">
+              <el-option label="理论优先" value="theory" />
+              <el-option label="实操优先" value="practice" />
+              <el-option label="混合型" value="mixed" />
+            </el-select>
+          </el-form-item>
+        </div>
+        <el-form-item label="学习背景">
+          <el-input
+            v-model="createForm.background"
+            type="textarea"
+            :rows="3"
+            maxlength="255"
+            show-word-limit
+            placeholder="简要描述基础、目标和已有项目经验"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="createDialogVisible = false">取消</el-button>
+          <el-button type="primary" :loading="creatingLearner" @click="submitCreateLearner">
+            创建学习者
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </section>
 </template>
 
@@ -203,10 +272,13 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
+import { listDomains, type DomainSummary } from '@/api/domains'
 import { createGenerationTask } from '@/api/generation'
 import {
+  createLearner,
   getLearnerProfile,
   listLearners,
+  type LearnerCreatePayload,
   type LearnerProfileDetail,
   type LearnerSummary,
 } from '@/api/learners'
@@ -221,7 +293,20 @@ const selectedLearnerId = ref(learnerStore.selectedLearnerId)
 const loadingLearners = ref(false)
 const loadingProfile = ref(false)
 const generating = ref(false)
+const creatingLearner = ref(false)
+const createDialogVisible = ref(false)
+const loadingDomains = ref(false)
 const errorMessage = ref('')
+const domainOptions = ref<DomainSummary[]>([
+  { domain_code: 'ai_app_dev', name: '人工智能应用开发实训', status: 'active' },
+])
+const createForm = ref<LearnerCreatePayload>({
+  learner_id: '',
+  background: '',
+  target_domain: 'ai_app_dev',
+  experience_years: 0,
+  learning_style: 'mixed',
+})
 
 const categoryRows = computed(() =>
   Object.entries(profile.value?.category_mastery ?? {}).map(([name, value]) => ({
@@ -272,6 +357,70 @@ function weaknessLabel(type?: string) {
       needs_consolidation: '需要巩固',
     }[type ?? ''] ?? '诊断低分'
   )
+}
+
+async function loadDomainOptions() {
+  loadingDomains.value = true
+  try {
+    const domains = await listDomains()
+    if (domains.length) {
+      domainOptions.value = domains
+    }
+  } catch (error) {
+    domainOptions.value = [
+      { domain_code: 'ai_app_dev', name: '人工智能应用开发实训', status: 'active' },
+    ]
+  } finally {
+    loadingDomains.value = false
+  }
+}
+
+function resetCreateForm() {
+  const nextIndex = learners.value.length + 1
+  const defaultDomain = domainOptions.value[0]?.domain_code ?? 'ai_app_dev'
+  createForm.value = {
+    learner_id: `learner_${String(nextIndex).padStart(3, '0')}`,
+    background: '',
+    target_domain: defaultDomain,
+    experience_years: 0,
+    learning_style: 'mixed',
+  }
+}
+
+async function openCreateDialog() {
+  await loadDomainOptions()
+  resetCreateForm()
+  createDialogVisible.value = true
+}
+
+function normalizeCreateForm(): LearnerCreatePayload {
+  return {
+    learner_id: createForm.value.learner_id.trim(),
+    background: createForm.value.background.trim(),
+    target_domain: createForm.value.target_domain,
+    experience_years: Number(createForm.value.experience_years ?? 0),
+    learning_style: createForm.value.learning_style,
+  }
+}
+
+async function submitCreateLearner() {
+  const payload = normalizeCreateForm()
+  if (!/^[a-zA-Z0-9_-]{3,64}$/.test(payload.learner_id)) {
+    ElMessage.warning('学习者代号需为 3-64 位字母、数字、下划线或短横线。')
+    return
+  }
+  creatingLearner.value = true
+  try {
+    const created = await createLearner(payload)
+    createDialogVisible.value = false
+    ElMessage.success('学习者已创建，可继续发起诊断测评。')
+    await loadLearners()
+    await selectLearner(created.learner_id)
+  } catch (error) {
+    ElMessage.error('学习者创建失败，请检查代号是否重复。')
+  } finally {
+    creatingLearner.value = false
+  }
 }
 
 async function loadLearners() {
@@ -479,6 +628,23 @@ onMounted(loadLearners)
   line-height: 1.7;
 }
 
+.create-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 0.7fr);
+  gap: 14px;
+}
+
+.create-form-grid :deep(.el-select),
+.create-form-grid :deep(.el-input-number) {
+  width: 100%;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 @media (max-width: 1100px) {
   .profile-workspace,
   .profile-grid {
@@ -505,6 +671,11 @@ onMounted(loadLearners)
 
   .stat-strip {
     grid-template-columns: 1fr;
+  }
+
+  .create-form-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 }
 </style>

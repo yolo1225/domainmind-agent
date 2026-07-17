@@ -64,6 +64,13 @@
       :closable="false"
       :title="`已导入 ${lastImport.item.name}，${lastImport.affected_learning_paths} 条学习路径已标记为需要刷新。`"
     />
+    <el-alert
+      v-if="lastRebuild"
+      type="success"
+      show-icon
+      :closable="false"
+      :title="`索引同步完成：处理 ${lastRebuild.indexed_items} 个知识点，更新 ${lastRebuild.indexed_chunks} 个分块，删除 ${lastRebuild.deleted_chunks} 个旧分块。`"
+    />
 
     <div class="metric-grid">
       <div class="metric-card">
@@ -132,8 +139,36 @@
           </template>
         </el-table-column>
         <el-table-column prop="source_title" label="来源" min-width="220" />
+        <el-table-column label="操作" width="90" fixed="right">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="openEdit(row)">编辑</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
+
+    <el-dialog v-model="editVisible" title="编辑知识点" width="min(640px, 92vw)">
+      <el-form v-if="editForm" label-position="top">
+        <div class="form-grid">
+          <el-form-item label="名称">
+            <el-input v-model="editForm.name" />
+          </el-form-item>
+          <el-form-item label="分类">
+            <el-input v-model="editForm.category" />
+          </el-form-item>
+          <el-form-item label="难度">
+            <el-input-number v-model="editForm.difficulty" :min="1" :max="5" />
+          </el-form-item>
+        </div>
+        <el-form-item label="知识内容">
+          <el-input v-model="editForm.content" type="textarea" :rows="8" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="editVisible = false">取消</el-button>
+        <el-button type="primary" :loading="editing" @click="submitEdit">保存修改</el-button>
+      </template>
+    </el-dialog>
   </section>
 </template>
 
@@ -146,8 +181,10 @@ import {
   listKnowledgeItems,
   rebuildKnowledgeIndex,
   searchKnowledge,
+  updateKnowledgeItem,
   type KnowledgeItem,
   type KnowledgeItemCreateResponse,
+  type KnowledgeIndexResult,
   type KnowledgeSearchMatch,
 } from '@/api/knowledge'
 
@@ -160,6 +197,10 @@ const importing = ref(false)
 const rebuilding = ref(false)
 const showImport = ref(false)
 const lastImport = ref<KnowledgeItemCreateResponse | null>(null)
+const lastRebuild = ref<KnowledgeIndexResult | null>(null)
+const editVisible = ref(false)
+const editing = ref(false)
+const editForm = ref<KnowledgeItem | null>(null)
 const mvpTarget = ref(50)
 const importForm = ref({
   name: '',
@@ -251,12 +292,46 @@ async function submitImport() {
 async function rebuildIndex() {
   rebuilding.value = true
   try {
-    const result = await rebuildKnowledgeIndex()
-    ElMessage.success(`索引任务已提交：${result.affected_domain}`)
+    lastRebuild.value = await rebuildKnowledgeIndex()
+    ElMessage.success('向量索引同步完成。')
+    await loadItems()
   } catch (error) {
     ElMessage.error('索引重建任务提交失败。')
   } finally {
     rebuilding.value = false
+  }
+}
+
+function openEdit(item: KnowledgeItem) {
+  editForm.value = { ...item, tags: [...item.tags] }
+  editVisible.value = true
+}
+
+async function submitEdit() {
+  if (!editForm.value || editForm.value.content.trim().length < 10) {
+    ElMessage.warning('知识内容至少需要 10 个字符。')
+    return
+  }
+  editing.value = true
+  try {
+    const item = editForm.value
+    lastImport.value = await updateKnowledgeItem(item.knowledge_id, {
+      name: item.name,
+      category: item.category,
+      difficulty: item.difficulty,
+      tags: item.tags,
+      content: item.content,
+      source_title: item.source_title,
+      source_url: item.source_url,
+      license_note: item.license_note,
+    })
+    editVisible.value = false
+    ElMessage.success('知识点已更新，请同步向量索引。')
+    await loadItems()
+  } catch (error) {
+    ElMessage.error('知识点更新失败，请检查内容和关联关系。')
+  } finally {
+    editing.value = false
   }
 }
 

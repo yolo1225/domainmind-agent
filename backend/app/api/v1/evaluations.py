@@ -1,19 +1,15 @@
-from fastapi import APIRouter
+from typing import Literal
+
+from fastapi import APIRouter, Query
 
 from app.schemas.common import ApiResponse, ok
+from app.services.evaluation_service import load_evaluation_summary
 
 router = APIRouter()
 
 
 @router.get("/summary", response_model=ApiResponse)
-def get_evaluation_summary() -> ApiResponse:
-    return ok(
-        {
-            "case_count": 0,
-            "mvp_target_case_count": 50,
-            "hallucination_rate": None,
-            "difficulty_match_accuracy": None,
-            "knowledge_coverage": None,
-            "last_run_at": None,
-        }
-    )
+def get_evaluation_summary(
+    mode: Literal["live", "baseline"] = Query(default="live"),
+) -> ApiResponse:
+    return ok(load_evaluation_summary(mode))

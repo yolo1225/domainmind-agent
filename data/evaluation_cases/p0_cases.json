@@ -1,0 +1,2358 @@
+{
+  "schema_version": "1.0",
+  "knowledge_base_version": "ai_app_dev-kb-2026.07",
+  "script_version": "p0-evaluator-1.0",
+  "observed_result_policy": "The embedded observed_result is the reproducible baseline only. Live model results are stored under reports/evaluation/runs and never overwrite this file.",
+  "cases": [
+    {
+      "case_id": "EVAL-001",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 45,
+          "practice": 40,
+          "problem_solving": 42
+        },
+        "weak_knowledge": [
+          "AIAPP-K001"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K001",
+        "AIAPP-K007"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "类型标注帮助工具发现接口错误，但不会改变运行时语义。",
+          "HTTP GET 应保持只读，POST 用于创建或触发有副作用的操作。",
+          "资源必须引用知识点 AIAPP-K001。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K001"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "passed",
+      "expected_profile_decision": "update_profile",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "passed",
+        "profile_decision": "update_profile",
+        "latency_ms": 1800,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-002",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 53,
+          "practice": 50,
+          "problem_solving": 49
+        },
+        "weak_knowledge": [
+          "AIAPP-K007"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K007",
+        "AIAPP-K012"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "HTTP GET 应保持只读，POST 用于创建或触发有副作用的操作。",
+          "Pydantic 模型可对请求体执行结构化校验。",
+          "资源必须引用知识点 AIAPP-K007。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K007"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "revision_required",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "revision_required",
+        "profile_decision": "no_change",
+        "latency_ms": 1883,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-003",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 61,
+          "practice": 60,
+          "problem_solving": 56
+        },
+        "weak_knowledge": [
+          "AIAPP-K012"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K012",
+        "AIAPP-K018"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "Pydantic 模型可对请求体执行结构化校验。",
+          "结构化输出仍需在应用侧校验，不能只依赖提示词。",
+          "资源必须引用知识点 AIAPP-K012。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K012"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "conflict",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "conflict",
+        "profile_decision": "no_change",
+        "latency_ms": 1966,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-004",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 69,
+          "practice": 70,
+          "problem_solving": 63
+        },
+        "weak_knowledge": [
+          "AIAPP-K018"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K018",
+        "AIAPP-K023"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "结构化输出仍需在应用侧校验，不能只依赖提示词。",
+          "向量相似度用于候选召回，来源校验仍需单独执行。",
+          "资源必须引用知识点 AIAPP-K018。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K018"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "failed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "failed",
+        "profile_decision": "no_change",
+        "latency_ms": 2049,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-005",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 77,
+          "practice": 40,
+          "problem_solving": 70
+        },
+        "weak_knowledge": [
+          "AIAPP-K023"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K023",
+        "AIAPP-K029"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "向量相似度用于候选召回，来源校验仍需单独执行。",
+          "生成内容应关联检索来源并保留知识点标识。",
+          "资源必须引用知识点 AIAPP-K023。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K023"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "passed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "passed",
+        "profile_decision": "no_change",
+        "latency_ms": 2132,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-006",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 45,
+          "practice": 50,
+          "problem_solving": 77
+        },
+        "weak_knowledge": [
+          "AIAPP-K029"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K029",
+        "AIAPP-K034"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "生成内容应关联检索来源并保留知识点标识。",
+          "多智能体需要独立职责、输入输出和运行记录。",
+          "资源必须引用知识点 AIAPP-K029。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K029"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "revision_required",
+      "expected_profile_decision": "update_profile",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": false,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "revision_required",
+        "profile_decision": "update_profile",
+        "latency_ms": 2215,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-007",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 53,
+          "practice": 60,
+          "problem_solving": 42
+        },
+        "weak_knowledge": [
+          "AIAPP-K034"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K034",
+        "AIAPP-K041"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "多智能体需要独立职责、输入输出和运行记录。",
+          "独立审核结果存在显著分歧时应重新检索并复审。",
+          "资源必须引用知识点 AIAPP-K034。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K034"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "conflict",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 1,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "conflict",
+        "profile_decision": "no_change",
+        "latency_ms": 2298,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-008",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 61,
+          "practice": 70,
+          "problem_solving": 49
+        },
+        "weak_knowledge": [
+          "AIAPP-K041"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K041",
+        "AIAPP-K046"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "独立审核结果存在显著分歧时应重新检索并复审。",
+          "SSE 适合服务器向浏览器单向推送任务进度。",
+          "资源必须引用知识点 AIAPP-K041。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K041"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "failed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "failed",
+        "profile_decision": "no_change",
+        "latency_ms": 2381,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-009",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 69,
+          "practice": 40,
+          "problem_solving": 56
+        },
+        "weak_knowledge": [
+          "AIAPP-K046"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K046",
+        "AIAPP-K050"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "SSE 适合服务器向浏览器单向推送任务进度。",
+        "单次主观反馈不能直接证明学习者能力发生变化。",
+          "资源必须引用知识点 AIAPP-K046。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K046"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "passed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 1,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "passed",
+        "profile_decision": "no_change",
+        "latency_ms": 2464,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-010",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 77,
+          "practice": 50,
+          "problem_solving": 63
+        },
+        "weak_knowledge": [
+          "AIAPP-K050"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K050",
+        "AIAPP-K001"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "单次主观反馈不能直接证明学习者能力发生变化。",
+          "类型标注帮助工具发现接口错误，但不会改变运行时语义。",
+          "资源必须引用知识点 AIAPP-K050。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K050"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "revision_required",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "revision_required",
+        "profile_decision": "no_change",
+        "latency_ms": 2547,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-011",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 45,
+          "practice": 60,
+          "problem_solving": 70
+        },
+        "weak_knowledge": [
+          "AIAPP-K001"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K001",
+        "AIAPP-K007"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "类型标注帮助工具发现接口错误，但不会改变运行时语义。",
+          "HTTP GET 应保持只读，POST 用于创建或触发有副作用的操作。",
+          "资源必须引用知识点 AIAPP-K001。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K001"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "conflict",
+      "expected_profile_decision": "update_profile",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "conflict",
+        "profile_decision": "update_profile",
+        "latency_ms": 2630,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-012",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 53,
+          "practice": 70,
+          "problem_solving": 77
+        },
+        "weak_knowledge": [
+          "AIAPP-K007"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K007",
+        "AIAPP-K012"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "HTTP GET 应保持只读，POST 用于创建或触发有副作用的操作。",
+          "Pydantic 模型可对请求体执行结构化校验。",
+          "资源必须引用知识点 AIAPP-K007。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K007"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "failed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "failed",
+        "profile_decision": "no_change",
+        "latency_ms": 2713,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-013",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 61,
+          "practice": 40,
+          "problem_solving": 42
+        },
+        "weak_knowledge": [
+          "AIAPP-K012"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K012",
+        "AIAPP-K018"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "Pydantic 模型可对请求体执行结构化校验。",
+          "结构化输出仍需在应用侧校验，不能只依赖提示词。",
+          "资源必须引用知识点 AIAPP-K012。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K012"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "passed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": false,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "passed",
+        "profile_decision": "no_change",
+        "latency_ms": 2796,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-014",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 69,
+          "practice": 50,
+          "problem_solving": 49
+        },
+        "weak_knowledge": [
+          "AIAPP-K018"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K018",
+        "AIAPP-K023"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "结构化输出仍需在应用侧校验，不能只依赖提示词。",
+          "向量相似度用于候选召回，来源校验仍需单独执行。",
+          "资源必须引用知识点 AIAPP-K018。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K018"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "revision_required",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "revision_required",
+        "profile_decision": "no_change",
+        "latency_ms": 2879,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-015",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 77,
+          "practice": 60,
+          "problem_solving": 56
+        },
+        "weak_knowledge": [
+          "AIAPP-K023"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K023",
+        "AIAPP-K029"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "向量相似度用于候选召回，来源校验仍需单独执行。",
+          "生成内容应关联检索来源并保留知识点标识。",
+          "资源必须引用知识点 AIAPP-K023。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K023"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "conflict",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "conflict",
+        "profile_decision": "no_change",
+        "latency_ms": 2962,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-016",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 45,
+          "practice": 70,
+          "problem_solving": 63
+        },
+        "weak_knowledge": [
+          "AIAPP-K029"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K029",
+        "AIAPP-K034"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "生成内容应关联检索来源并保留知识点标识。",
+          "多智能体需要独立职责、输入输出和运行记录。",
+          "资源必须引用知识点 AIAPP-K029。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K029"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "failed",
+      "expected_profile_decision": "update_profile",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "failed",
+        "profile_decision": "update_profile",
+        "latency_ms": 3045,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-017",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 53,
+          "practice": 40,
+          "problem_solving": 70
+        },
+        "weak_knowledge": [
+          "AIAPP-K034"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K034",
+        "AIAPP-K041"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "多智能体需要独立职责、输入输出和运行记录。",
+          "独立审核结果存在显著分歧时应重新检索并复审。",
+          "资源必须引用知识点 AIAPP-K034。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K034"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "passed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "passed",
+        "profile_decision": "no_change",
+        "latency_ms": 3128,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-018",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 61,
+          "practice": 50,
+          "problem_solving": 77
+        },
+        "weak_knowledge": [
+          "AIAPP-K041"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K041",
+        "AIAPP-K046"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "独立审核结果存在显著分歧时应重新检索并复审。",
+          "SSE 适合服务器向浏览器单向推送任务进度。",
+          "资源必须引用知识点 AIAPP-K041。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K041"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "revision_required",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "revision_required",
+        "profile_decision": "no_change",
+        "latency_ms": 3211,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-019",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 69,
+          "practice": 60,
+          "problem_solving": 42
+        },
+        "weak_knowledge": [
+          "AIAPP-K046"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K046",
+        "AIAPP-K050"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "SSE 适合服务器向浏览器单向推送任务进度。",
+          "单次主观反馈不能直接证明学习者能力发生变化。",
+          "资源必须引用知识点 AIAPP-K046。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K046"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "conflict",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 1,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "conflict",
+        "profile_decision": "no_change",
+        "latency_ms": 3294,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-020",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 77,
+          "practice": 70,
+          "problem_solving": 49
+        },
+        "weak_knowledge": [
+          "AIAPP-K050"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K050",
+        "AIAPP-K001"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "单次主观反馈不能直接证明学习者能力发生变化。",
+          "类型标注帮助工具发现接口错误，但不会改变运行时语义。",
+          "资源必须引用知识点 AIAPP-K050。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K050"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "failed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": false,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "failed",
+        "profile_decision": "no_change",
+        "latency_ms": 3377,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-021",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 45,
+          "practice": 40,
+          "problem_solving": 56
+        },
+        "weak_knowledge": [
+          "AIAPP-K001"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K001",
+        "AIAPP-K007"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "类型标注帮助工具发现接口错误，但不会改变运行时语义。",
+          "HTTP GET 应保持只读，POST 用于创建或触发有副作用的操作。",
+          "资源必须引用知识点 AIAPP-K001。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K001"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "passed",
+      "expected_profile_decision": "update_profile",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "passed",
+        "profile_decision": "update_profile",
+        "latency_ms": 3460,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-022",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 53,
+          "practice": 50,
+          "problem_solving": 63
+        },
+        "weak_knowledge": [
+          "AIAPP-K007"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K007",
+        "AIAPP-K012"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "HTTP GET 应保持只读，POST 用于创建或触发有副作用的操作。",
+          "Pydantic 模型可对请求体执行结构化校验。",
+          "资源必须引用知识点 AIAPP-K007。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K007"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "revision_required",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "revision_required",
+        "profile_decision": "no_change",
+        "latency_ms": 3543,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-023",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 61,
+          "practice": 60,
+          "problem_solving": 70
+        },
+        "weak_knowledge": [
+          "AIAPP-K012"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K012",
+        "AIAPP-K018"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "Pydantic 模型可对请求体执行结构化校验。",
+          "结构化输出仍需在应用侧校验，不能只依赖提示词。",
+          "资源必须引用知识点 AIAPP-K012。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K012"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "conflict",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "conflict",
+        "profile_decision": "no_change",
+        "latency_ms": 3626,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-024",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 69,
+          "practice": 70,
+          "problem_solving": 77
+        },
+        "weak_knowledge": [
+          "AIAPP-K018"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K018",
+        "AIAPP-K023"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "结构化输出仍需在应用侧校验，不能只依赖提示词。",
+          "向量相似度用于候选召回，来源校验仍需单独执行。",
+          "资源必须引用知识点 AIAPP-K018。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K018"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "failed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "failed",
+        "profile_decision": "no_change",
+        "latency_ms": 3709,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-025",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 77,
+          "practice": 40,
+          "problem_solving": 42
+        },
+        "weak_knowledge": [
+          "AIAPP-K023"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K023",
+        "AIAPP-K029"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "向量相似度用于候选召回，来源校验仍需单独执行。",
+          "生成内容应关联检索来源并保留知识点标识。",
+          "资源必须引用知识点 AIAPP-K023。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K023"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "passed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "passed",
+        "profile_decision": "no_change",
+        "latency_ms": 3792,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-026",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 45,
+          "practice": 50,
+          "problem_solving": 49
+        },
+        "weak_knowledge": [
+          "AIAPP-K029"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K029",
+        "AIAPP-K034"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "生成内容应关联检索来源并保留知识点标识。",
+          "多智能体需要独立职责、输入输出和运行记录。",
+          "资源必须引用知识点 AIAPP-K029。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K029"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "revision_required",
+      "expected_profile_decision": "update_profile",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "revision_required",
+        "profile_decision": "update_profile",
+        "latency_ms": 3875,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-027",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 53,
+          "practice": 60,
+          "problem_solving": 56
+        },
+        "weak_knowledge": [
+          "AIAPP-K034"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K034",
+        "AIAPP-K041"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "多智能体需要独立职责、输入输出和运行记录。",
+          "独立审核结果存在显著分歧时应重新检索并复审。",
+          "资源必须引用知识点 AIAPP-K034。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K034"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "conflict",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": false,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "conflict",
+        "profile_decision": "no_change",
+        "latency_ms": 3958,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-028",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 61,
+          "practice": 70,
+          "problem_solving": 63
+        },
+        "weak_knowledge": [
+          "AIAPP-K041"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K041",
+        "AIAPP-K046"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "独立审核结果存在显著分歧时应重新检索并复审。",
+          "SSE 适合服务器向浏览器单向推送任务进度。",
+          "资源必须引用知识点 AIAPP-K041。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K041"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "failed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "failed",
+        "profile_decision": "no_change",
+        "latency_ms": 4041,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-029",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 69,
+          "practice": 40,
+          "problem_solving": 70
+        },
+        "weak_knowledge": [
+          "AIAPP-K046"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K046",
+        "AIAPP-K050"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "SSE 适合服务器向浏览器单向推送任务进度。",
+          "单次主观反馈不能直接证明学习者能力发生变化。",
+          "资源必须引用知识点 AIAPP-K046。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K046"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "passed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 1,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "passed",
+        "profile_decision": "no_change",
+        "latency_ms": 4124,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-030",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 77,
+          "practice": 50,
+          "problem_solving": 77
+        },
+        "weak_knowledge": [
+          "AIAPP-K050"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K050",
+        "AIAPP-K001"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "单次主观反馈不能直接证明学习者能力发生变化。",
+          "类型标注帮助工具发现接口错误，但不会改变运行时语义。",
+          "资源必须引用知识点 AIAPP-K050。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K050"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "revision_required",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "revision_required",
+        "profile_decision": "no_change",
+        "latency_ms": 4207,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-031",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 45,
+          "practice": 60,
+          "problem_solving": 42
+        },
+        "weak_knowledge": [
+          "AIAPP-K001"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K001",
+        "AIAPP-K007"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "类型标注帮助工具发现接口错误，但不会改变运行时语义。",
+          "HTTP GET 应保持只读，POST 用于创建或触发有副作用的操作。",
+          "资源必须引用知识点 AIAPP-K001。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K001"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "conflict",
+      "expected_profile_decision": "update_profile",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 1,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "conflict",
+        "profile_decision": "update_profile",
+        "latency_ms": 4290,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-032",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 53,
+          "practice": 70,
+          "problem_solving": 49
+        },
+        "weak_knowledge": [
+          "AIAPP-K007"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K007",
+        "AIAPP-K012"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "HTTP GET 应保持只读，POST 用于创建或触发有副作用的操作。",
+          "Pydantic 模型可对请求体执行结构化校验。",
+          "资源必须引用知识点 AIAPP-K007。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K007"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "failed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "failed",
+        "profile_decision": "no_change",
+        "latency_ms": 4373,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-033",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 61,
+          "practice": 40,
+          "problem_solving": 56
+        },
+        "weak_knowledge": [
+          "AIAPP-K012"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K012",
+        "AIAPP-K018"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "Pydantic 模型可对请求体执行结构化校验。",
+          "结构化输出仍需在应用侧校验，不能只依赖提示词。",
+          "资源必须引用知识点 AIAPP-K012。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K012"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "passed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "passed",
+        "profile_decision": "no_change",
+        "latency_ms": 4456,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-034",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 69,
+          "practice": 50,
+          "problem_solving": 63
+        },
+        "weak_knowledge": [
+          "AIAPP-K018"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K018",
+        "AIAPP-K023"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "结构化输出仍需在应用侧校验，不能只依赖提示词。",
+          "向量相似度用于候选召回，来源校验仍需单独执行。",
+          "资源必须引用知识点 AIAPP-K018。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K018"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "revision_required",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": false,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "revision_required",
+        "profile_decision": "no_change",
+        "latency_ms": 4539,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-035",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 77,
+          "practice": 60,
+          "problem_solving": 70
+        },
+        "weak_knowledge": [
+          "AIAPP-K023"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K023",
+        "AIAPP-K029"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "向量相似度用于候选召回，来源校验仍需单独执行。",
+          "生成内容应关联检索来源并保留知识点标识。",
+          "资源必须引用知识点 AIAPP-K023。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K023"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "conflict",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "conflict",
+        "profile_decision": "no_change",
+        "latency_ms": 4622,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-036",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 45,
+          "practice": 70,
+          "problem_solving": 77
+        },
+        "weak_knowledge": [
+          "AIAPP-K029"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K029",
+        "AIAPP-K034"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "生成内容应关联检索来源并保留知识点标识。",
+          "多智能体需要独立职责、输入输出和运行记录。",
+          "资源必须引用知识点 AIAPP-K029。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K029"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "failed",
+      "expected_profile_decision": "update_profile",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "failed",
+        "profile_decision": "update_profile",
+        "latency_ms": 4705,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-037",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 53,
+          "practice": 40,
+          "problem_solving": 42
+        },
+        "weak_knowledge": [
+          "AIAPP-K034"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K034",
+        "AIAPP-K041"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "多智能体需要独立职责、输入输出和运行记录。",
+          "独立审核结果存在显著分歧时应重新检索并复审。",
+          "资源必须引用知识点 AIAPP-K034。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K034"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "passed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "passed",
+        "profile_decision": "no_change",
+        "latency_ms": 4788,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-038",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 61,
+          "practice": 50,
+          "problem_solving": 49
+        },
+        "weak_knowledge": [
+          "AIAPP-K041"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K041",
+        "AIAPP-K046"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "独立审核结果存在显著分歧时应重新检索并复审。",
+          "SSE 适合服务器向浏览器单向推送任务进度。",
+          "资源必须引用知识点 AIAPP-K041。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K041"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "revision_required",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "revision_required",
+        "profile_decision": "no_change",
+        "latency_ms": 4871,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-039",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 69,
+          "practice": 60,
+          "problem_solving": 56
+        },
+        "weak_knowledge": [
+          "AIAPP-K046"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K046",
+        "AIAPP-K050"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "SSE 适合服务器向浏览器单向推送任务进度。",
+          "单次主观反馈不能直接证明学习者能力发生变化。",
+          "资源必须引用知识点 AIAPP-K046。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K046"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "conflict",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 1,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "conflict",
+        "profile_decision": "no_change",
+        "latency_ms": 4954,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-040",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 77,
+          "practice": 70,
+          "problem_solving": 63
+        },
+        "weak_knowledge": [
+          "AIAPP-K050"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K050",
+        "AIAPP-K001"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "单次主观反馈不能直接证明学习者能力发生变化。",
+          "类型标注帮助工具发现接口错误，但不会改变运行时语义。",
+          "资源必须引用知识点 AIAPP-K050。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K050"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "failed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "failed",
+        "profile_decision": "no_change",
+        "latency_ms": 5037,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-041",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 45,
+          "practice": 40,
+          "problem_solving": 70
+        },
+        "weak_knowledge": [
+          "AIAPP-K001"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K001",
+        "AIAPP-K007"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "类型标注帮助工具发现接口错误，但不会改变运行时语义。",
+          "HTTP GET 应保持只读，POST 用于创建或触发有副作用的操作。",
+          "资源必须引用知识点 AIAPP-K001。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K001"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "passed",
+      "expected_profile_decision": "update_profile",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": false,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "passed",
+        "profile_decision": "update_profile",
+        "latency_ms": 5120,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-042",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 53,
+          "practice": 50,
+          "problem_solving": 77
+        },
+        "weak_knowledge": [
+          "AIAPP-K007"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K007",
+        "AIAPP-K012"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "HTTP GET 应保持只读，POST 用于创建或触发有副作用的操作。",
+          "Pydantic 模型可对请求体执行结构化校验。",
+          "资源必须引用知识点 AIAPP-K007。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K007"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "revision_required",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "revision_required",
+        "profile_decision": "no_change",
+        "latency_ms": 5203,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-043",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 61,
+          "practice": 60,
+          "problem_solving": 42
+        },
+        "weak_knowledge": [
+          "AIAPP-K012"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K012",
+        "AIAPP-K018"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "Pydantic 模型可对请求体执行结构化校验。",
+          "结构化输出仍需在应用侧校验，不能只依赖提示词。",
+          "资源必须引用知识点 AIAPP-K012。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K012"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "conflict",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "conflict",
+        "profile_decision": "no_change",
+        "latency_ms": 5286,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-044",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 69,
+          "practice": 70,
+          "problem_solving": 49
+        },
+        "weak_knowledge": [
+          "AIAPP-K018"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K018",
+        "AIAPP-K023"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "结构化输出仍需在应用侧校验，不能只依赖提示词。",
+          "向量相似度用于候选召回，来源校验仍需单独执行。",
+          "资源必须引用知识点 AIAPP-K018。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K018"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "failed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "failed",
+        "profile_decision": "no_change",
+        "latency_ms": 5369,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-045",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 77,
+          "practice": 40,
+          "problem_solving": 56
+        },
+        "weak_knowledge": [
+          "AIAPP-K023"
+        ]
+      },
+      "resource_type": "graded_quiz",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K023",
+        "AIAPP-K029"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "向量相似度用于候选召回，来源校验仍需单独执行。",
+          "生成内容应关联检索来源并保留知识点标识。",
+          "资源必须引用知识点 AIAPP-K023。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K023"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "passed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "passed",
+        "profile_decision": "no_change",
+        "latency_ms": 5452,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-046",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 45,
+          "practice": 50,
+          "problem_solving": 63
+        },
+        "weak_knowledge": [
+          "AIAPP-K029"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K029",
+        "AIAPP-K034"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "生成内容应关联检索来源并保留知识点标识。",
+          "多智能体需要独立职责、输入输出和运行记录。",
+          "资源必须引用知识点 AIAPP-K029。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K029"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "revision_required",
+      "expected_profile_decision": "update_profile",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "revision_required",
+        "profile_decision": "update_profile",
+        "latency_ms": 5535,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-047",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 53,
+          "practice": 60,
+          "problem_solving": 70
+        },
+        "weak_knowledge": [
+          "AIAPP-K034"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K034",
+        "AIAPP-K041"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "多智能体需要独立职责、输入输出和运行记录。",
+          "独立审核结果存在显著分歧时应重新检索并复审。",
+          "资源必须引用知识点 AIAPP-K034。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K034"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "conflict",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "conflict",
+        "profile_decision": "no_change",
+        "latency_ms": 5618,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-048",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-advanced-03",
+        "profile_type": "advanced",
+        "ability_scores": {
+          "theory": 61,
+          "practice": 70,
+          "problem_solving": 77
+        },
+        "weak_knowledge": [
+          "AIAPP-K041"
+        ]
+      },
+      "resource_type": "lecture",
+      "target_difficulty": 4,
+      "target_core_knowledge_ids": [
+        "AIAPP-K041",
+        "AIAPP-K046"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "独立审核结果存在显著分歧时应重新检索并复审。",
+          "SSE 适合服务器向浏览器单向推送任务进度。",
+          "资源必须引用知识点 AIAPP-K041。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K041"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "failed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "failed",
+        "profile_decision": "no_change",
+        "latency_ms": 5701,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-049",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-beginner-01",
+        "profile_type": "beginner",
+        "ability_scores": {
+          "theory": 69,
+          "practice": 40,
+          "problem_solving": 42
+        },
+        "weak_knowledge": [
+          "AIAPP-K046"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 2,
+      "target_core_knowledge_ids": [
+        "AIAPP-K046",
+        "AIAPP-K050"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "SSE 适合服务器向浏览器单向推送任务进度。",
+          "单次主观反馈不能直接证明学习者能力发生变化。",
+          "资源必须引用知识点 AIAPP-K046。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K046"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "passed",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "passed",
+        "profile_decision": "no_change",
+        "latency_ms": 5784,
+        "determinable": true
+      }
+    },
+    {
+      "case_id": "EVAL-050",
+      "profile_snapshot": {
+        "profile_id": "gold-profile-intermediate-02",
+        "profile_type": "intermediate",
+        "ability_scores": {
+          "theory": 77,
+          "practice": 50,
+          "problem_solving": 49
+        },
+        "weak_knowledge": [
+          "AIAPP-K050"
+        ]
+      },
+      "resource_type": "practice_guide",
+      "target_difficulty": 3,
+      "target_core_knowledge_ids": [
+        "AIAPP-K050",
+        "AIAPP-K001"
+      ],
+      "gold_standard": {
+        "verifiable_facts": [
+          "单次主观反馈不能直接证明学习者能力发生变化。",
+          "类型标注帮助工具发现接口错误，但不会改变运行时语义。",
+          "资源必须引用知识点 AIAPP-K050。",
+          "无法从来源确认的事实应标记为无法判定。"
+        ],
+        "required_source_ids": [
+          "AIAPP-K050"
+        ],
+        "acceptance_note": "逐条比对事实、来源、难度与核心知识覆盖。"
+      },
+      "expected_review_conclusion": "revision_required",
+      "expected_profile_decision": "no_change",
+      "knowledge_base_version": "ai_app_dev-kb-2026.07",
+      "observed_result": {
+        "generated_fact_count": 4,
+        "hallucinated_fact_count": 0,
+        "difficulty_matched": true,
+        "covered_core_knowledge_count": 2,
+        "target_core_knowledge_count": 2,
+        "review_conclusion": "revision_required",
+        "profile_decision": "no_change",
+        "latency_ms": 5867,
+        "determinable": true
+      }
+    }
+  ]
+}

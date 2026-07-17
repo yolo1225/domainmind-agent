@@ -102,7 +102,13 @@ class OrchestratorAgent(BaseAgent):
         revision_plan: dict[str, Any] = {}
         passed_resources: list[dict[str, Any]] = state.get("passed_resources", [])
 
-        if reports and all(report.get("passed") for report in reports):
+        if any(
+            report.get("manual_review_required")
+            or report.get("decision") == "manual_review_required"
+            for report in reports
+        ):
+            decision = "manual_review_required"
+        elif reports and all(report.get("passed") for report in reports):
             decision = "passed"
         elif any(report.get("failure_level") == "failed" for report in reports):
             decision = "failed"
@@ -158,6 +164,8 @@ def create_initial_state(
     return {
         "contract_version": AGENT_CONTRACT_VERSION,
         "task_id": task_id,
+        "trigger_type": "initial_generation",
+        "execution_mode": "auto",
         "learner_id": learner_id,
         "profile_id": profile_id,
         "domain_code": "ai_app_dev",
@@ -170,10 +178,18 @@ def create_initial_state(
         "revision_count": 0,
         "decision": "pending",
         "error_message": None,
+        "profile_update_required": False,
+        "profile_change_evidence": [],
+        "affected_knowledge_ids": [],
+        "affected_path_node_ids": [],
+        "affected_resource_ids": [],
+        "manual_review_required": False,
+        "human_review_decision": None,
+        "agent_contexts": {},
     }
 
 
 def get_generation_graph():
-    from app.agents.graphs import build_generation_graph
+    from app.agents.graphs import build_learning_graph
 
-    return build_generation_graph()
+    return build_learning_graph()

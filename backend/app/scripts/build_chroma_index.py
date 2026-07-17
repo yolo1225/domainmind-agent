@@ -41,21 +41,40 @@ def metadata_for(item: KnowledgeItem, chunk_index: int, chunk_count: int) -> dic
     }
 
 
-def build_index(domain_code: str = "ai_app_dev", reset: bool = False) -> dict[str, Any]:
-    vector_store = VectorStore()
+def build_index(
+    domain_code: str = "ai_app_dev",
+    reset: bool = False,
+    *,
+    only_pending: bool = False,
+    db_session=None,
+    vector_store: VectorStore | None = None,
+) -> dict[str, Any]:
+    vector_store = vector_store or VectorStore()
     if reset:
         vector_store.reset_collection(domain_code)
 
-    with SessionLocal() as db:
+    owns_session = db_session is None
+    db = db_session or SessionLocal()
+    try:
+        filters = [KnowledgeItem.domain_code == domain_code]
+        if only_pending:
+            filters.append(KnowledgeItem.needs_reembedding.is_(True))
         items = list(
             db.scalars(
                 select(KnowledgeItem)
-                .where(KnowledgeItem.domain_code == domain_code)
+                .where(*filters)
                 .order_by(KnowledgeItem.public_id)
             )
         )
-        if not items:
+        if not items and not only_pending:
             raise RuntimeError(f"No knowledge items found for domain_code={domain_code}")
+
+        deleted_chunks = 0
+        if items and not reset:
+            deleted_chunks = vector_store.delete_knowledge_chunks(
+                domain_code=domain_code,
+                knowledge_ids=[item.public_id for item in items],
+            )
 
         ids: list[str] = []
         documents: list[str] = []
@@ -68,18 +87,22 @@ def build_index(domain_code: str = "ai_app_dev", reset: bool = False) -> dict[st
                 documents.append(build_document(item, chunk))
                 metadatas.append(metadata_for(item, index, len(chunks)))
 
-        embeddings = embed_texts(documents)
-        vector_store.upsert_chunks(
-            domain_code=domain_code,
-            ids=ids,
-            embeddings=embeddings,
-            documents=documents,
-            metadatas=metadatas,
-        )
+        if documents:
+            embeddings = embed_texts(documents)
+            vector_store.upsert_chunks(
+                domain_code=domain_code,
+                ids=ids,
+                embeddings=embeddings,
+                documents=documents,
+                metadatas=metadatas,
+            )
 
         for item in items:
             item.needs_reembedding = False
         db.commit()
+    finally:
+        if owns_session:
+            db.close()
 
     collection = vector_store.get_collection(domain_code)
     return {
@@ -88,8 +111,9 @@ def build_index(domain_code: str = "ai_app_dev", reset: bool = False) -> dict[st
         "embedding_model": embedding_model_name(),
         "indexed_items": len(items),
         "indexed_chunks": len(ids),
+        "deleted_chunks": deleted_chunks,
         "collection_count": collection.count(),
-        "persist_directory": vector_store.persist_directory,
+        "vector_store": vector_store.connection_info(),
     }
 
 

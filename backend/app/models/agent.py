@@ -17,6 +17,10 @@ class AgentRun(TimestampMixin, Base):
     output_summary_json: Mapped[dict] = mapped_column(JSON, default=dict)
     llm_calls: Mapped[int] = mapped_column(default=0)
     tokens_used: Mapped[int] = mapped_column(default=0)
+    tokens_input: Mapped[int] = mapped_column(default=0)
+    tokens_output: Mapped[int] = mapped_column(default=0)
+    model_name: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    prompt_version: Mapped[str] = mapped_column(String(32), default="v1")
     duration_ms: Mapped[int] = mapped_column(default=0)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
@@ -31,3 +35,14 @@ class AgentMessageRecord(TimestampMixin, Base):
     receiver: Mapped[str] = mapped_column(String(64))
     message_type: Mapped[str] = mapped_column(String(32))
     payload_summary_json: Mapped[dict] = mapped_column(JSON, default=dict)
+
+
+class GraphCheckpoint(TimestampMixin, Base):
+    __tablename__ = "graph_checkpoints"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    task_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    checkpoint_id: Mapped[str] = mapped_column(String(64), index=True)
+    state_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    next_node: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    status: Mapped[str] = mapped_column(String(32), default="saved")

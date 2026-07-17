@@ -7,10 +7,16 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.db import get_db
-from app.models import KnowledgeItem, LearningPath
+from app.models import KnowledgeItem
 from app.rag.embeddings import embed_texts, embedding_model_name
 from app.rag.vector_store import VectorStore, get_vector_store
+from app.scripts.build_chroma_index import build_index
 from app.schemas.common import ApiResponse, ok
+from app.services.knowledge_update_service import (
+    mark_affected_content,
+    related_knowledge_ids,
+    replace_item_relations,
+)
 
 router = APIRouter()
 
@@ -25,6 +31,21 @@ class KnowledgeItemCreate(BaseModel):
     source_title: str = Field(default="教师手动导入", min_length=1, max_length=255)
     source_url: str | None = Field(default=None, max_length=512)
     license_note: str = Field(default="manual-import", max_length=255)
+    prerequisites: list[str] = Field(default_factory=list)
+    related: list[str] = Field(default_factory=list)
+
+
+class KnowledgeItemUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=255)
+    category: str | None = Field(default=None, min_length=1, max_length=64)
+    difficulty: int | None = Field(default=None, ge=1, le=5)
+    tags: list[str] | None = None
+    content: str | None = Field(default=None, min_length=10)
+    source_title: str | None = Field(default=None, min_length=1, max_length=255)
+    source_url: str | None = Field(default=None, max_length=512)
+    license_note: str | None = Field(default=None, max_length=255)
+    prerequisites: list[str] | None = None
+    related: list[str] | None = None
 
 
 def serialize_knowledge_item(item: KnowledgeItem) -> dict[str, Any]:
@@ -105,17 +126,24 @@ def create_knowledge_item(
         needs_reembedding=True,
     )
     db.add(item)
-
-    affected_paths = list(
-        db.scalars(select(LearningPath).where(LearningPath.domain_code == payload.domain_code))
+    db.flush()
+    try:
+        replace_item_relations(
+            db, item=item, relation_type="prerequisite", source_public_ids=payload.prerequisites
+        )
+        replace_item_relations(
+            db, item=item, relation_type="related", source_public_ids=payload.related
+        )
+    except ValueError as exc:
+        db.rollback()
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    affected_ids = related_knowledge_ids(db, item)
+    impact = mark_affected_content(
+        db,
+        domain_code=item.domain_code,
+        affected_knowledge_ids=affected_ids,
+        reason="manual_import",
     )
-    for path in affected_paths:
-        path.needs_refresh = True
-        path.path_json = {
-            **(path.path_json or {}),
-            "knowledge_update_reason": "manual_import",
-            "changed_knowledge_name": item.name,
-        }
 
     db.commit()
     db.refresh(item)
@@ -123,7 +151,81 @@ def create_knowledge_item(
         {
             "item": serialize_knowledge_item(item),
             "index_status": "needs_rebuild",
-            "affected_learning_paths": len(affected_paths),
+            "affected_knowledge_ids": sorted(affected_ids),
+            "affected_learning_paths": impact["learning_paths"],
+            "affected_resources": impact["resources"],
+            "next_action": "rebuild_vector_index",
+        }
+    )
+
+
+@router.patch("/items/{knowledge_id}", response_model=ApiResponse)
+def update_knowledge_item(
+    knowledge_id: str,
+    payload: KnowledgeItemUpdate,
+    db: Session = Depends(get_db),
+) -> ApiResponse:
+    item = db.scalar(select(KnowledgeItem).where(KnowledgeItem.public_id == knowledge_id))
+    if item is None:
+        raise HTTPException(status_code=404, detail=f"Knowledge item not found: {knowledge_id}")
+
+    affected_ids = related_knowledge_ids(db, item)
+    values = payload.model_dump(exclude_unset=True)
+    field_mapping = {
+        "name": "name",
+        "category": "category",
+        "difficulty": "difficulty",
+        "content": "content_md",
+        "source_title": "source_title",
+        "source_url": "source_url",
+        "license_note": "license_note",
+    }
+    for payload_name, model_name in field_mapping.items():
+        if payload_name in values:
+            value = values[payload_name]
+            if isinstance(value, str):
+                value = value.strip()
+            setattr(item, model_name, value)
+    if "tags" in values:
+        item.tags_json = [tag.strip() for tag in values["tags"] if tag.strip()]
+
+    try:
+        if payload.prerequisites is not None:
+            replace_item_relations(
+                db,
+                item=item,
+                relation_type="prerequisite",
+                source_public_ids=payload.prerequisites,
+            )
+        if payload.related is not None:
+            replace_item_relations(
+                db,
+                item=item,
+                relation_type="related",
+                source_public_ids=payload.related,
+            )
+    except ValueError as exc:
+        db.rollback()
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    item.needs_reembedding = True
+    db.flush()
+    affected_ids.update(related_knowledge_ids(db, item))
+    impact = mark_affected_content(
+        db,
+        domain_code=item.domain_code,
+        affected_knowledge_ids=affected_ids,
+        reason="knowledge_item_updated",
+    )
+    db.commit()
+    db.refresh(item)
+    return ok(
+        {
+            "item": serialize_knowledge_item(item),
+            "index_status": "needs_rebuild",
+            "affected_knowledge_ids": sorted(affected_ids),
+            "affected_learning_paths": impact["learning_paths"],
+            "affected_resources": impact["resources"],
             "next_action": "rebuild_vector_index",
         }
     )
@@ -173,5 +275,24 @@ def search_knowledge(
 
 
 @router.post("/rebuild-index", response_model=ApiResponse)
-def rebuild_vector_index() -> ApiResponse:
-    return ok({"status": "queued", "affected_domain": "ai_app_dev"})
+def rebuild_vector_index(
+    domain_code: str = Query(default="ai_app_dev"),
+    db: Session = Depends(get_db),
+    vector_store: VectorStore = Depends(get_vector_store),
+) -> ApiResponse:
+    try:
+        result = build_index(
+            domain_code=domain_code,
+            only_pending=True,
+            db_session=db,
+            vector_store=vector_store,
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=503, detail=f"Vector index rebuild failed: {exc}") from exc
+    return ok(
+        {
+            "status": "completed",
+            "affected_domain": domain_code,
+            **result,
+        }
+    )

@@ -1,0 +1,74 @@
+{
+  "status": "passed",
+  "case_count": 50,
+  "mvp_target_case_count": 50,
+  "evaluated_case_count": 50,
+  "metrics": {
+    "hallucination_rate": {
+      "numerator": 2,
+      "denominator": 200,
+      "ratio": 0.01
+    },
+    "difficulty_match_accuracy": {
+      "numerator": 44,
+      "denominator": 50,
+      "ratio": 0.88
+    },
+    "core_knowledge_coverage": {
+      "numerator": 96,
+      "denominator": 100,
+      "ratio": 0.96
+    },
+    "review_decision_accuracy": {
+      "numerator": 50,
+      "denominator": 50,
+      "ratio": 1.0
+    },
+    "profile_decision_accuracy": {
+      "numerator": 50,
+      "denominator": 50,
+      "ratio": 1.0
+    },
+    "latency_ms": {
+      "p50": 3875,
+      "p95": 5701
+    },
+    "agent_latency_ms": {}
+  },
+  "failed_case_ids": {
+    "hallucination": [
+      "EVAL-007",
+      "EVAL-031"
+    ],
+    "difficulty": [
+      "EVAL-006",
+      "EVAL-013",
+      "EVAL-020",
+      "EVAL-027",
+      "EVAL-034",
+      "EVAL-041"
+    ],
+    "coverage": [
+      "EVAL-009",
+      "EVAL-019",
+      "EVAL-029",
+      "EVAL-039"
+    ],
+    "review_decision": [],
+    "profile_decision": []
+  },
+  "unable_to_determine": {
+    "count": 0,
+    "case_ids": [],
+    "statement": "Cases without a determinable observed result are excluded from metric denominators."
+  },
+  "knowledge_base_versions": [
+    "ai_app_dev-kb-2026.07"
+  ],
+  "run_mode": "baseline",
+  "run_id": null,
+  "stage": null,
+  "model_configuration": {},
+  "script_version": "live-evaluator-2.0",
+  "evaluated_at": "2026-07-17T06:47:13.638410+00:00"
+}

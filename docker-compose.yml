@@ -17,6 +17,17 @@ services:
       timeout: 5s
       retries: 10
 
+  chromadb:
+    image: chromadb/chroma:1.5.8
+    container_name: yczh_chromadb
+    environment:
+      IS_PERSISTENT: "TRUE"
+      PERSIST_DIRECTORY: /chroma/chroma
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+
   backend:
     build:
       context: ./backend
@@ -25,22 +36,33 @@ services:
       - .env
     environment:
       DATABASE_URL: mysql+pymysql://yunchuan:yunchuan_dev@mysql:3306/yunchuan_zhihui
-      CHROMA_PERSIST_DIRECTORY: /app/data/chroma
+      CHROMA_HOST: chromadb
+      CHROMA_PORT: 8000
       OPENAI_API_BASE: ${OPENAI_API_BASE:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       PRIMARY_LLM_MODEL: ${PRIMARY_LLM_MODEL:-}
       PRIMARY_REVIEW_MODEL: ${PRIMARY_REVIEW_MODEL:-}
       SECONDARY_REVIEW_MODEL: ${SECONDARY_REVIEW_MODEL:-}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-}
+      ALLOW_FIXTURE_LLM: ${ALLOW_FIXTURE_LLM:-false}
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/app/backend
       - ./data:/app/data
       - ./storage:/app/storage
+      - ./reports:/app/reports
     depends_on:
       mysql:
         condition: service_healthy
+      chromadb:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
 
   frontend:
     build:
@@ -54,8 +76,16 @@ services:
       - ./frontend:/app/frontend
       - frontend_node_modules:/app/frontend/node_modules
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:5173/"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
 
 volumes:
   mysql_data:
+  chroma_data:
   frontend_node_modules:
