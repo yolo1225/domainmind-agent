@@ -4,7 +4,7 @@ from collections import defaultdict
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.models import (
@@ -15,6 +15,8 @@ from app.models import (
     Learner,
     LearnerProfile,
     LearningPath,
+    LearningResource,
+    GenerationTask,
 )
 
 RADAR_KEYS = ["theory", "practice", "problem_solving", "breadth", "learning_speed"]
@@ -246,6 +248,23 @@ def build_learning_path_payload(
     }
 
 
+def build_learning_path_from_snapshot(
+    ability_profile: dict[str, Any],
+    weak_knowledge: list[dict[str, Any]],
+) -> dict[str, Any]:
+    scores = [
+        float(ability_profile[key])
+        for key in RADAR_KEYS
+        if isinstance(ability_profile.get(key), (int, float))
+    ]
+    score_percent = round(sum(scores) / len(scores), 1) if scores else 0.0
+    return build_learning_path_payload(
+        profile_type=str(ability_profile.get("profile_type") or "beginner"),
+        score_percent=score_percent,
+        weak_knowledge=weak_knowledge,
+    )
+
+
 def generate_profile_from_diagnostic(
     db: Session,
     *,
@@ -322,12 +341,27 @@ def generate_profile_from_diagnostic(
         weak_knowledge=weak_knowledge,
     )
 
+    previous_profile = latest_profile_for_learner(db, learner)
     profile = LearnerProfile(
         public_id=public_id("profile"),
         learner_id=learner.id,
         domain_code=domain_code,
         ability_profile_json=ability_profile,
         weak_knowledge_json=weak_knowledge[:8],
+        profile_version=(int(previous_profile.profile_version or 1) + 1) if previous_profile else 1,
+        previous_profile_id=previous_profile.id if previous_profile else None,
+        changed_dimensions_json=["ability_scores", "weak_knowledge", "learning_path"],
+        evidence_refs_json=[
+            {
+                "evidence_id": f"diagnostic:{session_id}",
+                "evidence_type": "diagnostic_result",
+                "summary": f"diagnostic session with {len(questions)} questions",
+                "confidence": 0.9,
+                "confirmed": True,
+            }
+        ],
+        confidence=0.9,
+        decision_reason="diagnostic_result",
     )
     db.add(profile)
     db.flush()
@@ -352,12 +386,146 @@ def generate_profile_from_diagnostic(
         "correct_count": correct_count,
         "question_count": len(questions),
         "profile_id": profile.public_id,
+        "profile_version": profile.profile_version,
+        "previous_profile_id": previous_profile.public_id if previous_profile else None,
+        "profile_changed_dimensions": profile.changed_dimensions_json,
+        "profile_source": "diagnostic_result",
         "profile_type": ability_profile["profile_type"],
         "ability_profile": ability_profile,
         "weak_knowledge": weak_knowledge[:8],
         "learning_path_id": path.public_id,
         "learning_path": learning_path_payload,
         "next_action": "create_generation_task",
+    }
+
+
+def profile_source(profile: LearnerProfile) -> str:
+    if profile.trigger_feedback_id:
+        return "validated_feedback"
+    if profile.decision_reason == "diagnostic_result":
+        return "diagnostic_result"
+    if profile.previous_profile_id:
+        return "profile_revision"
+    return "default_profile"
+
+
+def apply_feedback_profile_update(
+    db: Session,
+    *,
+    profile: LearnerProfile,
+    resource: LearningResource | None,
+    feedback_intent: str | None,
+    evidence: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Build a bounded, evidence-backed profile snapshot for feedback tasks."""
+    ability = dict(profile.ability_profile_json or {})
+    category_mastery = dict(ability.get("category_mastery") or {})
+    weak_items = [dict(item) for item in (profile.weak_knowledge_json or [])]
+    source_ids = [
+        str(item.get("knowledge_id"))
+        for item in (resource.sources_json if resource else [])
+        if isinstance(item, dict) and item.get("knowledge_id")
+    ]
+    knowledge_rows = list(
+        db.scalars(select(KnowledgeItem).where(KnowledgeItem.public_id.in_(source_ids)))
+    ) if source_ids else []
+    knowledge_ids = {item.id for item in knowledge_rows}
+    related_ids: set[int] = set()
+    if knowledge_ids:
+        relations = list(
+            db.scalars(
+                select(KnowledgeRelation)
+                .where(
+                    KnowledgeRelation.relation_type.in_(
+                        {"prerequisite", "dependent", "related"}
+                    ),
+                    or_(
+                        KnowledgeRelation.source_item_id.in_(knowledge_ids),
+                        KnowledgeRelation.target_item_id.in_(knowledge_ids),
+                    ),
+                )
+            )
+        )
+        for relation in relations:
+            if relation.source_item_id in knowledge_ids:
+                related_ids.add(relation.target_item_id)
+            elif relation.target_item_id in knowledge_ids:
+                related_ids.add(relation.source_item_id)
+    related_public_ids = {
+        item.public_id
+        for item in db.scalars(select(KnowledgeItem).where(KnowledgeItem.id.in_(related_ids)))
+    } if related_ids else set()
+    affected_knowledge_ids = list(dict.fromkeys([*source_ids, *sorted(related_public_ids)]))
+    categories = {item.category for item in knowledge_rows if item.category}
+    negative = feedback_intent in {"too_hard", "confusing"}
+    positive = feedback_intent == "too_easy"
+    if not (negative or positive):
+        return {
+            "ability_profile": ability,
+            "weak_knowledge": weak_items,
+            "changed_dimensions": [],
+            "affected_knowledge_ids": [],
+        }
+
+    delta = -6 if negative else 6
+    for category in categories:
+        current = float(category_mastery.get(category, ability.get("practice", 50)))
+        category_mastery[category] = max(0, min(100, round(current + delta, 1)))
+    ability["category_mastery"] = category_mastery
+    for key in ("practice", "problem_solving"):
+        ability[key] = max(20, min(95, int(ability.get(key, 50)) + (delta // 2)))
+    radar_average = sum(int(ability.get(key, 50)) for key in RADAR_KEYS) / len(RADAR_KEYS)
+    ability["profile_type"] = classify_profile_level(radar_average)
+
+    weak_by_id = {str(item.get("knowledge_id")): item for item in weak_items}
+    for knowledge in knowledge_rows:
+        key = knowledge.public_id
+        if negative:
+            item = weak_by_id.setdefault(
+                key,
+                {
+                    "knowledge_id": key,
+                    "name": knowledge.name,
+                    "category": knowledge.category,
+                    "weakness_level": 1,
+                    "weakness_type": "feedback_confirmed",
+                    "suggested_action": "remedial_explanation",
+                    "evidence": {},
+                    "prerequisites": [],
+                },
+            )
+            item["weakness_level"] = min(5, int(item.get("weakness_level") or 1) + 1)
+            item["weakness_type"] = "feedback_confirmed"
+        elif key in weak_by_id:
+            weak_by_id[key]["weakness_level"] = max(0, int(weak_by_id[key].get("weakness_level") or 1) - 1)
+            if weak_by_id[key]["weakness_level"] == 0:
+                del weak_by_id[key]
+
+    affected_resource_ids = [resource.public_id] if resource else []
+    learner_resources = db.execute(
+        select(LearningResource)
+        .join(GenerationTask, GenerationTask.id == LearningResource.generation_task_id)
+        .where(GenerationTask.learner_id == profile.learner_id)
+        .where(LearningResource.is_current.is_(True))
+    ).scalars()
+    for candidate in learner_resources:
+        candidate_ids = {
+            str(item.get("knowledge_id"))
+            for item in (candidate.sources_json or [])
+            if isinstance(item, dict) and item.get("knowledge_id")
+        }
+        if candidate_ids.intersection(affected_knowledge_ids) and candidate.public_id not in affected_resource_ids:
+            affected_resource_ids.append(candidate.public_id)
+
+    changed_dimensions = ["ability_scores", "category_mastery", "weak_knowledge"]
+    return {
+        "ability_profile": ability,
+        "weak_knowledge": list(weak_by_id.values())[:8],
+        "changed_dimensions": changed_dimensions,
+        "affected_knowledge_ids": affected_knowledge_ids,
+        "affected_path_node_ids": [f"path:{item}" for item in affected_knowledge_ids],
+        "affected_resource_ids": affected_resource_ids,
+        "evidence": evidence,
     }
 
 

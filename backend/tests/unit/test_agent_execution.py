@@ -1,7 +1,15 @@
-from app.agents.generation_agent import ContentGenerationAgent
+import pytest
+from pydantic import ValidationError
+
+from app.agents.generation_agent import (
+    ContentGenerationAgent,
+    _normalize_generated_resource_payload,
+)
+from app.agents.legacy_contracts import GeneratedResourceDraft
 from app.agents.orchestrator import OrchestratorAgent
 from app.agents.retrieval_agent import KnowledgeRetrievalAgent
 from app.agents.review_agent import ReviewValidationAgent
+from app.services.llm_service import ModelResponseError
 
 
 def test_retrieval_agent_execute_builds_retrieved_chunks(monkeypatch):
@@ -79,6 +87,44 @@ def test_generation_agent_execute_outputs_three_sourced_resources():
     assert all(item["sources"] for item in output["draft_resources"])
 
 
+def test_generation_source_normalization_enforces_retrieval_allowlist():
+    fixture = {
+        "title": "RAG",
+        "content": "content",
+        "difficulty": 3,
+        "sources": [{"knowledge_id": "k_rag", "name": "RAG"}],
+    }
+    normalized = _normalize_generated_resource_payload(
+        {**fixture, "sources": "k_rag"}, fixture
+    )
+    assert normalized["sources"] == fixture["sources"]
+
+    with pytest.raises(ModelResponseError):
+        _normalize_generated_resource_payload(
+            {**fixture, "sources": ["hallucinated_source"]}, fixture
+        )
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"title": "", "content": "content", "difficulty": 3, "sources": ["k_rag"]},
+        {"title": "RAG", "content": "", "difficulty": 3, "sources": ["k_rag"]},
+        {"title": "RAG", "content": "content", "difficulty": 9, "sources": ["k_rag"]},
+    ],
+)
+def test_generation_contract_rejects_missing_or_invalid_fields(payload):
+    fixture = {
+        "title": "RAG",
+        "content": "content",
+        "difficulty": 3,
+        "sources": [{"knowledge_id": "k_rag", "name": "RAG"}],
+    }
+    normalized = _normalize_generated_resource_payload(payload, fixture)
+    with pytest.raises(ValidationError):
+        GeneratedResourceDraft.model_validate(normalized)
+
+
 def test_review_agent_execute_marks_missing_source_as_revision_required():
     output = ReviewValidationAgent().execute(
         {
@@ -103,6 +149,50 @@ def test_review_agent_execute_marks_missing_source_as_revision_required():
     report = output["review_reports"][0]
     assert report["failure_level"] == "failed"
     assert output["trace"]["failed_count"] == 1
+
+
+def test_review_agent_normalizes_scalar_source_ids(monkeypatch):
+    model_review = {
+        "factual_score": 95,
+        "source_trace_score": 95,
+        "difficulty_match_score": 95,
+        "coverage_score": 95,
+        "passed": True,
+        "issues": [],
+        "evidence_refs": ["k_rag"],
+        "fact_checks": [
+            {
+                "claim": "source claim",
+                "supported": True,
+                "source_ids": "k_rag",
+                "reason": "verified",
+                "determinable": True,
+            }
+        ],
+        "unsupported_claims": [],
+        "verified_claim_count": 1,
+        "source_coverage": 95,
+        "unable_to_determine": [],
+    }
+
+    monkeypatch.setattr(
+        "app.agents.review_agent.gateway.complete_json",
+        lambda **_: (dict(model_review), {"provider_mode": "live"}),
+    )
+    output = ReviewValidationAgent().execute(
+        {
+            "generation_context": {
+                "sources": [{"knowledge_id": "k_rag", "name": "RAG", "content": "RAG"}],
+                "generation_requirements": {"difficulty": 3, "strategy": "consolidation"},
+            },
+            "draft_resources": [
+                {"resource_type": "lecture", "difficulty": 3, "content": "RAG", "sources": []}
+            ],
+        }
+    )
+
+    assert output["review_reports"][0]["passed"] is True
+    assert output["review_reports"][0]["primary_review"]["fact_checks"][0]["source_ids"] == ["k_rag"]
 
 
 def test_orchestrator_agent_decide_passed_revision_and_failed():

@@ -79,6 +79,10 @@ export const useTaskStore = defineStore('task', {
     },
   },
   actions: {
+    clearTask() {
+      this.currentTaskId = ''
+      this.events = []
+    },
     setTask(taskId: string) {
       this.currentTaskId = taskId
       this.events = []

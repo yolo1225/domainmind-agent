@@ -6,11 +6,33 @@
         <p class="page-subtitle">统一展示首次生成、反馈触发、双模型复审和人工复核的同一条任务链。</p>
       </div>
       <div class="toolbar">
-        <el-button v-if="taskStore.currentTaskId" @click="router.push('/resources')">查看资源</el-button>
-        <el-button type="primary" :loading="starting" @click="startDemo">启动协同任务</el-button>
+        <el-button v-if="requestedTaskId" :loading="loadingTask" @click="loadTask">刷新任务</el-button>
+        <el-button
+          v-if="requestedTaskId && taskDetail?.status === 'completed'"
+          type="primary"
+          @click="router.push({ path: '/resources', query: { task_id: requestedTaskId } })"
+        >
+          查看本次资源
+        </el-button>
       </div>
     </div>
 
+    <el-alert v-if="taskError" class="panel" type="error" show-icon :title="taskError">
+      <template #default>
+        <el-button size="small" @click="loadTask">重试</el-button>
+      </template>
+    </el-alert>
+
+    <div v-else-if="!requestedTaskId && loadingTask" class="panel">
+      <el-skeleton :rows="4" animated />
+    </div>
+
+    <div v-else-if="!requestedTaskId" class="empty-hint">
+      <strong>请选择一个任务查看协同进度</strong>
+      <p>请从诊断、学情画像或资源反馈页面进入“查看协同进度”。</p>
+    </div>
+
+    <template v-else>
     <div class="summary-strip">
       <div><span>任务 / Thread</span><strong>{{ taskStore.currentTaskId || '未启动' }}</strong></div>
       <div><span>触发类型</span><strong>{{ triggerType }}</strong></div>
@@ -18,6 +40,8 @@
       <div><span>反馈意图</span><strong>{{ feedbackIntent }}</strong></div>
       <div><span>画像结论</span><strong>{{ profileDecision }}</strong></div>
       <div><span>任务决策</span><strong>{{ decisionLabel(taskStore.latestDecision) }}</strong></div>
+      <div><span>画像版本</span><strong>{{ taskDetail?.profile_version || '-' }}</strong></div>
+      <div><span>任务进度</span><strong>{{ taskDetail?.progress ?? 0 }}%</strong></div>
     </div>
 
     <div class="workspace-grid">
@@ -69,23 +93,36 @@
       </div>
       <p class="scope-line">影响范围：{{ affectedScope }}</p>
     </div>
+    </template>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import { subscribeTaskEvents } from '@/api/client'
-import { createGenerationTask } from '@/api/generation'
+import { getActiveGenerationTask, getGenerationTask } from '@/api/generation'
 import AgentFlowView from '@/components/AgentFlow/AgentFlowView.vue'
+import { useLearnerStore } from '@/stores/learnerStore'
 import { useTaskStore } from '@/stores/taskStore'
+import { resolveAgentTaskId } from '@/utils/agentTaskRecovery'
 
 const taskStore = useTaskStore()
+const learnerStore = useLearnerStore()
+const route = useRoute()
 const router = useRouter()
-const starting = ref(false)
+const loadingTask = ref(false)
+const taskError = ref('')
+const taskDetail = ref<Awaited<ReturnType<typeof getGenerationTask>> | null>(null)
 let source: EventSource | null = null
+let pollTimer: number | null = null
+
+const requestedTaskId = computed(() => {
+  const raw = route.query.task_id
+  return typeof raw === 'string' && raw.trim() ? raw.trim() : ''
+})
 
 const activeStep = computed(() =>
   [...taskStore.events].reverse().find((item) => item.step && item.step !== 'task')?.step,
@@ -167,27 +204,74 @@ function eventType(status: string) {
   if (status === 'completed') return 'success'
   return 'primary'
 }
-async function startDemo() {
+function stopMonitoring() {
   source?.close()
-  starting.value = true
-  try {
-    const task = await createGenerationTask()
-    taskStore.setTask(task.task_id)
-    source = subscribeTaskEvents(task.task_id, (event) => {
-      taskStore.addEvent(event)
-      if (['task_completed', 'task_failed', 'manual_review_required'].includes(event.event_type || '')) {
-        source?.close()
-        source = null
-      }
-    })
-    ElMessage.success('协同任务已启动')
-  } catch {
-    ElMessage.error('任务启动失败，请检查后端服务')
-  } finally {
-    starting.value = false
+  source = null
+  if (pollTimer !== null) {
+    window.clearInterval(pollTimer)
+    pollTimer = null
   }
 }
-onBeforeUnmount(() => source?.close())
+
+async function loadTask() {
+  const explicitTaskId = requestedTaskId.value
+  stopMonitoring()
+  taskError.value = ''
+  taskDetail.value = null
+  taskStore.clearTask()
+  loadingTask.value = true
+  try {
+    const taskId = await resolveAgentTaskId(
+      explicitTaskId,
+      learnerStore.selectedLearnerId,
+      getActiveGenerationTask,
+    )
+    if (!taskId) return
+    if (!explicitTaskId) {
+      await router.replace({ path: '/agents', query: { task_id: taskId } })
+      return
+    }
+    taskDetail.value = await getGenerationTask(taskId)
+    taskStore.setTask(taskId)
+    source = subscribeTaskEvents(taskId, async (event) => {
+      taskStore.addEvent(event)
+      if (['task_completed', 'task_failed', 'manual_review_required'].includes(event.event_type || '')) {
+        try {
+          taskDetail.value = await getGenerationTask(taskId)
+        } finally {
+          stopMonitoring()
+        }
+      }
+    })
+    pollTimer = window.setInterval(async () => {
+      try {
+        taskDetail.value = await getGenerationTask(taskId)
+        if (['completed', 'failed', 'waiting_human'].includes(taskDetail.value.status)) {
+          stopMonitoring()
+        }
+      } catch {
+        taskError.value = '任务状态查询失败，请重试。'
+      }
+    }, 2000)
+  } catch {
+    taskError.value = explicitTaskId
+      ? '没有找到该任务，或任务状态暂时不可用。'
+      : '当前学习者的运行中任务查询失败，请稍后重试。'
+    ElMessage.error(taskError.value)
+  } finally {
+    loadingTask.value = false
+  }
+}
+
+watch(requestedTaskId, loadTask)
+watch(
+  () => learnerStore.selectedLearnerId,
+  () => {
+    if (!requestedTaskId.value) loadTask()
+  },
+)
+onMounted(loadTask)
+onBeforeUnmount(stopMonitoring)
 </script>
 
 <style scoped>

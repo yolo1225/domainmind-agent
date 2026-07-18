@@ -100,6 +100,28 @@
                 <strong>{{ profile.profile_id || '待生成' }}</strong>
               </div>
             </div>
+            <el-alert
+              v-if="profileGenerationTask"
+              class="profile-generation-alert"
+              type="info"
+              show-icon
+              :title="`资源生成任务 ${profileGenerationTask.task_id} 已启动，状态：${profileGenerationTask.status}`"
+            >
+              <template #default>
+                <div class="generation-actions">
+                  <el-button @click="router.push({ path: '/agents', query: { task_id: profileGenerationTask.task_id } })">
+                    查看协同进度
+                  </el-button>
+                  <el-button
+                    v-if="profileGenerationTask.status === 'completed'"
+                    type="primary"
+                    @click="router.push({ path: '/resources', query: { task_id: profileGenerationTask.task_id } })"
+                  >
+                    查看本次资源
+                  </el-button>
+                </div>
+              </template>
+            </el-alert>
           </section>
 
           <section v-if="profile.profile_status !== 'ready'" class="empty-hint">
@@ -268,12 +290,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
 import { listDomains, type DomainSummary } from '@/api/domains'
-import { createGenerationTask } from '@/api/generation'
+import { createGenerationTask, getGenerationTask, type GenerationTaskResult } from '@/api/generation'
 import {
   createLearner,
   getLearnerProfile,
@@ -293,6 +315,8 @@ const selectedLearnerId = ref(learnerStore.selectedLearnerId)
 const loadingLearners = ref(false)
 const loadingProfile = ref(false)
 const generating = ref(false)
+const profileGenerationTask = ref<GenerationTaskResult | null>(null)
+let profileGenerationPollTimer: number | null = null
 const creatingLearner = ref(false)
 const createDialogVisible = ref(false)
 const loadingDomains = ref(false)
@@ -455,6 +479,8 @@ async function loadProfile(learnerId: string) {
 async function selectLearner(learnerId: string) {
   selectedLearnerId.value = learnerId
   learnerStore.setSelectedLearner(learnerId)
+  profileGenerationTask.value = null
+  stopProfileGenerationPolling()
   await loadProfile(learnerId)
 }
 
@@ -466,9 +492,10 @@ async function generateResources() {
   if (!profile.value?.profile_id) return
   generating.value = true
   try {
-    await createGenerationTask(profile.value.profile_id, profile.value.learner_id)
-    ElMessage.success('个性化资源已生成，请到学习资源页查看。')
-    router.push('/resources')
+    const task = await createGenerationTask(profile.value.profile_id, profile.value.learner_id)
+    ElMessage.success('资源生成任务已启动，当前页面将保留任务状态。')
+    profileGenerationTask.value = task
+    startProfileGenerationPolling(task.task_id)
   } catch (error) {
     ElMessage.error('资源生成失败，请确认生成服务可用。')
   } finally {
@@ -476,7 +503,31 @@ async function generateResources() {
   }
 }
 
+function stopProfileGenerationPolling() {
+  if (profileGenerationPollTimer !== null) {
+    window.clearInterval(profileGenerationPollTimer)
+    profileGenerationPollTimer = null
+  }
+}
+
+function startProfileGenerationPolling(taskId: string) {
+  stopProfileGenerationPolling()
+  profileGenerationPollTimer = window.setInterval(async () => {
+    try {
+      const detail = await getGenerationTask(taskId)
+      if (profileGenerationTask.value?.task_id !== taskId) return
+      profileGenerationTask.value = { ...profileGenerationTask.value, ...detail }
+      if (['completed', 'failed', 'waiting_human'].includes(detail.status)) {
+        stopProfileGenerationPolling()
+      }
+    } catch {
+      // Keep the task link available while the status endpoint is unavailable.
+    }
+  }, 2000)
+}
+
 onMounted(loadLearners)
+onBeforeUnmount(stopProfileGenerationPolling)
 </script>
 
 <style scoped>
@@ -578,6 +629,17 @@ onMounted(loadLearners)
 .summary-actions {
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.profile-generation-alert {
+  margin-top: 16px;
+}
+
+.generation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .stat-strip {

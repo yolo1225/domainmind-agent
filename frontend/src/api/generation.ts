@@ -3,6 +3,11 @@ import { getData, postData } from './client'
 export interface GenerationTaskResult {
   task_id: string
   thread_id: string
+  learner_id?: string | null
+  profile_id?: string | null
+  profile_version?: number | null
+  profile_source?: string | null
+  profile_changed_dimensions?: string[]
   status: string
   trigger_type: string
   execution_mode: string
@@ -22,6 +27,23 @@ export interface GenerationTaskResult {
     review_status: string
     sources: string[]
   }>
+}
+
+export interface GenerationTaskDetail {
+  task_id: string
+  thread_id?: string
+  learner_id?: string | null
+  profile_id?: string | null
+  profile_version?: number | null
+  profile_source?: string | null
+  profile_changed_dimensions?: string[]
+  status: string
+  progress?: number
+  trigger_type?: string
+  execution_mode?: string
+  revision_count: number
+  decision: string
+  resources: GenerationTaskResult['resources']
 }
 
 export function createGenerationTask(
@@ -45,11 +67,11 @@ export function getAgentRuns(taskId: string) {
 }
 
 export function getGenerationTask(taskId: string) {
-  return getData<{
-    task_id: string
-    status: string
-    revision_count: number
-    decision: string
-    resources: GenerationTaskResult['resources']
-  }>(`/generation-tasks/${taskId}`)
+  return getData<GenerationTaskDetail>(`/generation-tasks/${taskId}`)
+}
+
+export function getActiveGenerationTask(learnerId = 'learner_001') {
+  return getData<GenerationTaskDetail | null>(
+    `/generation-tasks/active?learner_id=${encodeURIComponent(learnerId)}`,
+  )
 }

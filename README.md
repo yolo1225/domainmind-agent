@@ -63,6 +63,7 @@ curl "http://localhost:8000/api/v1/knowledge/search?query=RAG文档切片&n_resu
 - Frontend: http://localhost:5173
 - Backend: http://localhost:8000/docs
 - Health: http://localhost:8000/api/v1/health
+- MySQL host connection: `localhost:13306` by default (`MYSQL_HOST_PORT`); containers continue to use `mysql:3306`.
 
 如果只是重启已经初始化过的本地环境：
 

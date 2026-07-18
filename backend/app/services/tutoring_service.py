@@ -61,16 +61,45 @@ def add_learner_message(
     db.add(learner_message)
     db.flush()
     session.turn_count += 1
+    previous_feedback = db.scalar(
+        select(Feedback)
+        .where(Feedback.tutoring_session_id == session.id)
+        .order_by(Feedback.id.desc())
+    )
+    source_ids = [
+        str(item.get("knowledge_id"))
+        for item in (resource.sources_json or [])
+        if isinstance(item, dict) and item.get("knowledge_id")
+    ]
     output = TutoringAgent().execute(
         {
             "feedback_text": content,
             "tutoring_turn_count": session.turn_count,
             "profile_change_evidence": evidence or [],
+            "previous_feedback_intent": previous_feedback.feedback_intent if previous_feedback else None,
         }
     )
     action = output["recommended_action"]
-    if action == "explain" and session.turn_count < 2:
+    if session.turn_count == 1 and action in {"explain", "challenge"}:
         action = "no_change"
+    verification_evidence: list[dict] = []
+    if (
+        session.turn_count >= 2
+        and previous_feedback
+        and previous_feedback.feedback_intent in {"too_easy", "too_hard", "confusing"}
+        and len(content) >= 20
+    ):
+        verification_evidence = [
+            {
+                "type": "validated_behavior",
+                "summary": "follow-up tutoring response supplied after a verification prompt",
+                "knowledge_id": knowledge_id,
+                "confidence": 0.75,
+                "confirmed": True,
+            }
+            for knowledge_id in source_ids[:8]
+        ]
+    all_evidence = [*output.get("evidence", []), *(evidence or []), *verification_evidence]
     feedback = Feedback(
         resource_id=resource.id,
         learner_id=learner.id,
@@ -84,8 +113,8 @@ def add_learner_message(
         feedback_intent=output["feedback_intent"],
         recommended_action=action,
         profile_update_required=False,
-        profile_change_evidence_json=[*output.get("evidence", []), *(evidence or [])],
-        decision_confidence=0.45 if not evidence else 0.75,
+        profile_change_evidence_json=all_evidence,
+        decision_confidence=0.75 if verification_evidence else (0.45 if not evidence else 0.75),
         decision_reason=output["decision_reason"],
     )
     db.add(feedback)

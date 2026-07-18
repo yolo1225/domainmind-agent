@@ -10,6 +10,7 @@ from app.models import DiagnosticQuestion, Learner, LearnerProfile
 from app.services.profile_service import (
     generate_profile_from_diagnostic,
     latest_path_for_profile,
+    profile_source,
 )
 
 PROFILE_AGENT_NAME = "profile_analysis_agent"
@@ -151,5 +152,9 @@ class ProfileAnalysisAgent(BaseAgent):
             "weak_knowledge": profile.weak_knowledge_json or [],
             "learning_path_id": path.public_id if path else None,
             "learning_path": path.path_json if path else None,
+            "profile_version": profile.profile_version,
+            "profile_changed_dimensions": profile.changed_dimensions_json or [],
             "profile_source": "existing_profile",
+            "profile_origin": profile_source(profile),
+            "previous_profile_id": profile.previous_profile_id,
         }

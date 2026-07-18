@@ -6,6 +6,9 @@
 ./scripts/demo.ps1 start
 ```
 
+MySQL keeps port `3306` inside Docker. Host tools and IDE database connections use
+`localhost:13306` by default; override it with `MYSQL_HOST_PORT` in `.env` when needed.
+
 启动后访问：
 
 - 前端：http://localhost:5173

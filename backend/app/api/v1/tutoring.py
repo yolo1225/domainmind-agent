@@ -78,7 +78,16 @@ def post_tutoring_message(
             },
             "feedback_intent": output["feedback_intent"],
             "recommended_action": feedback.recommended_action,
-            "profile_update_required": False,
+            "profile_update_required": feedback.feedback_intent in {"too_hard", "too_easy"}
+            and any(
+                item.get("type") in {"scored_quiz", "diagnostic_result", "validated_behavior"}
+                and (
+                    float(item.get("confidence", 0) or 0) >= 0.7
+                    or item.get("confirmed") is True
+                )
+                for item in (feedback.profile_change_evidence_json or [])
+                if isinstance(item, dict)
+            ),
             "decision_reason": feedback.decision_reason,
             "task_id": task.public_id if task else None,
         }

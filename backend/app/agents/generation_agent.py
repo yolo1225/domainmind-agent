@@ -5,7 +5,7 @@ from app.agents.base import BaseAgent, PromptBudget
 from app.agents.legacy_contracts import AgentMessage, GeneratedResourceDraft, GenerationOutput
 from app.agents.legacy_state import AgentGraphState
 from app.core.config import settings
-from app.services.llm_service import gateway
+from app.services.llm_service import ModelResponseError, gateway
 
 
 GENERATION_AGENT_NAME = "content_generation_agent"
@@ -184,6 +184,34 @@ def _revision_requirement_block(requirements: dict[str, Any]) -> str:
     return f"\n## 修订要求\n{lines}\n"
 
 
+def _normalize_generated_resource_payload(
+    result: dict[str, Any], fixture: dict[str, Any]
+) -> dict[str, Any]:
+    """Normalize sources and enforce the retrieved-source allowlist."""
+    normalized = dict(result)
+    raw_sources = normalized.get("sources")
+    if not isinstance(raw_sources, list):
+        raw_sources = [] if raw_sources is None else [raw_sources]
+    allowed_sources = {
+        str(source.get("knowledge_id")): source
+        for source in fixture.get("sources", [])
+        if isinstance(source, dict) and source.get("knowledge_id")
+    }
+    source_ids = [
+        str(item.get("knowledge_id")) if isinstance(item, dict) else str(item)
+        for item in raw_sources
+    ]
+    unknown_ids = [source_id for source_id in source_ids if source_id not in allowed_sources]
+    if unknown_ids:
+        raise ModelResponseError(
+            f"generated resource cited sources outside retrieval scope: {unknown_ids}"
+        )
+    normalized["sources"] = [allowed_sources[source_id] for source_id in source_ids]
+    if not normalized["sources"]:
+        raise ModelResponseError("generated resource must cite at least one retrieved source")
+    return normalized
+
+
 class ContentGenerationAgent(BaseAgent):
     name = GENERATION_AGENT_NAME
     system_prompt_path = "app/agents/prompts/generation_agent.md"
@@ -265,6 +293,9 @@ class ContentGenerationAgent(BaseAgent):
                 payload=payload,
                 fixture_factory=lambda: fixture,
                 response_model=GeneratedResourceDraft,
+                response_adapter=lambda result: _normalize_generated_resource_payload(
+                    result, fixture
+                ),
             )
             normalized = {
                 **fixture,

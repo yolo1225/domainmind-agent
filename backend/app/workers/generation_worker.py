@@ -37,7 +37,7 @@ from app.models import (
     TutoringMessage,
     TutoringSession,
 )
-from app.services.profile_service import public_id
+from app.services.profile_service import build_learning_path_from_snapshot, public_id
 from app.services.generation_service import persist_generated_resources
 
 NodeFunc = Callable[[AgentGraphState], AgentGraphState]
@@ -126,15 +126,18 @@ def _create_profile_version_if_required(
         return profile
 
     evidence = list(state.get("profile_change_evidence", []))
-    changed_dimensions = list(state.get("affected_knowledge_ids", [])) or [
+    update_payload = state.get("profile_update_payload") or {}
+    changed_dimensions = list(update_payload.get("changed_dimensions") or []) or [
         "evidence_confirmed"
     ]
+    ability_profile = dict(update_payload.get("ability_profile") or profile.ability_profile_json or {})
+    weak_knowledge = list(update_payload.get("weak_knowledge") or profile.weak_knowledge_json or [])
     next_profile = LearnerProfile(
         public_id=public_id("profile"),
         learner_id=profile.learner_id,
         domain_code=profile.domain_code,
-        ability_profile_json=dict(profile.ability_profile_json or {}),
-        weak_knowledge_json=list(profile.weak_knowledge_json or []),
+        ability_profile_json=ability_profile,
+        weak_knowledge_json=weak_knowledge,
         profile_version=int(profile.profile_version or 1) + 1,
         previous_profile_id=profile.id,
         changed_dimensions_json=changed_dimensions,
@@ -153,10 +156,29 @@ def _create_profile_version_if_required(
     state["profile_id"] = next_profile.public_id
     state["profile_version_created"] = True
     state["profile_version"] = next_profile.profile_version
+    state["profile_update_payload"] = {
+        **update_payload,
+        "profile_id": next_profile.public_id,
+        "profile_version": next_profile.profile_version,
+        "changed_dimensions": changed_dimensions,
+    }
     for path in db.scalars(
-        select(LearningPath).where(LearningPath.learner_id == profile.learner_id)
+        select(LearningPath).where(LearningPath.profile_id == profile.id)
     ):
         path.needs_refresh = True
+    next_path = LearningPath(
+        public_id=public_id("path"),
+        learner_id=profile.learner_id,
+        profile_id=next_profile.id,
+        domain_code=profile.domain_code,
+        status="active",
+        path_json=build_learning_path_from_snapshot(ability_profile, weak_knowledge),
+        needs_refresh=False,
+    )
+    db.add(next_path)
+    db.flush()
+    state.setdefault("profile_result", {})["learning_path_id"] = next_path.public_id
+    state.setdefault("profile", {})["learning_path_id"] = next_path.public_id
     return next_profile
 
 
@@ -254,6 +276,8 @@ def _observable_node(
                 _create_profile_version_if_required(
                     db, task=task, profile=profile, state=next_state
                 )
+                if next_state.get("profile_update_required") and next_state.get("resource_types"):
+                    task.resource_types_json = list(next_state["resource_types"])
                 if task.source_feedback_id:
                     feedback = db.get(Feedback, task.source_feedback_id)
                     if feedback:
@@ -280,6 +304,21 @@ def _observable_node(
                 persist_generated_resources(db, task, active_profile, next_state)
                 db.flush()
             output = _latest_trace_output(next_state, previous_trace_count)
+            if step == "analyze_profile":
+                output.update(
+                    {
+                        "profile_update_required": bool(next_state.get("profile_update_required")),
+                        "profile_version_created": bool(next_state.get("profile_version_created")),
+                        "profile_id": next_state.get("profile_id"),
+                        "profile_version": next_state.get("profile_version"),
+                        "changed_dimensions": list(
+                            (next_state.get("profile_update_payload") or {}).get("changed_dimensions", [])
+                        ),
+                        "affected_knowledge_ids": list(next_state.get("affected_knowledge_ids", [])),
+                        "affected_path_node_ids": list(next_state.get("affected_path_node_ids", [])),
+                        "affected_resource_ids": list(next_state.get("affected_resource_ids", [])),
+                    }
+                )
             current_run.status = "completed"
             current_run.output_summary_json = {"step": step, **output}
             current_run.duration_ms = round((time.perf_counter() - started_at) * 1000)

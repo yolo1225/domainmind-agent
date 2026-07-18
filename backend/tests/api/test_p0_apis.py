@@ -174,3 +174,104 @@ def test_manual_review_resumes_same_thread(monkeypatch) -> None:
             assert review.status == "resolved"
     finally:
         app.dependency_overrides.clear()
+
+
+def test_active_generation_task_returns_latest_non_terminal_task_for_learner() -> None:
+    testing_session = build_test_session()
+    with testing_session() as db:
+        learner = Learner(
+            public_id="learner_active",
+            background="test",
+            target_domain="ai_app_dev",
+            learning_style="mixed",
+        )
+        other_learner = Learner(
+            public_id="learner_other",
+            background="test",
+            target_domain="ai_app_dev",
+            learning_style="mixed",
+        )
+        db.add_all([learner, other_learner])
+        db.flush()
+        profile = LearnerProfile(
+            public_id="profile_active",
+            learner_id=learner.id,
+            ability_profile_json={"profile_type": "beginner"},
+            weak_knowledge_json=[],
+        )
+        other_profile = LearnerProfile(
+            public_id="profile_other",
+            learner_id=other_learner.id,
+            ability_profile_json={"profile_type": "beginner"},
+            weak_knowledge_json=[],
+        )
+        db.add_all([profile, other_profile])
+        db.flush()
+        db.add_all(
+            [
+                GenerationTask(
+                    public_id="task_active_old",
+                    learner_id=learner.id,
+                    profile_id=profile.id,
+                    status="pending",
+                    decision="pending",
+                    resource_types_json=["lecture"],
+                ),
+                GenerationTask(
+                    public_id="task_active_latest",
+                    learner_id=learner.id,
+                    profile_id=profile.id,
+                    status="running",
+                    decision="pending",
+                    resource_types_json=["lecture"],
+                ),
+                GenerationTask(
+                    public_id="task_other_waiting",
+                    learner_id=other_learner.id,
+                    profile_id=other_profile.id,
+                    status="waiting_human",
+                    decision="manual_review_required",
+                    resource_types_json=["lecture"],
+                ),
+                GenerationTask(
+                    public_id="task_active_completed",
+                    learner_id=learner.id,
+                    profile_id=profile.id,
+                    status="completed",
+                    decision="completed",
+                    resource_types_json=["lecture"],
+                ),
+            ]
+        )
+        learner_db_id = learner.id
+        db.commit()
+
+    app.dependency_overrides[get_db] = override(testing_session)
+    try:
+        client = TestClient(app)
+        active = client.get(
+            "/api/v1/generation-tasks/active",
+            params={"learner_id": "learner_active"},
+        )
+        assert active.status_code == 200
+        assert active.json()["data"]["task_id"] == "task_active_latest"
+        assert client.get(
+            "/api/v1/generation-tasks/active",
+            params={"learner_id": "learner_other"},
+        ).json()["data"]["task_id"] == "task_other_waiting"
+
+        with testing_session() as db:
+            db.query(GenerationTask).filter(
+                GenerationTask.learner_id == learner_db_id,
+                GenerationTask.status.in_({"pending", "running", "waiting_human"}),
+            ).update(
+                {"status": "completed", "decision": "completed"},
+                synchronize_session=False,
+            )
+            db.commit()
+        assert client.get(
+            "/api/v1/generation-tasks/active",
+            params={"learner_id": "learner_active"},
+        ).json()["data"] is None
+    finally:
+        app.dependency_overrides.clear()

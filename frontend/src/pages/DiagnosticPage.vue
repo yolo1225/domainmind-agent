@@ -128,17 +128,33 @@
       <el-steps :active="(generation.agent_trace ?? []).length" finish-status="success" simple>
         <el-step v-for="trace in generation.agent_trace ?? []" :key="trace.agent_name" :title="agentLabel(trace.agent_name)" />
       </el-steps>
-      <el-alert class="resource-alert" type="success" show-icon>
+      <el-alert
+        class="resource-alert"
+        :type="generation.status === 'completed' ? 'success' : generation.status === 'failed' ? 'error' : 'info'"
+        show-icon
+      >
         <template #title>
-          已生成 {{ generation.resources.length }} 类学习资源，协同决策为 {{ generation.decision }}。请进入“学习资源”页查看内容并提交反馈。
+          任务状态：{{ generation.status }}；当前已生成 {{ generation.resources.length }} 类学习资源，协同决策为 {{ generation.decision }}。
         </template>
       </el-alert>
+      <div class="generation-actions">
+        <el-button @click="router.push({ path: '/agents', query: { task_id: generation.task_id } })">
+          查看协同进度
+        </el-button>
+        <el-button
+          v-if="generation.status === 'completed'"
+          type="primary"
+          @click="router.push({ path: '/resources', query: { task_id: generation.task_id } })"
+        >
+          查看本次资源
+        </el-button>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
@@ -148,7 +164,7 @@ import {
   type DiagnosticResult,
   type DiagnosticSession,
 } from '@/api/diagnostics'
-import { createGenerationTask, type GenerationTaskResult } from '@/api/generation'
+import { createGenerationTask, getGenerationTask, type GenerationTaskResult } from '@/api/generation'
 import { listLearners, type LearnerSummary } from '@/api/learners'
 import { useLearnerStore } from '@/stores/learnerStore'
 
@@ -164,6 +180,7 @@ const answers = ref<Record<string, string | number>>({})
 const loadingSession = ref(false)
 const loadingSubmit = ref(false)
 const loadingGeneration = ref(false)
+let generationPollTimer: number | null = null
 
 const currentStep = computed(() => {
   if (generation.value) return 4
@@ -206,6 +223,7 @@ function changeLearner(learnerId: string) {
   result.value = null
   generation.value = null
   answers.value = {}
+  stopGenerationPolling()
 }
 
 function profileLabel(profileType: string) {
@@ -282,8 +300,8 @@ async function generateResources() {
   loadingGeneration.value = true
   try {
     generation.value = await createGenerationTask(result.value.profile_id, result.value.learner_id)
-    ElMessage.success('资源生成任务已启动，正在打开本次资源批次。')
-    await router.push({ path: '/resources', query: { task_id: generation.value.task_id } })
+    startGenerationPolling(generation.value.task_id)
+    ElMessage.success('资源生成任务已启动，当前页面将保留任务状态。')
   } catch (error) {
     ElMessage.error('生成资源失败，请确认生成接口可用。')
   } finally {
@@ -291,7 +309,31 @@ async function generateResources() {
   }
 }
 
+function stopGenerationPolling() {
+  if (generationPollTimer !== null) {
+    window.clearInterval(generationPollTimer)
+    generationPollTimer = null
+  }
+}
+
+function startGenerationPolling(taskId: string) {
+  stopGenerationPolling()
+  generationPollTimer = window.setInterval(async () => {
+    try {
+      const detail = await getGenerationTask(taskId)
+      if (generation.value?.task_id !== taskId) return
+      generation.value = { ...generation.value, ...detail }
+      if (['completed', 'failed', 'waiting_human'].includes(detail.status)) {
+        stopGenerationPolling()
+      }
+    } catch {
+      // Keep the task summary visible; the user can open the Agent page to retry.
+    }
+  }, 2000)
+}
+
 onMounted(loadLearnerOptions)
+onBeforeUnmount(stopGenerationPolling)
 </script>
 
 <style scoped>
@@ -370,6 +412,13 @@ onMounted(loadLearnerOptions)
 }
 
 .resource-alert {
+  margin-top: 14px;
+}
+
+.generation-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-top: 14px;
 }
 

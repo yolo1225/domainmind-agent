@@ -16,6 +16,7 @@ class TutoringAgent(BaseAgent):
         text = str(state.get("feedback_text") or state.get("comment") or "").strip()
         quick = str(state.get("feedback_intent") or state.get("feedback_type") or "other")
         turn_count = int(state.get("tutoring_turn_count") or 1)
+        previous_intent = str(state.get("previous_feedback_intent") or "")
         if quick in {"incorrect", "has_error"} or any(
             term in text for term in ("错误", "不对", "有误")
         ):
@@ -40,6 +41,9 @@ class TutoringAgent(BaseAgent):
             intent, action = "confusing", "explain"
             reply = "请指出最困惑的概念或步骤。我会先给提示，再根据后续回答调整解释。"
 
+        if turn_count >= 2 and previous_intent in {"too_easy", "too_hard", "confusing"}:
+            intent = previous_intent
+            action = "challenge" if previous_intent == "too_easy" else "explain"
         if action == "explain" and turn_count < 2:
             action = "no_change"
         evidence = [{"type": "tutoring_message", "summary": text[:120]}] if text else []

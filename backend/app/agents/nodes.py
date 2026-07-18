@@ -1,6 +1,7 @@
 from typing import Any
 
 from langgraph.types import interrupt
+from sqlalchemy import select
 
 from app.agents.generation_agent import ContentGenerationAgent, GENERATION_AGENT_NAME
 from app.agents.orchestrator import ORCHESTRATOR_AGENT_NAME, OrchestratorAgent
@@ -242,14 +243,78 @@ def analyze_profile(state: AgentGraphState) -> AgentGraphState:
         )
     state["retrieval_plan"] = retrieval_plan
     evidence = state.get("profile_change_evidence", [])
-    update_required = _evidence_supports_profile_update(evidence)
+    profile_update_intent = state.get("feedback_intent") in {"too_hard", "too_easy"}
+    update_required = profile_update_intent and _evidence_supports_profile_update(evidence)
     state["profile_update_required"] = update_required
+    if update_required:
+        from app.models import LearnerProfile, LearningResource
+        from app.services.profile_service import apply_feedback_profile_update
+
+        db = state.get("db_session")
+        current_profile = None
+        resource = None
+        if db is not None and state.get("profile_id"):
+            current_profile = db.scalar(
+                select(LearnerProfile).where(
+                    LearnerProfile.public_id == state["profile_id"]
+                )
+            )
+        if db is not None and state.get("resource_id"):
+            resource = db.scalar(
+                select(LearningResource).where(
+                    LearningResource.public_id == state["resource_id"]
+                )
+            )
+        if current_profile is not None:
+            update = apply_feedback_profile_update(
+                db,
+                profile=current_profile,
+                resource=resource,
+                feedback_intent=state.get("feedback_intent"),
+                evidence=evidence,
+            )
+            state["profile_update_payload"] = update
+            state["affected_knowledge_ids"] = update.get("affected_knowledge_ids", [])
+            state["affected_path_node_ids"] = update.get("affected_path_node_ids", [])
+            state["affected_resource_ids"] = update.get("affected_resource_ids", [])
+            if db is not None and update.get("affected_resource_ids"):
+                affected_resources = list(
+                    db.scalars(
+                        select(LearningResource).where(
+                            LearningResource.public_id.in_(update["affected_resource_ids"])
+                        )
+                    )
+                )
+                state["resource_types"] = list(
+                    dict.fromkeys(item.resource_type for item in affected_resources)
+                ) or state.get("resource_types", [])
+            state["profile"] = {
+                **(update.get("ability_profile") or {}),
+                "profile_id": state.get("profile_id"),
+                "profile_type": (update.get("ability_profile") or {}).get("profile_type", "beginner"),
+                "weak_knowledge": update.get("weak_knowledge", []),
+                "learning_path_id": state.get("profile_result", {}).get("learning_path_id"),
+            }
+            state["profile_result"] = {
+                **state.get("profile_result", {}),
+                "ability_profile": update.get("ability_profile", {}),
+                "profile_type": (update.get("ability_profile") or {}).get("profile_type", "beginner"),
+                "weak_knowledge": update.get("weak_knowledge", []),
+            }
     if update_required:
         knowledge_ids = _unique_non_empty(
             [item.get("knowledge_id") for item in evidence if isinstance(item, dict)]
         )
-        state["affected_knowledge_ids"] = knowledge_ids
-        state["affected_path_node_ids"] = [f"path:{item}" for item in knowledge_ids]
+        # ``apply_feedback_profile_update`` expands the direct evidence through
+        # prerequisite/dependent/related relations. Preserve that computed
+        # scope; only fall back to the evidence IDs when no database-backed
+        # profile update was available.
+        if not state.get("affected_knowledge_ids"):
+            state["affected_knowledge_ids"] = knowledge_ids
+        if not state.get("affected_path_node_ids"):
+            state["affected_path_node_ids"] = [
+                f"path:{item}" for item in state["affected_knowledge_ids"]
+            ]
         state["affected_resource_ids"] = list(state.get("affected_resource_ids", []))
         state["decision_reason"] = "计分或多轮一致证据足以支持画像变化"
     else:
@@ -327,7 +392,12 @@ def finalize_task(state: AgentGraphState) -> AgentGraphState:
             {"step": "finalize_task", "decision": "rejected", "resolved_by": "human"},
         )
         return state
-    if state.get("trigger_type") == "resource_feedback" and not state.get("needs_generation"):
+    if (
+        state.get("trigger_type") == "resource_feedback"
+        and not state.get("needs_generation")
+        and not state.get("draft_resources")
+        and not state.get("review_reports")
+    ):
         state["decision"] = "no_change"
         append_trace(
             state,

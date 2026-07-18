@@ -14,6 +14,7 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 ResponseModel = TypeVar("ResponseModel", bound=BaseModel)
+ResponseAdapter = Callable[[dict[str, Any]], dict[str, Any]]
 
 
 class ModelGatewayError(RuntimeError):
@@ -54,6 +55,7 @@ class OpenAICompatibleGateway:
         payload: dict[str, Any],
         fixture_factory: Callable[[], dict[str, Any]] | None = None,
         response_model: type[ResponseModel] | None = None,
+        response_adapter: ResponseAdapter | None = None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         started_at = time.perf_counter()
         if not model or not settings.openai_api_key:
@@ -63,6 +65,8 @@ class OpenAICompatibleGateway:
                 and fixture_factory is not None
             ):
                 result = fixture_factory()
+                if response_adapter is not None:
+                    result = response_adapter(result)
                 return self._validate(result, response_model), {
                     "provider_mode": "fixture",
                     "model_name": model or "fixture-model",
@@ -89,6 +93,8 @@ class OpenAICompatibleGateway:
                 )
                 content = response.choices[0].message.content or "{}"
                 result = json.loads(content)
+                if response_adapter is not None:
+                    result = response_adapter(result)
                 result = self._validate(result, response_model)
                 usage = response.usage
                 return result, {
@@ -131,7 +137,23 @@ class OpenAICompatibleGateway:
             raise ModelResponseError("JSON response must be an object")
         if response_model is None:
             return result
-        return response_model.model_validate(result).model_dump()
+        return response_model.model_validate(
+            OpenAICompatibleGateway._normalize_common_shapes(result)
+        ).model_dump()
+
+    @staticmethod
+    def _normalize_common_shapes(value: Any) -> Any:
+        if isinstance(value, list):
+            return [OpenAICompatibleGateway._normalize_common_shapes(item) for item in value]
+        if isinstance(value, dict):
+            normalized = {
+                key: OpenAICompatibleGateway._normalize_common_shapes(item)
+                for key, item in value.items()
+            }
+            if "source_ids" in normalized and isinstance(normalized["source_ids"], str):
+                normalized["source_ids"] = [normalized["source_ids"]]
+            return normalized
+        return value
 
     def configuration_status(self) -> dict[str, Any]:
         generation_ready = bool(settings.primary_llm_model)

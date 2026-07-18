@@ -131,6 +131,37 @@ def _average(review: ModelReview) -> float:
     ) / 4
 
 
+def _as_list(value: Any) -> list[Any]:
+    """Tolerate common JSON-shape drift from OpenAI-compatible review models."""
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
+
+
+def _normalize_model_review_payload(result: dict[str, Any]) -> dict[str, Any]:
+    """Normalize list fields before applying the frozen review contract.
+
+    Some compatible models return a single source ID as a string even when the
+    requested schema says ``source_ids`` is an array. This is a transport-shape
+    issue, not a review decision, so it can be repaired at the concrete Agent
+    boundary without weakening the contract itself.
+    """
+    normalized = dict(result)
+    for field in ("issues", "evidence_refs", "unsupported_claims", "unable_to_determine"):
+        normalized[field] = _as_list(normalized.get(field))
+    fact_checks = []
+    for item in _as_list(normalized.get("fact_checks")):
+        if not isinstance(item, dict):
+            continue
+        fact_check = dict(item)
+        fact_check["source_ids"] = [str(value) for value in _as_list(fact_check.get("source_ids"))]
+        fact_checks.append(fact_check)
+    normalized["fact_checks"] = fact_checks
+    return normalized
+
+
 class ReviewValidationAgent(BaseAgent):
     name = REVIEW_AGENT_NAME
     system_prompt_path = "app/agents/prompts/review_agent.md"
@@ -157,6 +188,7 @@ class ReviewValidationAgent(BaseAgent):
             fixture_factory=lambda: _fixture_scores(draft, context, role, conflict_mode, recheck),
             response_model=ModelReview,
         )
+        result = _normalize_model_review_payload(result)
         result["model_role"] = role
         result["provider_mode"] = metadata["provider_mode"]
         return ModelReview.model_validate(result), {**metadata, "model_role": role, "budget": budget}

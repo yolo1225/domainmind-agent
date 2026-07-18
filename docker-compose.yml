@@ -8,7 +8,8 @@ services:
       MYSQL_USER: yunchuan
       MYSQL_PASSWORD: yunchuan_dev
     ports:
-      - "3306:3306"
+      # Keep MySQL's container port at 3306; expose a less collision-prone host port.
+      - "${MYSQL_HOST_PORT:-13306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:

@@ -17,9 +17,38 @@
       <el-skeleton :rows="5" animated />
     </div>
 
-    <div v-else-if="requestedTaskId && !selectedBatch" class="empty-hint">
+    <div v-else-if="requestedTaskId && pendingTask && !selectedBatch" class="panel generation-status-panel">
+      <div class="section-head">
+        <div>
+          <h2 class="panel-title">
+            {{ pendingTask.status === 'completed' ? '本次任务已完成' : '本次资源正在生成' }}
+          </h2>
+          <p class="page-subtitle">
+            诊断画像已传入生成任务，系统正在完成知识检索、内容生成和双模型审核。
+          </p>
+        </div>
+        <el-tag :type="pendingTask.status === 'waiting_human' ? 'warning' : 'primary'">
+          {{ generationStatusLabel(pendingTask.status) }}
+        </el-tag>
+      </div>
+      <el-progress
+        :percentage="Math.max(0, Math.min(100, pendingTask.progress ?? 0))"
+        :status="pendingTask.status === 'waiting_human' ? 'warning' : undefined"
+      />
+      <p class="muted generation-status-copy">
+        {{ generationStatusDetail(pendingTask.status) }}任务编号：{{ shortTaskId(requestedTaskId) }}
+      </p>
+      <div class="empty-actions">
+        <el-button :loading="loading" @click="load">刷新状态</el-button>
+        <el-button @click="router.push({ path: '/agents', query: { task_id: requestedTaskId } })">
+          查看 Agent 进度
+        </el-button>
+      </div>
+    </div>
+
+    <div v-else-if="requestedTaskId && !pendingTask && !selectedBatch" class="empty-hint">
       <strong>没有找到这次生成的资源</strong>
-      <p>任务可能仍在生成，刷新资源或前往 Agent 协同页查看进度。</p>
+      <p>任务可能已失败或尚未返回状态，请刷新资源或前往 Agent 协同页查看进度。</p>
       <div class="empty-actions">
         <el-button :loading="loading" @click="load">刷新资源</el-button>
         <el-button @click="router.push('/agents')">查看 Agent 进度</el-button>
@@ -219,6 +248,14 @@
                       <span>{{ message.content }}</span>
                     </p>
                   </div>
+                  <el-button
+                    v-if="tutoringTaskId"
+                    type="primary"
+                    plain
+                    @click="router.push({ path: '/agents', query: { task_id: tutoringTaskId } })"
+                  >
+                    查看本次导学协同进度
+                  </el-button>
                   <div class="tutoring-input">
                     <el-input
                       v-model="tutoringInput"
@@ -253,6 +290,13 @@
           {{ lastFeedback.task_id || '无需创建任务' }}
         </el-descriptions-item>
       </el-descriptions>
+      <el-button
+        v-if="lastFeedback.task_id"
+        type="primary"
+        @click="router.push({ path: '/agents', query: { task_id: lastFeedback.task_id } })"
+      >
+        查看协同进度
+      </el-button>
     </div>
 
     <el-drawer v-model="versionsVisible" title="资源版本记录" size="420px">
@@ -269,7 +313,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
@@ -280,6 +324,7 @@ import {
   submitFeedback,
   type ResourceSummary,
 } from '@/api/resources'
+import { getGenerationTask } from '@/api/generation'
 import { createTutoringSession, sendTutoringMessage } from '@/api/tutoring'
 import ResourceMarkdownViewer from '@/components/ResourceViewer/ResourceMarkdownViewer.vue'
 import { useLearnerStore } from '@/stores/learnerStore'
@@ -318,6 +363,9 @@ const tutoringSessionId = ref('')
 const tutoringInput = ref('')
 const tutoringSending = ref(false)
 const tutoringMessages = ref<Array<{ id: string; sender: 'learner' | 'agent'; content: string }>>([])
+const tutoringTaskId = ref<string | null>(null)
+const pendingTask = ref<Awaited<ReturnType<typeof getGenerationTask>> | null>(null)
+let generationPollTimer: number | null = null
 
 const requestedTaskId = computed(() => {
   const raw = route.query.task_id
@@ -495,6 +543,11 @@ function syncSelectionFromRoute() {
     selectedResourceId.value = ''
     return
   }
+  if (requestedTaskId.value && !batches.value.some((batch) => batch.taskId === requestedTaskId.value)) {
+    selectedTaskId.value = requestedTaskId.value
+    selectedResourceId.value = ''
+    return
+  }
   const nextTaskId =
     (requestedTaskId.value &&
       batches.value.find((batch) => batch.taskId === requestedTaskId.value)?.taskId) ||
@@ -510,6 +563,63 @@ function syncSelectionFromRoute() {
   }
 }
 
+function generationStatusLabel(status: string) {
+  return ({
+    pending: '排队中',
+    running: '生成中',
+    waiting_human: '等待人工审核',
+    completed: '已完成',
+    failed: '生成失败',
+  } as Record<string, string>)[status] || '处理中'
+}
+
+function generationStatusDetail(status: string) {
+  return ({
+    pending: '任务已创建，正在排队。',
+    running: '正在执行多智能体协同流程，请稍候。',
+    waiting_human: '双模型审核存在分歧，需要管理员确认后才会发布资源。',
+    completed: '任务已完成，但资源列表正在同步。',
+    failed: '任务执行失败，请查看 Agent 运行记录。',
+  } as Record<string, string>)[status] || '系统正在处理任务。'
+}
+
+function stopGenerationPolling() {
+  if (generationPollTimer !== null) {
+    window.clearInterval(generationPollTimer)
+    generationPollTimer = null
+  }
+}
+
+async function refreshGenerationStatus() {
+  if (!requestedTaskId.value) {
+    pendingTask.value = null
+    stopGenerationPolling()
+    return
+  }
+  try {
+    const task = await getGenerationTask(requestedTaskId.value)
+    pendingTask.value = task
+    if (task.status === 'completed' || task.status === 'failed' || task.status === 'waiting_human') {
+      stopGenerationPolling()
+      await loadResources()
+    }
+  } catch {
+    pendingTask.value = null
+  }
+}
+
+async function loadResources() {
+  resources.value = await listResources()
+  syncSelectionFromRoute()
+}
+
+function startGenerationPolling() {
+  stopGenerationPolling()
+  if (!requestedTaskId.value) return
+  void refreshGenerationStatus()
+  generationPollTimer = window.setInterval(() => void refreshGenerationStatus(), 2000)
+}
+
 function selectBatch(taskId: string) {
   selectedTaskId.value = taskId
   const batch = batches.value.find((item) => item.taskId === taskId)
@@ -520,8 +630,8 @@ function selectBatch(taskId: string) {
 async function load() {
   loading.value = true
   try {
-    resources.value = await listResources()
-    syncSelectionFromRoute()
+    await loadResources()
+    await refreshGenerationStatus()
   } catch (error) {
     ElMessage.error('资源加载失败，请确认后端服务已启动。')
   } finally {
@@ -574,6 +684,7 @@ async function sendTutorMessage() {
     tutoringInput.value = ''
     const result = await sendTutoringMessage(tutoringSessionId.value, content)
     tutoringMessages.value.push({ id: result.reply.message_id, sender: 'agent', content: result.reply.content })
+    tutoringTaskId.value = result.task_id
     ElMessage.info(result.profile_update_required ? '画像已基于证据创建新版本' : '当前证据不足，画像保持不变')
   } catch { ElMessage.error('导学消息发送失败') }
   finally { tutoringSending.value = false }
@@ -581,7 +692,10 @@ async function sendTutorMessage() {
 
 watch(
   () => route.query.task_id,
-  () => syncSelectionFromRoute(),
+  () => {
+    syncSelectionFromRoute()
+    startGenerationPolling()
+  },
 )
 
 watch(batches, syncSelectionFromRoute)
@@ -597,6 +711,7 @@ watch(selected, (next, previous) => {
 })
 
 onMounted(load)
+onBeforeUnmount(stopGenerationPolling)
 </script>
 
 <style scoped>
@@ -644,6 +759,16 @@ onMounted(load)
 
 .loading-panel {
   min-height: 220px;
+}
+
+.generation-status-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.generation-status-copy {
+  margin: 0;
+  line-height: 1.7;
 }
 
 .empty-actions {

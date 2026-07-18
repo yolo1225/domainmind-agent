@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from app.core.db import SessionLocal, get_db
 from app.models import AgentRun, GenerationTask, Learner, LearnerProfile, LearningResource
 from app.schemas.common import ApiResponse, ok
-from app.services.profile_service import default_profile_for_learner, public_id
+from app.services.profile_service import default_profile_for_learner, profile_source, public_id
 from app.workers.generation_worker import run_generation_task
 
 router = APIRouter()
@@ -21,6 +21,7 @@ RESOURCE_TYPES = {"lecture", "practice_guide", "graded_quiz"}
 TRIGGER_TYPES = {"initial_generation", "resource_feedback"}
 EXECUTION_MODES = {"auto", "assisted"}
 TERMINAL_TASK_STATUSES = {"completed", "failed", "revision_required", "waiting_human"}
+ACTIVE_TASK_STATUSES = {"pending", "running", "waiting_human"}
 SENSITIVE_KEYS = {"content", "content_md", "draft_resources", "profile", "answers"}
 
 STEP_LABELS = {
@@ -61,6 +62,47 @@ def _resource_summary(resource: LearningResource) -> dict[str, Any]:
         "version": resource.version,
         "is_current": resource.is_current,
         "sources": [item.get("knowledge_id") for item in (resource.sources_json or [])],
+    }
+
+
+def _profile_summary(db: Session, task: GenerationTask) -> dict[str, Any]:
+    profile = db.get(LearnerProfile, task.profile_id)
+    if profile is None:
+        return {
+            "profile_id": None,
+            "profile_version": None,
+            "profile_source": None,
+            "profile_changed_dimensions": [],
+        }
+    return {
+        "profile_id": profile.public_id,
+        "profile_version": profile.profile_version,
+        "profile_source": profile_source(profile),
+        "profile_changed_dimensions": profile.changed_dimensions_json or [],
+    }
+
+
+def _task_detail_summary(db: Session, task: GenerationTask) -> dict[str, Any]:
+    learner = db.get(Learner, task.learner_id)
+    resources = list(
+        db.scalars(
+            select(LearningResource)
+            .where(LearningResource.generation_task_id == task.id)
+            .order_by(LearningResource.id)
+        )
+    )
+    return {
+        "task_id": task.public_id,
+        "thread_id": task.public_id,
+        "status": task.status,
+        "progress": task.progress,
+        "trigger_type": task.trigger_type,
+        "execution_mode": task.execution_mode,
+        "learner_id": learner.public_id if learner else None,
+        **_profile_summary(db, task),
+        "revision_count": task.revision_count,
+        "decision": task.decision,
+        "resources": [_resource_summary(item) for item in resources],
     }
 
 
@@ -118,6 +160,7 @@ def create_generation_task(
             "execution_mode": task.execution_mode,
             "resource_types": requested_types,
             "agent_graph": "unified_learning_graph_v1",
+            **_profile_summary(db, task),
             "decision": task.decision,
             "agent_trace": [],
             "resources": [],
@@ -125,31 +168,27 @@ def create_generation_task(
     )
 
 
+@router.get("/active", response_model=ApiResponse)
+def get_active_generation_task(
+    learner_id: str = "learner_001",
+    db: Session = Depends(get_db),
+) -> ApiResponse:
+    task = db.scalar(
+        select(GenerationTask)
+        .join(Learner, Learner.id == GenerationTask.learner_id)
+        .where(Learner.public_id == learner_id)
+        .where(GenerationTask.status.in_(ACTIVE_TASK_STATUSES))
+        .order_by(GenerationTask.created_at.desc(), GenerationTask.id.desc())
+    )
+    return ok(_task_detail_summary(db, task) if task is not None else None)
+
+
 @router.get("/{task_id}", response_model=ApiResponse)
 def get_generation_task(task_id: str, db: Session = Depends(get_db)) -> ApiResponse:
     task = db.scalar(select(GenerationTask).where(GenerationTask.public_id == task_id))
     if task is None:
         raise HTTPException(status_code=404, detail="Generation task not found")
-    resources = list(
-        db.scalars(
-            select(LearningResource)
-            .where(LearningResource.generation_task_id == task.id)
-            .order_by(LearningResource.id)
-        )
-    )
-    return ok(
-        {
-            "task_id": task.public_id,
-            "thread_id": task.public_id,
-            "status": task.status,
-            "progress": task.progress,
-            "trigger_type": task.trigger_type,
-            "execution_mode": task.execution_mode,
-            "revision_count": task.revision_count,
-            "decision": task.decision,
-            "resources": [_resource_summary(item) for item in resources],
-        }
-    )
+    return ok(_task_detail_summary(db, task))
 
 
 def _safe(value: Any) -> Any:

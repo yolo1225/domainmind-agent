@@ -12,11 +12,19 @@ from app.agents.graphs import build_learning_graph
 from app.agents.checkpointer import MySQLLangGraphCheckpointer
 from app.agents.base import PromptBudget
 from app.agents.review_agent import ReviewValidationAgent
-from app.models import Base, GenerationTask, Learner, LearnerProfile, LearningResource
+from app.models import (
+    Base,
+    GenerationTask,
+    Learner,
+    LearnerProfile,
+    LearningPath,
+    LearningResource,
+)
 from app.models import GraphCheckpoint
 from app.services.generation_service import persist_generated_resources
 from app.services.llm_service import ModelResponseError, OpenAICompatibleGateway
 from app.services.resource_export_service import _export_content
+from app.workers.generation_worker import _create_profile_version_if_required
 
 
 def test_unified_graph_has_exact_eight_top_level_nodes() -> None:
@@ -195,6 +203,7 @@ def test_scored_evidence_updates_only_affected_scope(monkeypatch) -> None:
     state = nodes.analyze_profile(
         {
             "trigger_type": "resource_feedback",
+            "feedback_intent": "too_hard",
             "recommended_action": "update_profile",
             "learning_goal": "RAG",
             "profile_change_evidence": [
@@ -210,6 +219,118 @@ def test_scored_evidence_updates_only_affected_scope(monkeypatch) -> None:
     assert state["profile_update_required"] is True
     assert state["affected_knowledge_ids"] == ["AIAPP-K029"]
     assert state["affected_path_node_ids"] == ["path:AIAPP-K029"]
+
+
+def test_incorrect_feedback_never_updates_profile_even_with_scored_evidence(monkeypatch) -> None:
+    monkeypatch.setattr(
+        nodes.ProfileAnalysisAgent,
+        "execute",
+        lambda self, state: {
+            "profile_id": "profile_1",
+            "profile_type": "intermediate",
+            "ability_profile": {"theory": 70},
+            "weak_knowledge": [],
+        },
+    )
+    state = nodes.analyze_profile(
+        {
+            "trigger_type": "resource_feedback",
+            "feedback_intent": "incorrect",
+            "recommended_action": "review",
+            "learning_goal": "RAG",
+            "profile_change_evidence": [
+                {
+                    "type": "scored_quiz",
+                    "knowledge_id": "AIAPP-K029",
+                    "confidence": 0.9,
+                }
+            ],
+            "agent_trace": [],
+        }
+    )
+    assert state["profile_update_required"] is False
+    assert state["needs_generation"] is True
+    assert state["affected_knowledge_ids"] == []
+
+
+def test_profile_update_creates_path_for_new_profile_version() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    Base.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    with Session() as db:
+        learner = Learner(public_id="learner_path", target_domain="ai_app_dev")
+        db.add(learner)
+        db.flush()
+        profile = LearnerProfile(
+            public_id="profile_path_v1",
+            learner_id=learner.id,
+            ability_profile_json={
+                "profile_type": "beginner",
+                "theory": 50,
+                "practice": 45,
+                "problem_solving": 45,
+                "breadth": 40,
+                "learning_speed": 50,
+            },
+            weak_knowledge_json=[],
+        )
+        db.add(profile)
+        db.flush()
+        old_path = LearningPath(
+            public_id="path_v1",
+            learner_id=learner.id,
+            profile_id=profile.id,
+            domain_code="ai_app_dev",
+            path_json={"stages": []},
+        )
+        task = GenerationTask(
+            public_id="task_path_update",
+            learner_id=learner.id,
+            profile_id=profile.id,
+            status="running",
+            resource_types_json=["lecture"],
+        )
+        db.add_all([old_path, task])
+        db.flush()
+        state = {
+            "profile_update_required": True,
+            "profile_change_evidence": [
+                {"type": "validated_behavior", "confidence": 0.8}
+            ],
+            "profile_update_payload": {
+                "ability_profile": {
+                    "profile_type": "intermediate",
+                    "theory": 65,
+                    "practice": 62,
+                    "problem_solving": 60,
+                    "breadth": 58,
+                    "learning_speed": 64,
+                },
+                "weak_knowledge": [
+                    {
+                        "knowledge_id": "AIAPP-K029",
+                        "name": "RAG",
+                        "weakness_level": 2,
+                        "prerequisites": [],
+                    }
+                ],
+                "changed_dimensions": ["ability_scores", "weak_knowledge"],
+            },
+            "profile_result": {},
+            "profile": {},
+        }
+        next_profile = _create_profile_version_if_required(
+            db, task=task, profile=profile, state=state
+        )
+        next_path = db.scalar(
+            select(LearningPath).where(LearningPath.profile_id == next_profile.id)
+        )
+        assert next_profile.profile_version == 2
+        assert next_path is not None
+        assert next_path.needs_refresh is False
+        assert next_path.path_json["profile_type"] == "intermediate"
+        assert old_path.needs_refresh is True
+        assert state["profile_result"]["learning_path_id"] == next_path.public_id
 
 
 def test_review_channels_are_two_independent_calls(monkeypatch) -> None:

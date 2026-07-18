@@ -15,9 +15,15 @@ from app.models import (
     KnowledgeItem,
     KnowledgeRelation,
     Learner,
+    LearnerProfile,
+    LearningResource,
 )
 from app.services.diagnostic_service import submit_diagnostic_session
-from app.services.profile_service import classify_profile_level, generate_profile_from_diagnostic
+from app.services.profile_service import (
+    apply_feedback_profile_update,
+    classify_profile_level,
+    generate_profile_from_diagnostic,
+)
 
 
 def build_test_session() -> sessionmaker[Session]:
@@ -158,6 +164,87 @@ def test_generate_advanced_profile_without_low_score_weak_items() -> None:
     assert result["weak_knowledge"] == []
     assert result["ability_profile"]["category_mastery"]["theory_foundation"] == 100
     assert result["learning_path"]["stages"][-1]["trigger"] == "resource_feedback"
+
+
+def test_feedback_scope_includes_only_connected_knowledge_relations() -> None:
+    testing_session = build_test_session()
+    with testing_session() as db:
+        learner, _, _ = seed_profile_fixture(db)
+        unrelated = KnowledgeItem(
+            public_id="unrelated_item",
+            domain_code="ai_app_dev",
+            name="Unrelated",
+            category="other",
+            difficulty=2,
+            tags_json=[],
+            content_md="unrelated",
+            source_title="team knowledge base",
+            license_note="team-authored",
+            needs_reembedding=False,
+        )
+        db.add(unrelated)
+        db.flush()
+        db.add(
+            KnowledgeRelation(
+                source_item_id=unrelated.id,
+                target_item_id=unrelated.id,
+                relation_type="related",
+            )
+        )
+        profile = LearnerProfile(
+            public_id="profile_feedback",
+            learner_id=learner.id,
+            ability_profile_json={
+                "profile_type": "intermediate",
+                "theory": 65,
+                "practice": 60,
+                "problem_solving": 60,
+                "breadth": 55,
+                "learning_speed": 62,
+                "category_mastery": {"rag_practice": 60},
+            },
+            weak_knowledge_json=[],
+        )
+        db.add(profile)
+        db.flush()
+        task = GenerationTask(
+            public_id="task_feedback_scope",
+            learner_id=learner.id,
+            profile_id=profile.id,
+            status="completed",
+            resource_types_json=["lecture"],
+        )
+        db.add(task)
+        db.flush()
+        resource = LearningResource(
+            public_id="resource_feedback_scope",
+            generation_task_id=task.id,
+            resource_type="lecture",
+            title="RAG",
+            content_md="RAG",
+            difficulty=3,
+            sources_json=[{"knowledge_id": "rag_chunking"}],
+            review_status="passed",
+            series_id="resource_feedback_scope",
+            is_current=True,
+        )
+        db.add(resource)
+        db.flush()
+
+        update = apply_feedback_profile_update(
+            db,
+            profile=profile,
+            resource=resource,
+            feedback_intent="too_hard",
+            evidence=[{"type": "validated_behavior", "confidence": 0.8}],
+        )
+
+    assert set(update["affected_knowledge_ids"]) == {
+        "rag_chunking",
+        "embedding_basic",
+    }
+    assert "unrelated_item" not in update["affected_knowledge_ids"]
+    assert update["affected_resource_ids"] == ["resource_feedback_scope"]
 
 
 def test_load_profile_node_analyzes_diagnostic_answers() -> None:
