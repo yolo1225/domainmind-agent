@@ -1,0 +1,30 @@
+{
+  "schema_version": "candidate-index-live-evidence-1.0",
+  "manifest_last_successful_sync_at": "2026-07-24T06:31:34.874194+00:00",
+  "provider_mode": "live",
+  "embedding_smoke": {
+    "model_name": "qwen3.7-text-embedding",
+    "dimensions": 1024,
+    "input_count": 2,
+    "latency_ms": 683
+  },
+  "candidate_index": {
+    "domain_code": "ai_app_dev",
+    "embedding_model": "qwen3.7-text-embedding",
+    "embedding_dimensions": 1024,
+    "distance_metric": "cosine",
+    "chunker_version": "candidate-heading-v2",
+    "source_data_version": "sha256:837441b02400435bf83fc802d79b69a473b591fdd9062529e16154c22560c608",
+    "active_collection": "knowledge_ai_app_dev_candidate_20260724063137900763_de0acba3",
+    "indexed_item_count": 50,
+    "indexed_chunk_count": 65,
+    "active_collection_count": 65,
+    "v1_collection_exists": true
+  },
+  "checks": {
+    "rag_unit_tests_passed": 58,
+    "non_live_integration_tests_deselected": 2,
+    "live_integration_tests_passed": 2,
+    "status": "passed"
+  }
+}

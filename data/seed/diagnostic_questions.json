@@ -4,8 +4,8 @@
     "knowledge_id": "ai_app_dev_overview",
     "question_type": "single_choice",
     "difficulty": 1,
-    "stem": "AI 应用开发实训最应该优先形成什么？",
-    "options": ["完整可演示闭环", "只有模型参数表", "纯静态介绍页", "脱离评测的聊天窗口"],
+    "stem": "AI 应用开发为什么不能只实现一次模型调用？",
+    "options": ["还需要数据、校验、评测和运行监控形成可验证流程", "模型调用天然没有失败", "静态页面可以替代后端", "提示词能够替代权限控制"],
     "answer_key": {"correct_option": 0}
   },
   {
@@ -324,12 +324,12 @@
     "answer_key": {"correct_option": 0}
   },
   {
-    "question_id": "dq_037",
-    "knowledge_id": "profile_analysis_agent",
+    "question_id": "dq_061",
+    "knowledge_id": "python_async_concurrency",
     "question_type": "single_choice",
     "difficulty": 3,
-    "stem": "画像分析智能体主要依据什么生成学习画像？",
-    "options": ["背景、诊断答题和目标", "前端主题色", "容器名称", "随机数"],
+    "stem": "asyncio 协程中直接执行长时间阻塞 I/O 会造成什么问题？",
+    "options": ["阻塞事件循环中的其他任务", "自动创建更多进程", "提升所有请求吞吐量", "绕过 API 限流"],
     "answer_key": {"correct_option": 0}
   },
   {
@@ -360,57 +360,57 @@
     "answer_key": {"correct_option": 0}
   },
   {
-    "question_id": "dq_041",
-    "knowledge_id": "tutoring_feedback_agent",
-    "question_type": "single_choice",
-    "difficulty": 3,
-    "stem": "反馈辅导智能体在什么情况下触发？",
-    "options": ["学习者反馈或完成情况变化", "Docker 镜像拉取结束", "页面字体改变", "数据库空间不足"],
-    "answer_key": {"correct_option": 0}
-  },
-  {
-    "question_id": "dq_042",
-    "knowledge_id": "learner_profile_model",
+    "question_id": "dq_062",
+    "knowledge_id": "automated_testing",
     "question_type": "single_choice",
     "difficulty": 2,
-    "stem": "学习者画像应被视为什么？",
-    "options": ["随诊断和反馈更新的状态", "永远不变的静态标签", "只保存真实姓名", "只用于登录"],
+    "stem": "默认单元测试为什么不应依赖真实模型 API？",
+    "options": ["保证结果确定且不依赖网络和密钥", "让测试只能手工运行", "避免编写任何断言", "把 mock 报告为 live 结果"],
     "answer_key": {"correct_option": 0}
   },
   {
-    "question_id": "dq_043",
-    "knowledge_id": "diagnostic_question_design",
+    "question_id": "dq_064",
+    "knowledge_id": "docker_containerization",
     "question_type": "single_choice",
     "difficulty": 2,
-    "stem": "诊断题应能映射到什么？",
-    "options": ["具体知识项", "服务器壁纸", "随机文件名", "前端按钮圆角"],
+    "stem": "API 密钥在容器化部署中应如何提供？",
+    "options": ["运行时通过环境或 Secret 注入", "写进 Dockerfile", "打包进前端代码", "记录到构建日志"],
     "answer_key": {"correct_option": 0}
   },
   {
-    "question_id": "dq_044",
-    "knowledge_id": "learning_path_generation",
+    "question_id": "dq_065",
+    "knowledge_id": "secret_management",
+    "question_type": "single_choice",
+    "difficulty": 2,
+    "stem": "发现 API 密钥已经提交到 Git 后，首要动作是什么？",
+    "options": ["立即撤销或轮换该密钥", "只删除最新提交中的文件", "把仓库改名", "在日志中公布密钥"],
+    "answer_key": {"correct_option": 0}
+  },
+  {
+    "question_id": "dq_066",
+    "knowledge_id": "observability_tracing",
     "question_type": "single_choice",
     "difficulty": 3,
-    "stem": "学习路径生成需要考虑什么？",
-    "options": ["先修关系、薄弱点和难度递进", "只按字母排序", "只看资源标题长度", "忽略学习目标"],
+    "stem": "一次请求经过 API、检索和模型调用时，最适合用什么连接各阶段？",
+    "options": ["统一 trace_id 和 span", "随机文件名", "完整敏感正文", "页面主题色"],
     "answer_key": {"correct_option": 0}
   },
   {
-    "question_id": "dq_045",
-    "knowledge_id": "feedback_loop_update",
+    "question_id": "dq_067",
+    "knowledge_id": "prompt_injection_defense",
     "question_type": "single_choice",
     "difficulty": 3,
-    "stem": "学习者反馈可能更新哪里？",
-    "options": ["画像、学习路径和后续生成任务", "Dockerfile 基础镜像", "浏览器收藏夹", "操作系统主题"],
+    "stem": "为什么不能仅依赖系统提示抵抗 Prompt Injection？",
+    "options": ["外部内容可能间接注入且模型不是权限边界", "系统提示不会被模型读取", "所有文档都完全可信", "关键词过滤能够阻止所有攻击"],
     "answer_key": {"correct_option": 0}
   },
   {
-    "question_id": "dq_046",
-    "knowledge_id": "review_dual_model",
+    "question_id": "dq_069",
+    "knowledge_id": "api_resilience_retry",
     "question_type": "single_choice",
-    "difficulty": 4,
-    "stem": "双模型评审出现明显冲突时应如何处理？",
-    "options": ["重新检索并仲裁", "直接忽略 secondary", "删除评分标准", "强制通过"],
+    "difficulty": 3,
+    "stem": "模型 API 返回认证失败时，合理处理方式是什么？",
+    "options": ["立即失败并检查凭据配置", "无限指数退避重试", "把空响应当作成功", "提高并发再次调用"],
     "answer_key": {"correct_option": 0}
   },
   {
@@ -418,8 +418,8 @@
     "knowledge_id": "evaluation_metrics",
     "question_type": "single_choice",
     "difficulty": 3,
-    "stem": "MVP 离线评测不应缺少哪类指标？",
-    "options": ["幻觉率和知识覆盖率", "鼠标颜色", "浏览器窗口位置", "硬盘品牌"],
+    "stem": "离线评测报告为什么要同时提供分子、分母和失败 case ID？",
+    "options": ["便于复现比率并定位具体失败", "隐藏样本数量", "替代所有人工检查", "让指标不再需要定义"],
     "answer_key": {"correct_option": 0}
   },
   {
@@ -441,12 +441,12 @@
     "answer_key": {"correct_option": 0}
   },
   {
-    "question_id": "dq_050",
-    "knowledge_id": "demo_script_design",
+    "question_id": "dq_070",
+    "knowledge_id": "llm_judge_reliability",
     "question_type": "single_choice",
-    "difficulty": 2,
-    "stem": "竞赛演示脚本应围绕什么展开？",
-    "options": ["可测的学习闭环", "纯装饰首页", "无来源自由聊天", "手动改数据库"],
+    "difficulty": 4,
+    "stem": "使用大模型评分前，最重要的可靠性措施是什么？",
+    "options": ["用人工标注样例校准评分 rubric", "默认模型评分绝对正确", "只选择最长的答案", "取消所有确定性校验"],
     "answer_key": {"correct_option": 0}
   },
   {
@@ -458,12 +458,12 @@
     "answer_key": {"rubric": ["语义完整性", "召回精度", "上下文占用"]}
   },
   {
-    "question_id": "dq_052",
-    "knowledge_id": "feedback_loop_update",
+    "question_id": "dq_063",
+    "knowledge_id": "automated_testing",
     "question_type": "short_answer",
     "difficulty": 3,
-    "stem": "说明学习者反馈进入系统后，至少会影响哪两个后续环节。",
-    "answer_key": {"rubric": ["反馈记录", "画像更新", "学习路径刷新", "生成任务调整"]}
+    "stem": "说明单元测试和集成测试的两个主要区别。",
+    "answer_key": {"rubric": ["测试范围", "依赖隔离", "运行速度", "真实组件边界"]}
   },
   {
     "question_id": "dq_053",
@@ -474,12 +474,12 @@
     "answer_key": {"rubric": ["事实准确性", "来源可追溯", "难度匹配", "知识覆盖"]}
   },
   {
-    "question_id": "dq_054",
-    "knowledge_id": "learner_profile_model",
+    "question_id": "dq_068",
+    "knowledge_id": "prompt_injection_defense",
     "question_type": "short_answer",
-    "difficulty": 2,
-    "stem": "给出学习者画像中可以包含的三个字段或维度。",
-    "answer_key": {"rubric": ["能力维度", "薄弱知识点", "学习风格", "目标", "反馈摘要"]}
+    "difficulty": 3,
+    "stem": "列举两种不能仅靠提示词完成的 Prompt Injection 防护措施。",
+    "answer_key": {"rubric": ["最小权限工具", "服务端参数与权限校验", "高风险操作确认", "指令与数据隔离", "安全测试"]}
   },
   {
     "question_id": "dq_055",
@@ -510,16 +510,16 @@
     "knowledge_id": "knowledge_base_ingestion",
     "question_type": "short_answer",
     "difficulty": 2,
-    "stem": "知识库新增或修改后，系统应执行哪些更新动作？",
-    "answer_key": {"rubric": ["重建 embedding", "维护关系", "标记路径刷新", "标记资源评审过期"]}
+    "stem": "知识正文新增或修改后，向量知识库至少应执行哪些同步与验证动作？",
+    "answer_key": {"rubric": ["重新切片", "重建受影响 embedding", "更新或删除旧 chunk", "核对条目和维度", "代表性查询验证"]}
   },
   {
     "question_id": "dq_059",
     "knowledge_id": "evaluation_metrics",
     "question_type": "short_answer",
     "difficulty": 3,
-    "stem": "列举本项目 MVP 需要关注的两个离线评测指标。",
-    "answer_key": {"rubric": ["幻觉率", "难度匹配准确率", "核心知识覆盖率", "路径顺序准确率"]}
+    "stem": "列举 AI 应用离线评测中可以使用的两个质量或性能指标。",
+    "answer_key": {"rubric": ["事实正确率", "任务完成率", "检索召回率", "引用支持率", "格式合法率", "延迟", "成本"]}
   },
   {
     "question_id": "dq_060",

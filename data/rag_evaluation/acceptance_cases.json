@@ -1,0 +1,809 @@
+{
+  "schema_version": "rag-evaluation-1.0",
+  "split": "acceptance",
+  "domain_code": "ai_app_dev",
+  "source_data_version": "sha256:837441b02400435bf83fc802d79b69a473b591fdd9062529e16154c22560c608",
+  "cases": [
+    {
+      "case_id": "RAG-ACC-001",
+      "query": "Python 调用外部 API 时，应明确请求方法、URL、查询参数或 JSON 请求体，并通过请求头传递认证信息。网络调用必须设置连接和读取超时，区分超时、连接失败、HTTP 错误和响应解析错误，避免无限等待或把错误页面当作正常 JSON。重试只适用于瞬时故障和可安全重复的操作，并应限制次数、设置退避间隔。密钥通过环境变量或密钥服务注入，不能写入源码和普通日志。稳定的 AI 应用还要校验响应结构，因为 HTTP 成功并不代表模型输出符合业务契约。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：Python API 调用基础",
+      "profile_type": "intermediate",
+      "purpose": "consolidation_practice",
+      "retrieval_plan": {
+        "strategy": "consolidation",
+        "target_difficulty": 1,
+        "resource_types": [
+          "practice_guide"
+        ],
+        "priority_knowledge_ids": [
+          "python_api_basics"
+        ],
+        "prerequisite_knowledge_ids": [
+          "ai_app_dev_overview"
+        ],
+        "query_terms": [
+          "Python API 调用基础",
+          "python",
+          "api"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "python_api_basics",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "Python API 调用基础是查询指定的主要学习目标。"
+        },
+        {
+          "knowledge_id": "ai_app_dev_overview",
+          "expected_route": "prerequisite",
+          "input_role": "prerequisite",
+          "reason": "该知识是理解Python API 调用基础的显式前置基础。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-002",
+      "query": "Git 通过提交保存项目在某一时刻的可追溯快照。协作时应让每个提交聚焦一个可解释变化，提交说明描述意图，功能分支与主分支保持清晰边界，并在合并前完成差异检查和自动化测试。处理冲突时需要理解双方修改，不能用覆盖方式丢弃未知工作。数据集、评测脚本和算法版本也应随代码记录，使实验结果能映射到确定提交。敏感密钥、大型运行产物和本地数据库不应进入版本库。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：Git 协作与变更管理",
+      "profile_type": "beginner",
+      "purpose": "source_verification",
+      "retrieval_plan": {
+        "strategy": "remedial",
+        "target_difficulty": 2,
+        "resource_types": [
+          "lecture"
+        ],
+        "priority_knowledge_ids": [
+          "git_collaboration"
+        ],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "Git 协作与变更管理",
+          "git",
+          "collaboration"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "git_collaboration",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "Git 协作与变更管理是查询指定的主要学习目标。"
+        },
+        {
+          "knowledge_id": "ai_app_dev_overview",
+          "expected_route": "prerequisite",
+          "input_role": "none",
+          "reason": "该知识未写入输入，应通过 prerequisite 关系补全。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-003",
+      "query": "上下文设计决定模型在一次任务中能够使用哪些事实、约束、工具结果和示例。材料应按任务相关性筛选，标出来源与边界，并让指令和引用文本在结构上可区分，防止检索内容中的文字被误当成系统指令。长上下文需要为任务说明、必要用户上下文、证据片段和输出预留明确预算；重复、过期或互相冲突的片段应在送入模型前处理。对多轮任务，应传递必要摘要和稳定 ID，而不是无限累积完整历史。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：Prompt 上下文设计",
+      "profile_type": "beginner",
+      "purpose": "challenge_task",
+      "retrieval_plan": {
+        "strategy": "remedial",
+        "target_difficulty": 3,
+        "resource_types": [
+          "lecture"
+        ],
+        "priority_knowledge_ids": [
+          "prompt_basic"
+        ],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "prompt",
+          "context"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "prompt_basic",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "该知识作为查询场景中已经明确的基础能力。"
+        },
+        {
+          "knowledge_id": "prompt_context_design",
+          "expected_route": "dependent",
+          "input_role": "none",
+          "reason": "Prompt 上下文设计是该基础的后继能力，应通过 dependent 关系发现。"
+        },
+        {
+          "knowledge_id": "token_context_budget",
+          "expected_route": "related",
+          "input_role": "none",
+          "reason": "知识图谱将其标为Prompt 上下文设计的相关知识，可补充查询上下文。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-004",
+      "query": "Prompt 评估需要先固定代表性输入、期望行为、评分规则和数据版本，再批量运行候选提示词。指标可以覆盖事实正确性、任务完成度、知识覆盖、格式合法率、拒答行为和延迟，并应同时报告分子、分母与失败 case ID。开发集用于调试，冻结验收集用于验证泛化，不能在看到验收答案后逐例修补同一版本。模型输出具有随机性时应重复采样或固定可控参数，并对失败案例按提示、数据、检索、模型和评审规则归因。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：Prompt 效果评估",
+      "profile_type": "advanced",
+      "purpose": "remedial_explanation",
+      "retrieval_plan": {
+        "strategy": "challenge",
+        "target_difficulty": 4,
+        "resource_types": [
+          "graded_quiz"
+        ],
+        "priority_knowledge_ids": [],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "prompt",
+          "evaluation"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "prompt_evaluation",
+          "expected_route": "semantic",
+          "input_role": "none",
+          "reason": "查询用实际问题描述Prompt 效果评估的核心能力，语义检索应命中该知识。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-005",
+      "query": "模型上下文窗口同时容纳系统指令、对话历史、用户上下文、检索片段、工具结果和待生成输出，因此不能把标称窗口全部用于输入。预算规划应先为输出和工具交互预留空间，再按任务价值给证据片段分配额度。超出预算时优先删除重复和低相关材料，压缩历史为带来源 ID 的摘要，或把复杂任务拆成检索、生成、审核多个阶段。截断必须在语义边界进行并保留引用标识，不能从字符串尾部任意裁切导致事实和限定条件分离。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：Token 与上下文预算",
+      "profile_type": "advanced",
+      "purpose": "source_verification",
+      "retrieval_plan": {
+        "strategy": "challenge",
+        "target_difficulty": 5,
+        "resource_types": [
+          "graded_quiz"
+        ],
+        "priority_knowledge_ids": [
+          "token_context_budget"
+        ],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "Token 与上下文预算",
+          "token",
+          "context"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "token_context_budget",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "Token 与上下文预算是查询指定的主要学习目标。"
+        },
+        {
+          "knowledge_id": "llm_api_calling",
+          "expected_route": "prerequisite",
+          "input_role": "none",
+          "reason": "该知识未写入输入，应通过 prerequisite 关系补全。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-006",
+      "query": "函数调用让模型输出工具名称和结构化参数，由应用决定是否执行检索、计算、数据库查询等外部能力。每个工具应使用窄而清晰的 schema，描述参数类型、必填条件和作用范围；服务端必须再次验证参数、权限和资源归属，不能因为参数来自模型就直接信任。工具结果以明确角色和调用 ID 回传，使模型能够继续推理。执行失败、超时或返回空结果时，应提供受控错误并限制循环次数，避免 Agent 无限重复调用或越权访问。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：函数调用与工具使用",
+      "profile_type": "intermediate",
+      "purpose": "consolidation_practice",
+      "retrieval_plan": {
+        "strategy": "consolidation",
+        "target_difficulty": 1,
+        "resource_types": [
+          "practice_guide"
+        ],
+        "priority_knowledge_ids": [
+          "function_calling_tools"
+        ],
+        "prerequisite_knowledge_ids": [
+          "prompt_output_format"
+        ],
+        "query_terms": [
+          "函数调用与工具使用",
+          "tools",
+          "function-calling"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "function_calling_tools",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "函数调用与工具使用是查询指定的主要学习目标。"
+        },
+        {
+          "knowledge_id": "prompt_output_format",
+          "expected_route": "prerequisite",
+          "input_role": "prerequisite",
+          "reason": "该知识是理解函数调用与工具使用的显式前置基础。"
+        },
+        {
+          "knowledge_id": "llm_api_calling",
+          "expected_route": "prerequisite",
+          "input_role": "none",
+          "reason": "该知识未写入输入，应通过 prerequisite 关系补全。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-007",
+      "query": "向量检索使用余弦距离、内积或欧氏距离比较查询与文档向量，并按距离返回 Top-K 候选。距离含义取决于 collection 的度量配置，使用 cosine distance 时可以在确认范围后换算为 similarity = 1 - distance，但不能把不同度量的值混用。候选数量过小会降低召回，过大则增加排序和上下文成本。最终结果应结合 domain_code 等元数据过滤、显式知识 ID、关系扩展、难度和来源完整性，避免语义相似但跨领域或缺乏证据的片段进入生成上下文。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：向量相似度检索",
+      "profile_type": "intermediate",
+      "purpose": "remedial_explanation",
+      "retrieval_plan": {
+        "strategy": "consolidation",
+        "target_difficulty": 2,
+        "resource_types": [
+          "practice_guide"
+        ],
+        "priority_knowledge_ids": [],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "vector",
+          "similarity"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "vector_similarity",
+          "expected_route": "semantic",
+          "input_role": "none",
+          "reason": "查询用实际问题描述向量相似度检索的核心能力，语义检索应命中该知识。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-008",
+      "query": "# RAG 文档切片策略\n\n## 目标与约束\n\n文档切片要同时平衡语义完整性、召回粒度、向量表达质量和上下文成本。片段过长时，一个向量会混合多个主题，相关小节可能被平均掉，而且单条命中会占用大量模型上下文；片段过短时，定义、限定条件、步骤和异常处理容易分离，召回结果即使包含关键词也无法独立支持结论。切片策略必须结合文档结构和后续检索方式确定，不能只选择固定字符数后忽略标题、列表与代码边界。\n\n## 标题和段落感知\n\nMarkdown 文档应识别标题层级，让正文继承最近的有效标题上下文。标题本身不宜成为没有正文的独立片段，而应与其后的段落、列表或代码说明组合。短段落可以在不超过目标上限时合并；超长段落优先按句子边界拆分，代码块和步骤列表尽量保持整体。片段内容中保留标题路径，可以让 embedding 同时表达局部正文和所属主题，也方便最终引用展示。清洗阶段还应去除重复页眉页脚、导航文字和空白噪声，避免它们在大量片段中形成错误高频信号。\n\n## 重叠上下文\n\n相邻片段保留适量重叠，可以减少定义和结论恰好落在边界两侧的问题。重叠应来自前一片段末尾的完整句子或小段，而不是机械复制固定数量的乱码字符；过大的重叠会制造近重复候选，使同一知识点占满 Top-K。项目候选索引以单个 chunk 约 800 字为目标上限，并保留约 100 字的相邻上下文。该数值是可测试的工程默认值，不是适用于所有语料的通用定律，后续只能根据开发评测集调整。\n\n## 标识与元数据\n\n每个片段使用稳定的 `{knowledge_id}::chunk::{index}` 标识，并保存 domain_code、knowledge_id、名称、分类、难度、标签、来源、许可、切片位置和 embedding 模型。稳定 ID 使增量更新可以先删除一个知识点的旧片段再写入新片段，也让引用、评审和失败案例能够定位到具体证据。内容或切片算法变化后必须更新索引版本并重新生成受影响向量，不能让数据库正文与向量库片段长期不一致。\n\n## 验证方法\n\n切片单元测试至少覆盖标题继承、短段落合并、超长句段拆分、空文本、中文标点、稳定 ID 和重叠边界。质量评测还要观察一个知识点产生的片段数、重复率、金标准知识召回率和来源完整性。只有真实长文本才能验证多片段行为；用几十字的短知识项通过测试，只能证明函数没有报错，不能证明标题继承和重叠策略有效。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：RAG 文档切片策略",
+      "profile_type": "beginner",
+      "purpose": "challenge_task",
+      "retrieval_plan": {
+        "strategy": "remedial",
+        "target_difficulty": 3,
+        "resource_types": [
+          "lecture"
+        ],
+        "priority_knowledge_ids": [
+          "rag_pipeline_overview"
+        ],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "rag",
+          "retrieval"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "rag_pipeline_overview",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "该知识作为查询场景中已经明确的基础能力。"
+        },
+        {
+          "knowledge_id": "rag_chunking",
+          "expected_route": "dependent",
+          "input_role": "none",
+          "reason": "RAG 文档切片策略是该基础的后继能力，应通过 dependent 关系发现。"
+        },
+        {
+          "knowledge_id": "token_context_budget",
+          "expected_route": "related",
+          "input_role": "none",
+          "reason": "知识图谱将其标为RAG 文档切片策略的相关知识，可补充查询上下文。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-009",
+      "query": "引用与来源追溯要求生成内容中的关键事实能够定位到实际使用的证据，而不是只在文末附上一组无对应关系的链接。证据记录应包含稳定标识、来源标题、位置或片段、URL、获取时间以及必要的许可信息，生成结果再声明哪些结论使用了哪些证据。审核时要检查来源是否真实存在、引用范围是否支持对应结论、版本是否过期，以及转换和切片过程是否改变原意。采用统一的来源实体和派生关系，可以从结果反查检索片段与原始文档，也能在来源更新时识别需要复核的内容。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：引用与来源可追溯",
+      "profile_type": "beginner",
+      "purpose": "consolidation_practice",
+      "retrieval_plan": {
+        "strategy": "remedial",
+        "target_difficulty": 4,
+        "resource_types": [
+          "lecture"
+        ],
+        "priority_knowledge_ids": [
+          "citation_traceability"
+        ],
+        "prerequisite_knowledge_ids": [
+          "rag_pipeline_overview"
+        ],
+        "query_terms": [
+          "引用与来源可追溯",
+          "citation",
+          "traceability"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "citation_traceability",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "引用与来源可追溯是查询指定的主要学习目标。"
+        },
+        {
+          "knowledge_id": "rag_pipeline_overview",
+          "expected_route": "prerequisite",
+          "input_role": "prerequisite",
+          "reason": "该知识是理解引用与来源可追溯的显式前置基础。"
+        },
+        {
+          "knowledge_id": "ai_app_dev_overview",
+          "expected_route": "semantic",
+          "input_role": "none",
+          "reason": "完整工程背景有助于理解该专项能力在 AI 应用流程中的位置。"
+        },
+        {
+          "knowledge_id": "privacy_log_policy",
+          "expected_route": "related",
+          "input_role": "none",
+          "reason": "知识图谱将其标为引用与来源可追溯的相关知识，可补充查询上下文。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-010",
+      "query": "知识库导入应先解析并规范化文本，再校验稳定文档标识、正文、元数据和来源，拒绝重复标识、空内容以及无法解释的字段。写入向量库时，文档、元数据、ID 和 embedding 必须保持一一对应；更新已有内容要同步替换受影响片段和向量，删除内容则清理孤立记录。批量操作需要检查输入数组长度和模型维度，成功后再记录索引版本与条目数量。导入流程应具备幂等性和机器可读摘要，使同一数据版本重复执行不会产生重复 chunk，并能通过条数核对和代表性查询验证索引可用。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：知识库导入流程",
+      "profile_type": "advanced",
+      "purpose": "source_verification",
+      "retrieval_plan": {
+        "strategy": "challenge",
+        "target_difficulty": 5,
+        "resource_types": [
+          "graded_quiz"
+        ],
+        "priority_knowledge_ids": [
+          "knowledge_base_ingestion"
+        ],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "知识库导入流程",
+          "knowledge-base",
+          "ingestion"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "knowledge_base_ingestion",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "知识库导入流程是查询指定的主要学习目标。"
+        },
+        {
+          "knowledge_id": "data_schema_design",
+          "expected_route": "prerequisite",
+          "input_role": "none",
+          "reason": "该知识未写入输入，应通过 prerequisite 关系补全。"
+        },
+        {
+          "knowledge_id": "alembic_migrations",
+          "expected_route": "related",
+          "input_role": "none",
+          "reason": "知识图谱将其标为知识库导入流程的相关知识，可补充查询上下文。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-011",
+      "query": "Pydantic BaseModel 用类型标注定义请求、响应和 Agent 内部结构，并在构造模型时解析和验证输入。Field 可声明范围、长度、默认值和描述，field_validator 与 model_validator 处理字段或跨字段规则。对稳定公共契约，应明确 extra 字段策略、枚举、可空性和序列化格式，并通过 JSON Schema 与示例测试保持文档一致。Pydantic 能保证结构合法，但不能自行判断知识事实是否正确，因此契约校验与来源审核必须分开。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：Pydantic 数据校验",
+      "profile_type": "advanced",
+      "purpose": "challenge_task",
+      "retrieval_plan": {
+        "strategy": "challenge",
+        "target_difficulty": 1,
+        "resource_types": [
+          "graded_quiz"
+        ],
+        "priority_knowledge_ids": [
+          "fastapi_endpoint_design"
+        ],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "pydantic",
+          "validation"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "fastapi_endpoint_design",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "该知识作为查询场景中已经明确的基础能力。"
+        },
+        {
+          "knowledge_id": "pydantic_schema_validation",
+          "expected_route": "dependent",
+          "input_role": "none",
+          "reason": "Pydantic 数据校验是该基础的后继能力，应通过 dependent 关系发现。"
+        },
+        {
+          "knowledge_id": "structured_output_validation",
+          "expected_route": "related",
+          "input_role": "none",
+          "reason": "知识图谱将其标为Pydantic 数据校验的相关知识，可补充查询上下文。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-012",
+      "query": "Alembic 使用有序 revision 脚本记录数据库 schema 变化，并在 alembic_version 中保存当前版本。自动生成迁移只能作为初稿，开发者仍需检查列类型、默认值、约束、索引和数据迁移逻辑。迁移应小步、可审查，并在空数据库升级和已有数据升级两种路径上测试；生产或演示数据变更前应具备备份与回退策略。SQLAlchemy 模型修改与迁移脚本必须一起提交，不能只改 ORM 后依赖 create_all 修补正式数据库。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：Alembic 数据库迁移",
+      "profile_type": "intermediate",
+      "purpose": "remedial_explanation",
+      "retrieval_plan": {
+        "strategy": "consolidation",
+        "target_difficulty": 2,
+        "resource_types": [
+          "practice_guide"
+        ],
+        "priority_knowledge_ids": [],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "alembic",
+          "migration"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "alembic_migrations",
+          "expected_route": "semantic",
+          "input_role": "none",
+          "reason": "查询用实际问题描述Alembic 数据库迁移的核心能力，语义检索应命中该知识。"
+        },
+        {
+          "knowledge_id": "knowledge_base_ingestion",
+          "expected_route": "related",
+          "input_role": "none",
+          "reason": "知识图谱将其标为Alembic 数据库迁移的相关知识，可补充查询上下文。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-013",
+      "query": "Vue 3 使用响应式状态驱动组件渲染，跨页面共享的用户、任务、资源和 Agent 状态可集中到 Pinia store。store 应按业务边界划分 state、getters 和 actions，组件只消费所需状态，避免把临时表单值和所有服务端数据堆进单一全局对象。异步 action 要显式维护 loading、error 和 empty 状态，并以 task_id 合并轮询或 SSE 更新，防止旧请求覆盖新任务。需要持久化的最小导航状态与敏感业务载荷应分开，刷新后优先从后端重新获取真实状态。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：Vue 前端状态管理",
+      "profile_type": "intermediate",
+      "purpose": "source_verification",
+      "retrieval_plan": {
+        "strategy": "consolidation",
+        "target_difficulty": 3,
+        "resource_types": [
+          "practice_guide"
+        ],
+        "priority_knowledge_ids": [
+          "frontend_vue_state"
+        ],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "Vue 前端状态管理",
+          "vue",
+          "pinia"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "frontend_vue_state",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "Vue 前端状态管理是查询指定的主要学习目标。"
+        },
+        {
+          "knowledge_id": "http_rest_basics",
+          "expected_route": "prerequisite",
+          "input_role": "none",
+          "reason": "该知识未写入输入，应通过 prerequisite 关系补全。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-014",
+      "query": "多智能体设计应依据任务边界、工具权限和可验证输出拆分角色，而不是为同一次调用添加多个名称。一个 Agent 可以负责明确领域任务，使用受限工具并把结构化结果交给下游；需要协调时，可由管理 Agent 选择下一角色，或通过 handoff 把控制权交给专门 Agent。角色说明要清楚描述职责、输入、输出和不能执行的动作，工具参数仍由应用校验。拆分只有在能减少上下文混杂、隔离权限或提高评测可解释性时才有价值；简单任务应避免不必要的 Agent 数量和额外延迟。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：多智能体角色划分",
+      "profile_type": "beginner",
+      "purpose": "consolidation_practice",
+      "retrieval_plan": {
+        "strategy": "remedial",
+        "target_difficulty": 4,
+        "resource_types": [
+          "lecture"
+        ],
+        "priority_knowledge_ids": [
+          "agent_role_design"
+        ],
+        "prerequisite_knowledge_ids": [
+          "ai_app_dev_overview"
+        ],
+        "query_terms": [
+          "多智能体角色划分",
+          "agent",
+          "role"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "agent_role_design",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "多智能体角色划分是查询指定的主要学习目标。"
+        },
+        {
+          "knowledge_id": "ai_app_dev_overview",
+          "expected_route": "prerequisite",
+          "input_role": "prerequisite",
+          "reason": "该知识是理解多智能体角色划分的显式前置基础。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-015",
+      "query": "asyncio 使用事件循环调度协程，适合同时等待多个网络或文件 I/O 的程序。协程只有在 await 可等待对象时才会把控制权交回事件循环，因此在协程中执行长时间同步计算或阻塞 I/O 会拖慢所有任务。并发任务应通过 TaskGroup 等结构化方式创建和等待，明确异常传播、取消和清理规则。调用模型 API 时还要限制并发量、设置超时并处理取消，避免瞬时创建过多请求触发限流。CPU 密集工作应转移到进程、线程或专用工作队列，而不是直接堵塞事件循环。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：Python 异步与并发",
+      "profile_type": "beginner",
+      "purpose": "remedial_explanation",
+      "retrieval_plan": {
+        "strategy": "remedial",
+        "target_difficulty": 5,
+        "resource_types": [
+          "lecture"
+        ],
+        "priority_knowledge_ids": [],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "python",
+          "asyncio",
+          "concurrency"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "python_async_concurrency",
+          "expected_route": "semantic",
+          "input_role": "none",
+          "reason": "查询用实际问题描述Python 异步与并发的核心能力，语义检索应命中该知识。"
+        },
+        {
+          "knowledge_id": "streaming_responses",
+          "expected_route": "related",
+          "input_role": "none",
+          "reason": "知识图谱将其标为Python 异步与并发的相关知识，可补充查询上下文。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-016",
+      "query": "内容生成智能体接收明确任务、目标受众、允许使用的证据和输出结构，再生成讲解、操作步骤、摘要或测验等内容。系统提示应划定职责和禁止事项，用户输入提供本次目标，检索材料以可区分的数据块传入。关键事实只能来自给定证据；资料不足时应缩小回答范围、提出需要补充的信息或明确无法判断。输出采用稳定结构并保留证据标识，便于程序校验和后续审核。生成模型不应自行调用未授权工具，内容即使格式正确，也必须在发布前进行事实和安全检查。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：内容生成智能体",
+      "profile_type": "advanced",
+      "purpose": "challenge_task",
+      "retrieval_plan": {
+        "strategy": "challenge",
+        "target_difficulty": 1,
+        "resource_types": [
+          "graded_quiz"
+        ],
+        "priority_knowledge_ids": [
+          "knowledge_retrieval_agent"
+        ],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "agent",
+          "generation"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "knowledge_retrieval_agent",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "该知识作为查询场景中已经明确的基础能力。"
+        },
+        {
+          "knowledge_id": "content_generation_agent",
+          "expected_route": "dependent",
+          "input_role": "none",
+          "reason": "内容生成智能体是该基础的后继能力，应通过 dependent 关系发现。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-017",
+      "query": "Docker 镜像把应用代码、运行时和依赖打包成可重复分发的只读层，容器则是镜像的运行实例。Dockerfile 应固定合适的基础镜像、先复制依赖清单以利用缓存，再复制应用代码，并使用非 root 用户和明确启动命令。配置和密钥在运行时注入，不写入镜像层。多服务开发环境可用 Compose 描述应用、数据库和向量库的网络、端口、健康检查与持久卷。镜像构建成功不代表服务可用，启动后仍需检查迁移、健康端点和依赖服务状态。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：Docker 容器化部署",
+      "profile_type": "advanced",
+      "purpose": "consolidation_practice",
+      "retrieval_plan": {
+        "strategy": "challenge",
+        "target_difficulty": 2,
+        "resource_types": [
+          "graded_quiz"
+        ],
+        "priority_knowledge_ids": [
+          "docker_containerization"
+        ],
+        "prerequisite_knowledge_ids": [
+          "http_rest_basics"
+        ],
+        "query_terms": [
+          "Docker 容器化部署",
+          "docker",
+          "container",
+          "deployment"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "docker_containerization",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "Docker 容器化部署是查询指定的主要学习目标。"
+        },
+        {
+          "knowledge_id": "http_rest_basics",
+          "expected_route": "prerequisite",
+          "input_role": "prerequisite",
+          "reason": "该知识是理解Docker 容器化部署的显式前置基础。"
+        },
+        {
+          "knowledge_id": "ai_app_dev_overview",
+          "expected_route": "semantic",
+          "input_role": "none",
+          "reason": "完整工程背景有助于理解该专项能力在 AI 应用流程中的位置。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-018",
+      "query": "可观测性通过日志、指标和链路追踪解释系统正在发生什么。日志记录离散事件和错误类别，指标聚合请求量、延迟、失败率、token 用量等时间序列，trace 则使用统一上下文连接一次请求经过的 API、检索、模型和工具调用。每个任务应传播稳定 request_id 或 trace_id，并让 span 标注组件、状态和耗时，而不是保存完整敏感输入。监控要同时覆盖成功率和质量信号，设置可行动的告警，并通过采样控制成本。排障时从异常指标定位 trace，再查看经过脱敏的相关日志。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：日志、指标与链路追踪",
+      "profile_type": "intermediate",
+      "purpose": "source_verification",
+      "retrieval_plan": {
+        "strategy": "consolidation",
+        "target_difficulty": 3,
+        "resource_types": [
+          "practice_guide"
+        ],
+        "priority_knowledge_ids": [
+          "observability_tracing"
+        ],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "日志、指标与链路追踪",
+          "observability",
+          "logging",
+          "tracing"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "observability_tracing",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "日志、指标与链路追踪是查询指定的主要学习目标。"
+        },
+        {
+          "knowledge_id": "ai_app_dev_overview",
+          "expected_route": "prerequisite",
+          "input_role": "none",
+          "reason": "该知识未写入输入，应通过 prerequisite 关系补全。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-019",
+      "query": "离线评测先固定任务定义、代表性案例、参考答案或评分 rubric、数据版本和模型配置，再批量运行被测系统。指标必须对应实际失败风险，例如任务完成率、事实正确率、检索召回、引用支持率、格式合法率、延迟和成本，并同时报告分子、分母、不可判定样例和失败 case ID。开发集用于分析错误和调整实现，独立验收集只用于判断版本是否达到门槛，不能针对验收样例逐条调参。模型输出存在随机性时要固定可控参数或重复运行，并把提示、检索、生成、工具和评分器分别归因。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：离线评测指标",
+      "profile_type": "intermediate",
+      "purpose": "challenge_task",
+      "retrieval_plan": {
+        "strategy": "consolidation",
+        "target_difficulty": 4,
+        "resource_types": [
+          "practice_guide"
+        ],
+        "priority_knowledge_ids": [
+          "prompt_evaluation"
+        ],
+        "prerequisite_knowledge_ids": [],
+        "query_terms": [
+          "evaluation",
+          "metrics"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "prompt_evaluation",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "该知识作为查询场景中已经明确的基础能力。"
+        },
+        {
+          "knowledge_id": "evaluation_metrics",
+          "expected_route": "dependent",
+          "input_role": "none",
+          "reason": "离线评测指标是该基础的后继能力，应通过 dependent 关系发现。"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-ACC-020",
+      "query": "使用大模型评分时，评审提示必须提供清晰 rubric、待评内容和必要参考资料，要求输出结构化分数与理由。评分器可能受答案顺序、长度、措辞和自身知识偏差影响，因此需要用人工标注样例校准，并分别测量误通过和误拒绝。能够通过代码判断的格式、数值和引用存在性不应交给模型。评审失败时先检查输入和 rubric，再进行有限重试；多个评分器不一致也不能简单多数表决。高风险或持续分歧样例应进入人工复核，并把人工推翻结果加入后续评测集。。在实际 AI 应用中应如何实施和验证？",
+      "learning_goal": "理解并能够实践：模型评审的可靠性与校准",
+      "profile_type": "intermediate",
+      "purpose": "consolidation_practice",
+      "retrieval_plan": {
+        "strategy": "consolidation",
+        "target_difficulty": 5,
+        "resource_types": [
+          "practice_guide"
+        ],
+        "priority_knowledge_ids": [
+          "llm_judge_reliability"
+        ],
+        "prerequisite_knowledge_ids": [
+          "prompt_evaluation"
+        ],
+        "query_terms": [
+          "模型评审的可靠性与校准",
+          "evaluation",
+          "llm-judge",
+          "calibration"
+        ],
+        "n_results": 12
+      },
+      "gold_knowledge": [
+        {
+          "knowledge_id": "llm_judge_reliability",
+          "expected_route": "priority",
+          "input_role": "priority",
+          "reason": "模型评审的可靠性与校准是查询指定的主要学习目标。"
+        },
+        {
+          "knowledge_id": "prompt_evaluation",
+          "expected_route": "prerequisite",
+          "input_role": "prerequisite",
+          "reason": "该知识是理解模型评审的可靠性与校准的显式前置基础。"
+        },
+        {
+          "knowledge_id": "evaluation_metrics",
+          "expected_route": "prerequisite",
+          "input_role": "none",
+          "reason": "该知识未写入输入，应通过 prerequisite 关系补全。"
+        }
+      ]
+    }
+  ]
+}

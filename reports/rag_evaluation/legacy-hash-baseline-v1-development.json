@@ -1,0 +1,3719 @@
+{
+  "status": "baseline_recorded",
+  "engine": "legacy-hash",
+  "embedding_model": "mock-deterministic-embedding",
+  "algorithm_version": "legacy-hash-baseline-1.0",
+  "split": "development",
+  "case_count": 30,
+  "source_data_version": "sha256:837441b02400435bf83fc802d79b69a473b591fdd9062529e16154c22560c608",
+  "acceptance_cases_sha256": "sha256:25ce6ac9c25158a88cb7eb92d0068bec769331714bfd53a87d39c9900157d589",
+  "metrics": {
+    "recall_at_12": {
+      "numerator": 46,
+      "denominator": 64,
+      "ratio": 0.71875
+    },
+    "priority_direct_availability": {
+      "numerator": 21,
+      "denominator": 21,
+      "ratio": 1.0
+    },
+    "priority_top_12_coverage": {
+      "numerator": 18,
+      "denominator": 21,
+      "ratio": 0.857143
+    },
+    "explicit_prerequisite_coverage": {
+      "numerator": 5,
+      "denominator": 7,
+      "ratio": 0.714286
+    },
+    "discovered_prerequisite_coverage": {
+      "numerator": 6,
+      "denominator": 10,
+      "ratio": 0.6
+    },
+    "prerequisite_coverage": {
+      "numerator": 11,
+      "denominator": 17,
+      "ratio": 0.647059
+    },
+    "source_completeness": {
+      "numerator": 350,
+      "denominator": 350,
+      "ratio": 1.0
+    },
+    "cross_domain_errors": 0,
+    "latency_ms": {
+      "p50": 1.698,
+      "p95": 2.142
+    },
+    "v2_contract_illegal_outputs": null
+  },
+  "future_v2_target_checks": {
+    "recall_at_12": false,
+    "priority_top_12_coverage": false,
+    "prerequisite_coverage": false,
+    "source_completeness": true,
+    "cross_domain_errors": true,
+    "p95_latency_ms": true
+  },
+  "failed_case_ids": {
+    "recall_at_12": [
+      "RAG-DEV-002",
+      "RAG-DEV-004",
+      "RAG-DEV-006",
+      "RAG-DEV-007",
+      "RAG-DEV-008",
+      "RAG-DEV-009",
+      "RAG-DEV-010",
+      "RAG-DEV-011",
+      "RAG-DEV-012",
+      "RAG-DEV-016",
+      "RAG-DEV-018",
+      "RAG-DEV-019",
+      "RAG-DEV-020",
+      "RAG-DEV-021",
+      "RAG-DEV-025",
+      "RAG-DEV-027",
+      "RAG-DEV-029"
+    ],
+    "priority": [
+      "RAG-DEV-002",
+      "RAG-DEV-007",
+      "RAG-DEV-019"
+    ],
+    "prerequisite": [
+      "RAG-DEV-004",
+      "RAG-DEV-011"
+    ],
+    "discovered_prerequisite": [
+      "RAG-DEV-006",
+      "RAG-DEV-010",
+      "RAG-DEV-012",
+      "RAG-DEV-029"
+    ],
+    "source_completeness": [],
+    "cross_domain": []
+  },
+  "cases": [
+    {
+      "case_id": "RAG-DEV-001",
+      "query_text": "overview workflow",
+      "latency_ms": 1.69,
+      "gold_knowledge_ids": [
+        "ai_app_dev_overview"
+      ],
+      "retrieved_knowledge_ids": [
+        "ai_app_dev_overview",
+        "rag_pipeline_overview",
+        "knowledge_base_ingestion",
+        "privacy_log_policy",
+        "rag_chunking",
+        "python_api_basics",
+        "function_calling_tools",
+        "vector_similarity",
+        "metadata_filtering",
+        "token_context_budget",
+        "frontend_vue_state",
+        "knowledge_retrieval_agent"
+      ],
+      "failures": [],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "ai_app_dev_overview::chunk::0",
+          "knowledge_id": "ai_app_dev_overview",
+          "distance": 1.73643873,
+          "source_title": "NIST AI Risk Management Framework Playbook",
+          "source_url": "https://airc.nist.gov/AI_RMF_Knowledge_Base/Playbook"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "rag_pipeline_overview::chunk::0",
+          "knowledge_id": "rag_pipeline_overview",
+          "distance": 1.79841895,
+          "source_title": "OpenAI Cookbook - Question answering using embeddings",
+          "source_url": "https://cookbook.openai.com/examples/question_answering_using_embeddings"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "knowledge_base_ingestion::chunk::0",
+          "knowledge_id": "knowledge_base_ingestion",
+          "distance": 1.82169312,
+          "source_title": "Chroma Documentation - Adding Data to Chroma Collections",
+          "source_url": "https://docs.trychroma.com/docs/collections/add-data"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "privacy_log_policy::chunk::0",
+          "knowledge_id": "privacy_log_policy",
+          "distance": 1.84735344,
+          "source_title": "OWASP Logging Cheat Sheet",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "rag_chunking::chunk::1",
+          "knowledge_id": "rag_chunking",
+          "distance": 1.86155356,
+          "source_title": "OpenAI Cookbook - Embedding long inputs",
+          "source_url": "https://cookbook.openai.com/examples/embedding_long_inputs"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "python_api_basics::chunk::0",
+          "knowledge_id": "python_api_basics",
+          "distance": 1.86423115,
+          "source_title": "Python 3 Documentation - urllib.request",
+          "source_url": "https://docs.python.org/3/library/urllib.request.html"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "function_calling_tools::chunk::0",
+          "knowledge_id": "function_calling_tools",
+          "distance": 1.87850865,
+          "source_title": "OpenAI Documentation - Function calling",
+          "source_url": "https://platform.openai.com/docs/guides/function-calling"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "vector_similarity::chunk::0",
+          "knowledge_id": "vector_similarity",
+          "distance": 1.89843266,
+          "source_title": "Chroma Documentation - Collections and distance metrics",
+          "source_url": "https://docs.trychroma.com/docs/collections/configure"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "metadata_filtering::chunk::0",
+          "knowledge_id": "metadata_filtering",
+          "distance": 1.90071109,
+          "source_title": "Chroma Documentation - Metadata filtering",
+          "source_url": "https://docs.trychroma.com/docs/querying-collections/metadata-filtering"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "token_context_budget::chunk::0",
+          "knowledge_id": "token_context_budget",
+          "distance": 1.90179428,
+          "source_title": "OpenAI Cookbook - How to count tokens with tiktoken",
+          "source_url": "https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "frontend_vue_state::chunk::0",
+          "knowledge_id": "frontend_vue_state",
+          "distance": 1.90267035,
+          "source_title": "Pinia Documentation - Core concepts",
+          "source_url": "https://pinia.vuejs.org/core-concepts/"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "knowledge_retrieval_agent::chunk::1",
+          "knowledge_id": "knowledge_retrieval_agent",
+          "distance": 1.93160144,
+          "source_title": "OpenAI Documentation - Retrieval",
+          "source_url": "https://platform.openai.com/docs/guides/retrieval"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-002",
+      "query_text": "http rest",
+      "latency_ms": 1.698,
+      "gold_knowledge_ids": [
+        "ai_app_dev_overview",
+        "http_rest_basics"
+      ],
+      "retrieved_knowledge_ids": [
+        "http_rest_basics",
+        "streaming_responses",
+        "prompt_injection_defense",
+        "rag_pipeline_overview",
+        "prompt_basic",
+        "automated_testing",
+        "fastapi_endpoint_design",
+        "sse_progress_events",
+        "knowledge_base_ingestion",
+        "evaluation_metrics",
+        "content_generation_agent",
+        "citation_traceability"
+      ],
+      "failures": [
+        "recall_at_12",
+        "priority"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "http_rest_basics::chunk::0",
+          "knowledge_id": "http_rest_basics",
+          "distance": 1.65376644,
+          "source_title": "RFC 9110 - HTTP Semantics",
+          "source_url": "https://datatracker.ietf.org/doc/html/rfc9110"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "streaming_responses::chunk::0",
+          "knowledge_id": "streaming_responses",
+          "distance": 1.65873954,
+          "source_title": "MDN Web Docs - Using server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "prompt_injection_defense::chunk::1",
+          "knowledge_id": "prompt_injection_defense",
+          "distance": 1.78983723,
+          "source_title": "OWASP Cheat Sheet - LLM Prompt Injection Prevention",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "rag_pipeline_overview::chunk::0",
+          "knowledge_id": "rag_pipeline_overview",
+          "distance": 1.79841895,
+          "source_title": "OpenAI Cookbook - Question answering using embeddings",
+          "source_url": "https://cookbook.openai.com/examples/question_answering_using_embeddings"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "prompt_basic::chunk::0",
+          "knowledge_id": "prompt_basic",
+          "distance": 1.85962752,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "automated_testing::chunk::0",
+          "knowledge_id": "automated_testing",
+          "distance": 1.86878779,
+          "source_title": "pytest Documentation - Good Integration Practices",
+          "source_url": "https://docs.pytest.org/en/stable/explanation/goodpractices.html"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "fastapi_endpoint_design::chunk::0",
+          "knowledge_id": "fastapi_endpoint_design",
+          "distance": 1.89661701,
+          "source_title": "FastAPI Documentation - Bigger Applications",
+          "source_url": "https://fastapi.tiangolo.com/tutorial/bigger-applications/"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "sse_progress_events::chunk::0",
+          "knowledge_id": "sse_progress_events",
+          "distance": 1.9062643,
+          "source_title": "MDN Web Docs - Server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "knowledge_base_ingestion::chunk::0",
+          "knowledge_id": "knowledge_base_ingestion",
+          "distance": 1.91084656,
+          "source_title": "Chroma Documentation - Adding Data to Chroma Collections",
+          "source_url": "https://docs.trychroma.com/docs/collections/add-data"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "evaluation_metrics::chunk::0",
+          "knowledge_id": "evaluation_metrics",
+          "distance": 1.91150356,
+          "source_title": "OpenAI Documentation - Evaluation Best Practices",
+          "source_url": "https://platform.openai.com/docs/guides/evaluation-best-practices"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "content_generation_agent::chunk::0",
+          "knowledge_id": "content_generation_agent",
+          "distance": 1.91516203,
+          "source_title": "OpenAI Documentation - Prompt Engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "citation_traceability::chunk::0",
+          "knowledge_id": "citation_traceability",
+          "distance": 1.92228247,
+          "source_title": "W3C PROV-O: The PROV Ontology",
+          "source_url": "https://www.w3.org/TR/prov-o/"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-003",
+      "query_text": "schema database",
+      "latency_ms": 1.859,
+      "gold_knowledge_ids": [
+        "data_schema_design"
+      ],
+      "retrieved_knowledge_ids": [
+        "chromadb_collections",
+        "prompt_basic",
+        "alembic_migrations",
+        "data_schema_design",
+        "rag_chunking",
+        "pydantic_schema_validation",
+        "langgraph_stategraph",
+        "fastapi_endpoint_design",
+        "vector_similarity",
+        "http_rest_basics",
+        "token_context_budget"
+      ],
+      "failures": [],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "chromadb_collections::chunk::0",
+          "knowledge_id": "chromadb_collections",
+          "distance": 1.8458495,
+          "source_title": "Chroma Documentation - Collections",
+          "source_url": "https://docs.trychroma.com/docs/collections/manage-collections"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "prompt_basic::chunk::0",
+          "knowledge_id": "prompt_basic",
+          "distance": 1.85962752,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "alembic_migrations::chunk::0",
+          "knowledge_id": "alembic_migrations",
+          "distance": 1.8612137,
+          "source_title": "Alembic Documentation - Tutorial",
+          "source_url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "data_schema_design::chunk::0",
+          "knowledge_id": "data_schema_design",
+          "distance": 1.87376112,
+          "source_title": "SQLAlchemy Documentation - Declarative Table Configuration",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "rag_chunking::chunk::1",
+          "knowledge_id": "rag_chunking",
+          "distance": 1.93077678,
+          "source_title": "OpenAI Cookbook - Embedding long inputs",
+          "source_url": "https://cookbook.openai.com/examples/embedding_long_inputs"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "pydantic_schema_validation::chunk::0",
+          "knowledge_id": "pydantic_schema_validation",
+          "distance": 1.94304282,
+          "source_title": "Pydantic Documentation - Models and validators",
+          "source_url": "https://docs.pydantic.dev/latest/concepts/validators/"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "langgraph_stategraph::chunk::0",
+          "knowledge_id": "langgraph_stategraph",
+          "distance": 1.94810007,
+          "source_title": "LangGraph Documentation - Graph API",
+          "source_url": "https://docs.langchain.com/oss/python/langgraph/graph-api"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "fastapi_endpoint_design::chunk::0",
+          "knowledge_id": "fastapi_endpoint_design",
+          "distance": 1.9483085,
+          "source_title": "FastAPI Documentation - Bigger Applications",
+          "source_url": "https://fastapi.tiangolo.com/tutorial/bigger-applications/"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "vector_similarity::chunk::0",
+          "knowledge_id": "vector_similarity",
+          "distance": 1.94921633,
+          "source_title": "Chroma Documentation - Collections and distance metrics",
+          "source_url": "https://docs.trychroma.com/docs/collections/configure"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "http_rest_basics::chunk::0",
+          "knowledge_id": "http_rest_basics",
+          "distance": 1.95053806,
+          "source_title": "RFC 9110 - HTTP Semantics",
+          "source_url": "https://datatracker.ietf.org/doc/html/rfc9110"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "token_context_budget::chunk::0",
+          "knowledge_id": "token_context_budget",
+          "distance": 1.95089714,
+          "source_title": "OpenAI Cookbook - How to count tokens with tiktoken",
+          "source_url": "https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-004",
+      "query_text": "Prompt 工程基础 prompt llm",
+      "latency_ms": 1.675,
+      "gold_knowledge_ids": [
+        "ai_app_dev_overview",
+        "prompt_basic"
+      ],
+      "retrieved_knowledge_ids": [
+        "prompt_basic",
+        "python_api_basics",
+        "prompt_output_format",
+        "python_async_concurrency",
+        "http_rest_basics",
+        "docker_containerization",
+        "embedding_basics",
+        "prompt_injection_defense",
+        "prompt_evaluation",
+        "git_collaboration",
+        "prompt_context_design"
+      ],
+      "failures": [
+        "recall_at_12",
+        "prerequisite"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "prompt_basic::chunk::0",
+          "knowledge_id": "prompt_basic",
+          "distance": 1.6651921,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "python_api_basics::chunk::0",
+          "knowledge_id": "python_api_basics",
+          "distance": 1.71665085,
+          "source_title": "Python 3 Documentation - urllib.request",
+          "source_url": "https://docs.python.org/3/library/urllib.request.html"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "prompt_output_format::chunk::0",
+          "knowledge_id": "prompt_output_format",
+          "distance": 1.76154966,
+          "source_title": "OpenAI Documentation - Structured Outputs",
+          "source_url": "https://platform.openai.com/docs/guides/structured-outputs"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "python_async_concurrency::chunk::0",
+          "knowledge_id": "python_async_concurrency",
+          "distance": 1.79507379,
+          "source_title": "Python 3 Documentation - asyncio",
+          "source_url": "https://docs.python.org/3/library/asyncio.html"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "http_rest_basics::chunk::0",
+          "knowledge_id": "http_rest_basics",
+          "distance": 1.80091955,
+          "source_title": "RFC 9110 - HTTP Semantics",
+          "source_url": "https://datatracker.ietf.org/doc/html/rfc9110"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "docker_containerization::chunk::0",
+          "knowledge_id": "docker_containerization",
+          "distance": 1.81585618,
+          "source_title": "Docker Documentation - Build and Run Your Image",
+          "source_url": "https://docs.docker.com/get-started/introduction/build-and-push-first-image/"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "embedding_basics::chunk::0",
+          "knowledge_id": "embedding_basics",
+          "distance": 1.8230396,
+          "source_title": "OpenAI Documentation - Embeddings",
+          "source_url": "https://platform.openai.com/docs/guides/embeddings"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "prompt_injection_defense::chunk::0",
+          "knowledge_id": "prompt_injection_defense",
+          "distance": 1.84597146,
+          "source_title": "OWASP Cheat Sheet - LLM Prompt Injection Prevention",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "prompt_evaluation::chunk::0",
+          "knowledge_id": "prompt_evaluation",
+          "distance": 1.88857895,
+          "source_title": "OpenAI Documentation - Evaluation best practices",
+          "source_url": "https://platform.openai.com/docs/guides/evals"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "git_collaboration::chunk::0",
+          "knowledge_id": "git_collaboration",
+          "distance": 1.90950481,
+          "source_title": "Pro Git - Distributed Git and Contributing to a Project",
+          "source_url": "https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "prompt_context_design::chunk::0",
+          "knowledge_id": "prompt_context_design",
+          "distance": 1.9124781,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-005",
+      "query_text": "Prompt 输出格式约束 prompt json",
+      "latency_ms": 1.695,
+      "gold_knowledge_ids": [
+        "prompt_basic",
+        "prompt_output_format",
+        "structured_output_validation"
+      ],
+      "retrieved_knowledge_ids": [
+        "prompt_output_format",
+        "prompt_evaluation",
+        "prompt_basic",
+        "data_schema_design",
+        "llm_api_calling",
+        "structured_output_validation",
+        "content_generation_agent",
+        "pydantic_schema_validation",
+        "citation_traceability",
+        "sqlalchemy_modeling",
+        "review_validation_agent",
+        "openai_compatible_api"
+      ],
+      "failures": [],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "prompt_output_format::chunk::0",
+          "knowledge_id": "prompt_output_format",
+          "distance": 1.13133839,
+          "source_title": "OpenAI Documentation - Structured Outputs",
+          "source_url": "https://platform.openai.com/docs/guides/structured-outputs"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "prompt_evaluation::chunk::0",
+          "knowledge_id": "prompt_evaluation",
+          "distance": 1.60399921,
+          "source_title": "OpenAI Documentation - Evaluation best practices",
+          "source_url": "https://platform.openai.com/docs/guides/evals"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "prompt_basic::chunk::0",
+          "knowledge_id": "prompt_basic",
+          "distance": 1.646737,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "data_schema_design::chunk::0",
+          "knowledge_id": "data_schema_design",
+          "distance": 1.73246803,
+          "source_title": "SQLAlchemy Documentation - Declarative Table Configuration",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "llm_api_calling::chunk::0",
+          "knowledge_id": "llm_api_calling",
+          "distance": 1.73741731,
+          "source_title": "OpenAI API Reference - Responses",
+          "source_url": "https://developers.openai.com/api/reference/resources/responses"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "structured_output_validation::chunk::0",
+          "knowledge_id": "structured_output_validation",
+          "distance": 1.75841413,
+          "source_title": "Pydantic Documentation - Models",
+          "source_url": "https://docs.pydantic.dev/latest/concepts/models/"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "content_generation_agent::chunk::0",
+          "knowledge_id": "content_generation_agent",
+          "distance": 1.76402167,
+          "source_title": "OpenAI Documentation - Prompt Engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "pydantic_schema_validation::chunk::0",
+          "knowledge_id": "pydantic_schema_validation",
+          "distance": 1.79630761,
+          "source_title": "Pydantic Documentation - Models and validators",
+          "source_url": "https://docs.pydantic.dev/latest/concepts/validators/"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "citation_traceability::chunk::0",
+          "knowledge_id": "citation_traceability",
+          "distance": 1.79926819,
+          "source_title": "W3C PROV-O: The PROV Ontology",
+          "source_url": "https://www.w3.org/TR/prov-o/"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "sqlalchemy_modeling::chunk::0",
+          "knowledge_id": "sqlalchemy_modeling",
+          "distance": 1.8041755,
+          "source_title": "SQLAlchemy 2.0 Documentation - ORM Quick Start",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "review_validation_agent::chunk::0",
+          "knowledge_id": "review_validation_agent",
+          "distance": 1.81223155,
+          "source_title": "OpenAI Documentation - Evaluation Best Practices",
+          "source_url": "https://platform.openai.com/docs/guides/evaluation-best-practices"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "openai_compatible_api::chunk::0",
+          "knowledge_id": "openai_compatible_api",
+          "distance": 1.81528141,
+          "source_title": "OpenAI API Reference",
+          "source_url": "https://developers.openai.com/api/reference/overview"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-006",
+      "query_text": "大模型 API 调用 llm api",
+      "latency_ms": 1.683,
+      "gold_knowledge_ids": [
+        "llm_api_calling",
+        "prompt_basic",
+        "python_api_basics"
+      ],
+      "retrieved_knowledge_ids": [
+        "llm_api_calling",
+        "function_calling_tools",
+        "api_resilience_retry",
+        "openai_compatible_api",
+        "python_api_basics",
+        "structured_output_validation",
+        "ai_app_dev_overview",
+        "token_context_budget",
+        "python_async_concurrency",
+        "automated_testing",
+        "hallucination_guardrails",
+        "prompt_injection_defense"
+      ],
+      "failures": [
+        "recall_at_12",
+        "discovered_prerequisite"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "llm_api_calling::chunk::0",
+          "knowledge_id": "llm_api_calling",
+          "distance": 0.96362914,
+          "source_title": "OpenAI API Reference - Responses",
+          "source_url": "https://developers.openai.com/api/reference/resources/responses"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "function_calling_tools::chunk::0",
+          "knowledge_id": "function_calling_tools",
+          "distance": 1.31951234,
+          "source_title": "OpenAI Documentation - Function calling",
+          "source_url": "https://platform.openai.com/docs/guides/function-calling"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "api_resilience_retry::chunk::0",
+          "knowledge_id": "api_resilience_retry",
+          "distance": 1.35234931,
+          "source_title": "OpenAI Cookbook - How to Handle Rate Limits",
+          "source_url": "https://cookbook.openai.com/examples/how_to_handle_rate_limits"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "openai_compatible_api::chunk::0",
+          "knowledge_id": "openai_compatible_api",
+          "distance": 1.414153,
+          "source_title": "OpenAI API Reference",
+          "source_url": "https://developers.openai.com/api/reference/overview"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "python_api_basics::chunk::0",
+          "knowledge_id": "python_api_basics",
+          "distance": 1.44866821,
+          "source_title": "Python 3 Documentation - urllib.request",
+          "source_url": "https://docs.python.org/3/library/urllib.request.html"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "structured_output_validation::chunk::0",
+          "knowledge_id": "structured_output_validation",
+          "distance": 1.52568247,
+          "source_title": "Pydantic Documentation - Models",
+          "source_url": "https://docs.pydantic.dev/latest/concepts/models/"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "ai_app_dev_overview::chunk::0",
+          "knowledge_id": "ai_app_dev_overview",
+          "distance": 1.59403444,
+          "source_title": "NIST AI Risk Management Framework Playbook",
+          "source_url": "https://airc.nist.gov/AI_RMF_Knowledge_Base/Playbook"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "token_context_budget::chunk::0",
+          "knowledge_id": "token_context_budget",
+          "distance": 1.60808077,
+          "source_title": "OpenAI Cookbook - How to count tokens with tiktoken",
+          "source_url": "https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "python_async_concurrency::chunk::0",
+          "knowledge_id": "python_async_concurrency",
+          "distance": 1.61501069,
+          "source_title": "Python 3 Documentation - asyncio",
+          "source_url": "https://docs.python.org/3/library/asyncio.html"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "automated_testing::chunk::0",
+          "knowledge_id": "automated_testing",
+          "distance": 1.63253232,
+          "source_title": "pytest Documentation - Good Integration Practices",
+          "source_url": "https://docs.pytest.org/en/stable/explanation/goodpractices.html"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "hallucination_guardrails::chunk::0",
+          "knowledge_id": "hallucination_guardrails",
+          "distance": 1.63822647,
+          "source_title": "NIST AI 600-1 - Artificial Intelligence Risk Management Framework: Generative AI Profile",
+          "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "prompt_injection_defense::chunk::0",
+          "knowledge_id": "prompt_injection_defense",
+          "distance": 1.64311126,
+          "source_title": "OWASP Cheat Sheet - LLM Prompt Injection Prevention",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-007",
+      "query_text": "openai-compatible api",
+      "latency_ms": 1.715,
+      "gold_knowledge_ids": [
+        "fastapi_endpoint_design",
+        "llm_api_calling",
+        "openai_compatible_api"
+      ],
+      "retrieved_knowledge_ids": [
+        "openai_compatible_api",
+        "review_validation_agent",
+        "sse_progress_events",
+        "hallucination_guardrails",
+        "llm_judge_reliability",
+        "observability_tracing",
+        "knowledge_retrieval_agent",
+        "evaluation_metrics",
+        "automated_testing",
+        "content_generation_agent",
+        "function_calling_tools",
+        "pydantic_schema_validation"
+      ],
+      "failures": [
+        "recall_at_12",
+        "priority"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "openai_compatible_api::chunk::0",
+          "knowledge_id": "openai_compatible_api",
+          "distance": 1.7839503,
+          "source_title": "OpenAI API Reference",
+          "source_url": "https://developers.openai.com/api/reference/overview"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "review_validation_agent::chunk::0",
+          "knowledge_id": "review_validation_agent",
+          "distance": 1.81020765,
+          "source_title": "OpenAI Documentation - Evaluation Best Practices",
+          "source_url": "https://platform.openai.com/docs/guides/evaluation-best-practices"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "sse_progress_events::chunk::0",
+          "knowledge_id": "sse_progress_events",
+          "distance": 1.85478528,
+          "source_title": "MDN Web Docs - Server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "hallucination_guardrails::chunk::0",
+          "knowledge_id": "hallucination_guardrails",
+          "distance": 1.85956265,
+          "source_title": "NIST AI 600-1 - Artificial Intelligence Risk Management Framework: Generative AI Profile",
+          "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "llm_judge_reliability::chunk::0",
+          "knowledge_id": "llm_judge_reliability",
+          "distance": 1.86249748,
+          "source_title": "OpenAI Cookbook - Evaluating Model Performance",
+          "source_url": "https://cookbook.openai.com/examples/evaluation/getting_started_with_openai_evals"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "observability_tracing::chunk::0",
+          "knowledge_id": "observability_tracing",
+          "distance": 1.88962454,
+          "source_title": "OpenTelemetry Documentation - Observability Primer",
+          "source_url": "https://opentelemetry.io/docs/concepts/observability-primer/"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "knowledge_retrieval_agent::chunk::1",
+          "knowledge_id": "knowledge_retrieval_agent",
+          "distance": 1.89403741,
+          "source_title": "OpenAI Documentation - Retrieval",
+          "source_url": "https://platform.openai.com/docs/guides/retrieval"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "evaluation_metrics::chunk::0",
+          "knowledge_id": "evaluation_metrics",
+          "distance": 1.89717643,
+          "source_title": "OpenAI Documentation - Evaluation Best Practices",
+          "source_url": "https://platform.openai.com/docs/guides/evaluation-best-practices"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "automated_testing::chunk::0",
+          "knowledge_id": "automated_testing",
+          "distance": 1.89836346,
+          "source_title": "pytest Documentation - Good Integration Practices",
+          "source_url": "https://docs.pytest.org/en/stable/explanation/goodpractices.html"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "content_generation_agent::chunk::0",
+          "knowledge_id": "content_generation_agent",
+          "distance": 1.90142719,
+          "source_title": "OpenAI Documentation - Prompt Engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "function_calling_tools::chunk::0",
+          "knowledge_id": "function_calling_tools",
+          "distance": 1.90589321,
+          "source_title": "OpenAI Documentation - Function calling",
+          "source_url": "https://platform.openai.com/docs/guides/function-calling"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "pydantic_schema_validation::chunk::0",
+          "knowledge_id": "pydantic_schema_validation",
+          "distance": 1.91176232,
+          "source_title": "Pydantic Documentation - Models and validators",
+          "source_url": "https://docs.pydantic.dev/latest/concepts/validators/"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-008",
+      "query_text": "streaming sse",
+      "latency_ms": 1.732,
+      "gold_knowledge_ids": [
+        "streaming_responses"
+      ],
+      "retrieved_knowledge_ids": [
+        "prompt_injection_defense",
+        "fastapi_endpoint_design",
+        "function_calling_tools",
+        "sse_progress_events",
+        "frontend_vue_state",
+        "agent_role_design",
+        "api_resilience_retry",
+        "embedding_basics",
+        "content_generation_agent",
+        "pydantic_schema_validation",
+        "document_parsing",
+        "chromadb_collections"
+      ],
+      "failures": [
+        "recall_at_12"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "prompt_injection_defense::chunk::1",
+          "knowledge_id": "prompt_injection_defense",
+          "distance": 1.73729653,
+          "source_title": "OWASP Cheat Sheet - LLM Prompt Injection Prevention",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "fastapi_endpoint_design::chunk::0",
+          "knowledge_id": "fastapi_endpoint_design",
+          "distance": 1.74154252,
+          "source_title": "FastAPI Documentation - Bigger Applications",
+          "source_url": "https://fastapi.tiangolo.com/tutorial/bigger-applications/"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "function_calling_tools::chunk::0",
+          "knowledge_id": "function_calling_tools",
+          "distance": 1.7570173,
+          "source_title": "OpenAI Documentation - Function calling",
+          "source_url": "https://platform.openai.com/docs/guides/function-calling"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "sse_progress_events::chunk::0",
+          "knowledge_id": "sse_progress_events",
+          "distance": 1.76566075,
+          "source_title": "MDN Web Docs - Server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "frontend_vue_state::chunk::0",
+          "knowledge_id": "frontend_vue_state",
+          "distance": 1.8053407,
+          "source_title": "Pinia Documentation - Core concepts",
+          "source_url": "https://pinia.vuejs.org/core-concepts/"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "agent_role_design::chunk::0",
+          "knowledge_id": "agent_role_design",
+          "distance": 1.82274664,
+          "source_title": "OpenAI Agents SDK - Agents",
+          "source_url": "https://openai.github.io/openai-agents-python/agents/"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "api_resilience_retry::chunk::0",
+          "knowledge_id": "api_resilience_retry",
+          "distance": 1.82869811,
+          "source_title": "OpenAI Cookbook - How to Handle Rate Limits",
+          "source_url": "https://cookbook.openai.com/examples/how_to_handle_rate_limits"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "embedding_basics::chunk::0",
+          "knowledge_id": "embedding_basics",
+          "distance": 1.85161419,
+          "source_title": "OpenAI Documentation - Embeddings",
+          "source_url": "https://platform.openai.com/docs/guides/embeddings"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "content_generation_agent::chunk::0",
+          "knowledge_id": "content_generation_agent",
+          "distance": 1.87274305,
+          "source_title": "OpenAI Documentation - Prompt Engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "pydantic_schema_validation::chunk::0",
+          "knowledge_id": "pydantic_schema_validation",
+          "distance": 1.88608565,
+          "source_title": "Pydantic Documentation - Models and validators",
+          "source_url": "https://docs.pydantic.dev/latest/concepts/validators/"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "document_parsing::chunk::0",
+          "knowledge_id": "document_parsing",
+          "distance": 1.89173361,
+          "source_title": "pypdf Documentation - Text extraction",
+          "source_url": "https://pypdf.readthedocs.io/en/stable/user/extract-text.html"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "chromadb_collections::chunk::0",
+          "knowledge_id": "chromadb_collections",
+          "distance": 1.897233,
+          "source_title": "Chroma Documentation - Collections",
+          "source_url": "https://docs.trychroma.com/docs/collections/manage-collections"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-009",
+      "query_text": "validation json",
+      "latency_ms": 1.783,
+      "gold_knowledge_ids": [
+        "prompt_output_format",
+        "pydantic_schema_validation",
+        "structured_output_validation"
+      ],
+      "retrieved_knowledge_ids": [
+        "prompt_injection_defense",
+        "data_schema_design",
+        "python_async_concurrency",
+        "structured_output_validation",
+        "prompt_output_format",
+        "sqlalchemy_modeling",
+        "hallucination_guardrails",
+        "prompt_evaluation",
+        "metadata_filtering",
+        "http_rest_basics",
+        "prompt_context_design"
+      ],
+      "failures": [
+        "recall_at_12"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "prompt_injection_defense::chunk::0",
+          "knowledge_id": "prompt_injection_defense",
+          "distance": 1.7703878,
+          "source_title": "OWASP Cheat Sheet - LLM Prompt Injection Prevention",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "data_schema_design::chunk::0",
+          "knowledge_id": "data_schema_design",
+          "distance": 1.78960187,
+          "source_title": "SQLAlchemy Documentation - Declarative Table Configuration",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "python_async_concurrency::chunk::0",
+          "knowledge_id": "python_async_concurrency",
+          "distance": 1.81670843,
+          "source_title": "Python 3 Documentation - asyncio",
+          "source_url": "https://docs.python.org/3/library/asyncio.html"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "structured_output_validation::chunk::0",
+          "knowledge_id": "structured_output_validation",
+          "distance": 1.82629207,
+          "source_title": "Pydantic Documentation - Models",
+          "source_url": "https://docs.pydantic.dev/latest/concepts/models/"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "prompt_output_format::chunk::0",
+          "knowledge_id": "prompt_output_format",
+          "distance": 1.84004265,
+          "source_title": "OpenAI Documentation - Structured Outputs",
+          "source_url": "https://platform.openai.com/docs/guides/structured-outputs"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "sqlalchemy_modeling::chunk::0",
+          "knowledge_id": "sqlalchemy_modeling",
+          "distance": 1.85215575,
+          "source_title": "SQLAlchemy 2.0 Documentation - ORM Quick Start",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "hallucination_guardrails::chunk::0",
+          "knowledge_id": "hallucination_guardrails",
+          "distance": 1.86402212,
+          "source_title": "NIST AI 600-1 - Artificial Intelligence Risk Management Framework: Generative AI Profile",
+          "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "prompt_evaluation::chunk::0",
+          "knowledge_id": "prompt_evaluation",
+          "distance": 1.90034199,
+          "source_title": "OpenAI Documentation - Evaluation best practices",
+          "source_url": "https://platform.openai.com/docs/guides/evals"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "metadata_filtering::chunk::0",
+          "knowledge_id": "metadata_filtering",
+          "distance": 1.90071109,
+          "source_title": "Chroma Documentation - Metadata filtering",
+          "source_url": "https://docs.trychroma.com/docs/querying-collections/metadata-filtering"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "http_rest_basics::chunk::0",
+          "knowledge_id": "http_rest_basics",
+          "distance": 1.90107613,
+          "source_title": "RFC 9110 - HTTP Semantics",
+          "source_url": "https://datatracker.ietf.org/doc/html/rfc9110"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "prompt_context_design::chunk::0",
+          "knowledge_id": "prompt_context_design",
+          "distance": 1.90214754,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-010",
+      "query_text": "Embedding 基础 embedding vector",
+      "latency_ms": 1.781,
+      "gold_knowledge_ids": [
+        "ai_app_dev_overview",
+        "embedding_basics"
+      ],
+      "retrieved_knowledge_ids": [
+        "embedding_basics",
+        "python_api_basics",
+        "docker_containerization",
+        "knowledge_base_ingestion",
+        "http_rest_basics",
+        "streaming_responses",
+        "openai_compatible_api",
+        "chromadb_collections",
+        "llm_api_calling",
+        "privacy_log_policy",
+        "frontend_api_client",
+        "python_async_concurrency"
+      ],
+      "failures": [
+        "recall_at_12",
+        "discovered_prerequisite"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "embedding_basics::chunk::0",
+          "knowledge_id": "embedding_basics",
+          "distance": 1.53504823,
+          "source_title": "OpenAI Documentation - Embeddings",
+          "source_url": "https://platform.openai.com/docs/guides/embeddings"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "python_api_basics::chunk::0",
+          "knowledge_id": "python_api_basics",
+          "distance": 1.66911948,
+          "source_title": "Python 3 Documentation - urllib.request",
+          "source_url": "https://docs.python.org/3/library/urllib.request.html"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "docker_containerization::chunk::0",
+          "knowledge_id": "docker_containerization",
+          "distance": 1.73718108,
+          "source_title": "Docker Documentation - Build and Run Your Image",
+          "source_url": "https://docs.docker.com/get-started/introduction/build-and-push-first-image/"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "knowledge_base_ingestion::chunk::0",
+          "knowledge_id": "knowledge_base_ingestion",
+          "distance": 1.83704397,
+          "source_title": "Chroma Documentation - Adding Data to Chroma Collections",
+          "source_url": "https://docs.trychroma.com/docs/collections/add-data"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "http_rest_basics::chunk::0",
+          "knowledge_id": "http_rest_basics",
+          "distance": 1.84501608,
+          "source_title": "RFC 9110 - HTTP Semantics",
+          "source_url": "https://datatracker.ietf.org/doc/html/rfc9110"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "streaming_responses::chunk::0",
+          "knowledge_id": "streaming_responses",
+          "distance": 1.84724217,
+          "source_title": "MDN Web Docs - Using server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "openai_compatible_api::chunk::0",
+          "knowledge_id": "openai_compatible_api",
+          "distance": 1.85433932,
+          "source_title": "OpenAI API Reference",
+          "source_url": "https://developers.openai.com/api/reference/overview"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "chromadb_collections::chunk::0",
+          "knowledge_id": "chromadb_collections",
+          "distance": 1.86582921,
+          "source_title": "Chroma Documentation - Collections",
+          "source_url": "https://docs.trychroma.com/docs/collections/manage-collections"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "llm_api_calling::chunk::0",
+          "knowledge_id": "llm_api_calling",
+          "distance": 1.88496625,
+          "source_title": "OpenAI API Reference - Responses",
+          "source_url": "https://developers.openai.com/api/reference/resources/responses"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "privacy_log_policy::chunk::0",
+          "knowledge_id": "privacy_log_policy",
+          "distance": 1.89371058,
+          "source_title": "OWASP Logging Cheat Sheet",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "frontend_api_client::chunk::0",
+          "knowledge_id": "frontend_api_client",
+          "distance": 1.89724148,
+          "source_title": "Axios Documentation - The Axios Instance",
+          "source_url": "https://axios-http.com/docs/instance"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "python_async_concurrency::chunk::0",
+          "knowledge_id": "python_async_concurrency",
+          "distance": 1.9042791,
+          "source_title": "Python 3 Documentation - asyncio",
+          "source_url": "https://docs.python.org/3/library/asyncio.html"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-011",
+      "query_text": "RAG 流程总览 rag pipeline",
+      "latency_ms": 1.81,
+      "gold_knowledge_ids": [
+        "ai_app_dev_overview",
+        "rag_pipeline_overview",
+        "vector_similarity"
+      ],
+      "retrieved_knowledge_ids": [
+        "rag_pipeline_overview",
+        "langgraph_stategraph",
+        "python_async_concurrency",
+        "automated_testing",
+        "rag_chunking",
+        "ai_app_dev_overview",
+        "knowledge_base_ingestion",
+        "retrieval_reranking",
+        "orchestrator_workflow",
+        "streaming_responses",
+        "citation_traceability",
+        "prompt_output_format"
+      ],
+      "failures": [
+        "recall_at_12",
+        "prerequisite"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "rag_pipeline_overview::chunk::0",
+          "knowledge_id": "rag_pipeline_overview",
+          "distance": 1.48163872,
+          "source_title": "OpenAI Cookbook - Question answering using embeddings",
+          "source_url": "https://cookbook.openai.com/examples/question_answering_using_embeddings"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "langgraph_stategraph::chunk::0",
+          "knowledge_id": "langgraph_stategraph",
+          "distance": 1.7446861,
+          "source_title": "LangGraph Documentation - Graph API",
+          "source_url": "https://docs.langchain.com/oss/python/langgraph/graph-api"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "python_async_concurrency::chunk::0",
+          "knowledge_id": "python_async_concurrency",
+          "distance": 1.75408855,
+          "source_title": "Python 3 Documentation - asyncio",
+          "source_url": "https://docs.python.org/3/library/asyncio.html"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "automated_testing::chunk::0",
+          "knowledge_id": "automated_testing",
+          "distance": 1.78484043,
+          "source_title": "pytest Documentation - Good Integration Practices",
+          "source_url": "https://docs.pytest.org/en/stable/explanation/goodpractices.html"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "rag_chunking::chunk::1",
+          "knowledge_id": "rag_chunking",
+          "distance": 1.79877583,
+          "source_title": "OpenAI Cookbook - Embedding long inputs",
+          "source_url": "https://cookbook.openai.com/examples/embedding_long_inputs"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "ai_app_dev_overview::chunk::0",
+          "knowledge_id": "ai_app_dev_overview",
+          "distance": 1.80355303,
+          "source_title": "NIST AI Risk Management Framework Playbook",
+          "source_url": "https://airc.nist.gov/AI_RMF_Knowledge_Base/Playbook"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "knowledge_base_ingestion::chunk::0",
+          "knowledge_id": "knowledge_base_ingestion",
+          "distance": 1.82058216,
+          "source_title": "Chroma Documentation - Adding Data to Chroma Collections",
+          "source_url": "https://docs.trychroma.com/docs/collections/add-data"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "retrieval_reranking::chunk::0",
+          "knowledge_id": "retrieval_reranking",
+          "distance": 1.82255721,
+          "source_title": "OpenAI Cookbook - Search and reranking with embeddings",
+          "source_url": "https://cookbook.openai.com/examples/search_reranking_with_cross-encoders"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "orchestrator_workflow::chunk::0",
+          "knowledge_id": "orchestrator_workflow",
+          "distance": 1.82396035,
+          "source_title": "LangGraph Documentation - Workflows and Agents",
+          "source_url": "https://docs.langchain.com/oss/python/langgraph/workflows-agents"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "streaming_responses::chunk::0",
+          "knowledge_id": "streaming_responses",
+          "distance": 1.82558135,
+          "source_title": "MDN Web Docs - Using server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "citation_traceability::chunk::0",
+          "knowledge_id": "citation_traceability",
+          "distance": 1.82621831,
+          "source_title": "W3C PROV-O: The PROV Ontology",
+          "source_url": "https://www.w3.org/TR/prov-o/"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "prompt_output_format::chunk::0",
+          "knowledge_id": "prompt_output_format",
+          "distance": 1.83308476,
+          "source_title": "OpenAI Documentation - Structured Outputs",
+          "source_url": "https://platform.openai.com/docs/guides/structured-outputs"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-012",
+      "query_text": "检索元数据过滤 metadata retrieval",
+      "latency_ms": 2.142,
+      "gold_knowledge_ids": [
+        "metadata_filtering",
+        "rag_pipeline_overview"
+      ],
+      "retrieved_knowledge_ids": [
+        "metadata_filtering",
+        "knowledge_retrieval_agent",
+        "vector_similarity",
+        "alembic_migrations",
+        "data_schema_design",
+        "ai_app_dev_overview",
+        "privacy_log_policy",
+        "knowledge_base_ingestion",
+        "prompt_injection_defense",
+        "sqlalchemy_modeling",
+        "prompt_evaluation"
+      ],
+      "failures": [
+        "recall_at_12",
+        "discovered_prerequisite"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "metadata_filtering::chunk::0",
+          "knowledge_id": "metadata_filtering",
+          "distance": 1.24514306,
+          "source_title": "Chroma Documentation - Metadata filtering",
+          "source_url": "https://docs.trychroma.com/docs/querying-collections/metadata-filtering"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "knowledge_retrieval_agent::chunk::0",
+          "knowledge_id": "knowledge_retrieval_agent",
+          "distance": 1.43682053,
+          "source_title": "OpenAI Documentation - Retrieval",
+          "source_url": "https://platform.openai.com/docs/guides/retrieval"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "vector_similarity::chunk::0",
+          "knowledge_id": "vector_similarity",
+          "distance": 1.47764359,
+          "source_title": "Chroma Documentation - Collections and distance metrics",
+          "source_url": "https://docs.trychroma.com/docs/collections/configure"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "alembic_migrations::chunk::0",
+          "knowledge_id": "alembic_migrations",
+          "distance": 1.52415208,
+          "source_title": "Alembic Documentation - Tutorial",
+          "source_url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "data_schema_design::chunk::0",
+          "knowledge_id": "data_schema_design",
+          "distance": 1.58599121,
+          "source_title": "SQLAlchemy Documentation - Declarative Table Configuration",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "ai_app_dev_overview::chunk::0",
+          "knowledge_id": "ai_app_dev_overview",
+          "distance": 1.58746136,
+          "source_title": "NIST AI Risk Management Framework Playbook",
+          "source_url": "https://airc.nist.gov/AI_RMF_Knowledge_Base/Playbook"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "privacy_log_policy::chunk::0",
+          "knowledge_id": "privacy_log_policy",
+          "distance": 1.65867193,
+          "source_title": "OWASP Logging Cheat Sheet",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "knowledge_base_ingestion::chunk::0",
+          "knowledge_id": "knowledge_base_ingestion",
+          "distance": 1.66109964,
+          "source_title": "Chroma Documentation - Adding Data to Chroma Collections",
+          "source_url": "https://docs.trychroma.com/docs/collections/add-data"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "prompt_injection_defense::chunk::0",
+          "knowledge_id": "prompt_injection_defense",
+          "distance": 1.70221148,
+          "source_title": "OWASP Cheat Sheet - LLM Prompt Injection Prevention",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "sqlalchemy_modeling::chunk::0",
+          "knowledge_id": "sqlalchemy_modeling",
+          "distance": 1.71348884,
+          "source_title": "SQLAlchemy 2.0 Documentation - ORM Quick Start",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "prompt_evaluation::chunk::0",
+          "knowledge_id": "prompt_evaluation",
+          "distance": 1.73258949,
+          "source_title": "OpenAI Documentation - Evaluation best practices",
+          "source_url": "https://platform.openai.com/docs/guides/evals"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-013",
+      "query_text": "rerank retrieval",
+      "latency_ms": 1.733,
+      "gold_knowledge_ids": [
+        "retrieval_reranking"
+      ],
+      "retrieved_knowledge_ids": [
+        "retrieval_reranking",
+        "alembic_migrations",
+        "frontend_vue_state",
+        "prompt_context_design",
+        "chromadb_collections",
+        "function_calling_tools",
+        "mysql_indexing",
+        "orchestrator_workflow",
+        "streaming_responses",
+        "token_context_budget",
+        "knowledge_retrieval_agent",
+        "content_generation_agent"
+      ],
+      "failures": [],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "retrieval_reranking::chunk::0",
+          "knowledge_id": "retrieval_reranking",
+          "distance": 1.88663596,
+          "source_title": "OpenAI Cookbook - Search and reranking with embeddings",
+          "source_url": "https://cookbook.openai.com/examples/search_reranking_with_cross-encoders"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "alembic_migrations::chunk::0",
+          "knowledge_id": "alembic_migrations",
+          "distance": 1.9074758,
+          "source_title": "Alembic Documentation - Tutorial",
+          "source_url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "frontend_vue_state::chunk::0",
+          "knowledge_id": "frontend_vue_state",
+          "distance": 2.0,
+          "source_title": "Pinia Documentation - Core concepts",
+          "source_url": "https://pinia.vuejs.org/core-concepts/"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "prompt_context_design::chunk::0",
+          "knowledge_id": "prompt_context_design",
+          "distance": 2.0,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "chromadb_collections::chunk::0",
+          "knowledge_id": "chromadb_collections",
+          "distance": 2.0,
+          "source_title": "Chroma Documentation - Collections",
+          "source_url": "https://docs.trychroma.com/docs/collections/manage-collections"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "function_calling_tools::chunk::0",
+          "knowledge_id": "function_calling_tools",
+          "distance": 2.0,
+          "source_title": "OpenAI Documentation - Function calling",
+          "source_url": "https://platform.openai.com/docs/guides/function-calling"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "mysql_indexing::chunk::0",
+          "knowledge_id": "mysql_indexing",
+          "distance": 2.0,
+          "source_title": "MySQL 8.0 Reference Manual - Optimization and Indexes",
+          "source_url": "https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "orchestrator_workflow::chunk::0",
+          "knowledge_id": "orchestrator_workflow",
+          "distance": 2.0,
+          "source_title": "LangGraph Documentation - Workflows and Agents",
+          "source_url": "https://docs.langchain.com/oss/python/langgraph/workflows-agents"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "streaming_responses::chunk::0",
+          "knowledge_id": "streaming_responses",
+          "distance": 2.0,
+          "source_title": "MDN Web Docs - Using server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "token_context_budget::chunk::0",
+          "knowledge_id": "token_context_budget",
+          "distance": 2.0,
+          "source_title": "OpenAI Cookbook - How to count tokens with tiktoken",
+          "source_url": "https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "knowledge_retrieval_agent::chunk::0",
+          "knowledge_id": "knowledge_retrieval_agent",
+          "distance": 2.03997802,
+          "source_title": "OpenAI Documentation - Retrieval",
+          "source_url": "https://platform.openai.com/docs/guides/retrieval"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "content_generation_agent::chunk::0",
+          "knowledge_id": "content_generation_agent",
+          "distance": 2.04241898,
+          "source_title": "OpenAI Documentation - Prompt Engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-014",
+      "query_text": "hallucination guardrails",
+      "latency_ms": 1.733,
+      "gold_knowledge_ids": [
+        "citation_traceability",
+        "hallucination_guardrails"
+      ],
+      "retrieved_knowledge_ids": [
+        "citation_traceability",
+        "document_parsing",
+        "content_generation_agent",
+        "prompt_injection_defense",
+        "hallucination_guardrails",
+        "langgraph_stategraph",
+        "privacy_log_policy",
+        "prompt_evaluation",
+        "sqlalchemy_modeling",
+        "prompt_context_design",
+        "review_validation_agent",
+        "knowledge_retrieval_agent"
+      ],
+      "failures": [],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "citation_traceability::chunk::0",
+          "knowledge_id": "citation_traceability",
+          "distance": 1.68912986,
+          "source_title": "W3C PROV-O: The PROV Ontology",
+          "source_url": "https://www.w3.org/TR/prov-o/"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "document_parsing::chunk::0",
+          "knowledge_id": "document_parsing",
+          "distance": 1.78346722,
+          "source_title": "pypdf Documentation - Text extraction",
+          "source_url": "https://pypdf.readthedocs.io/en/stable/user/extract-text.html"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "content_generation_agent::chunk::0",
+          "knowledge_id": "content_generation_agent",
+          "distance": 1.78790508,
+          "source_title": "OpenAI Documentation - Prompt Engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "prompt_injection_defense::chunk::0",
+          "knowledge_id": "prompt_injection_defense",
+          "distance": 1.81631024,
+          "source_title": "OWASP Cheat Sheet - LLM Prompt Injection Prevention",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "hallucination_guardrails::chunk::0",
+          "knowledge_id": "hallucination_guardrails",
+          "distance": 1.81869616,
+          "source_title": "NIST AI 600-1 - Artificial Intelligence Risk Management Framework: Generative AI Profile",
+          "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "langgraph_stategraph::chunk::0",
+          "knowledge_id": "langgraph_stategraph",
+          "distance": 1.84430021,
+          "source_title": "LangGraph Documentation - Graph API",
+          "source_url": "https://docs.langchain.com/oss/python/langgraph/graph-api"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "privacy_log_policy::chunk::0",
+          "knowledge_id": "privacy_log_policy",
+          "distance": 1.84735344,
+          "source_title": "OWASP Logging Cheat Sheet",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "prompt_evaluation::chunk::0",
+          "knowledge_id": "prompt_evaluation",
+          "distance": 1.85051298,
+          "source_title": "OpenAI Documentation - Evaluation best practices",
+          "source_url": "https://platform.openai.com/docs/guides/evals"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "sqlalchemy_modeling::chunk::0",
+          "knowledge_id": "sqlalchemy_modeling",
+          "distance": 1.85215575,
+          "source_title": "SQLAlchemy 2.0 Documentation - ORM Quick Start",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "prompt_context_design::chunk::0",
+          "knowledge_id": "prompt_context_design",
+          "distance": 1.8532213,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "review_validation_agent::chunk::0",
+          "knowledge_id": "review_validation_agent",
+          "distance": 1.85998808,
+          "source_title": "OpenAI Documentation - Evaluation Best Practices",
+          "source_url": "https://platform.openai.com/docs/guides/evaluation-best-practices"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "knowledge_retrieval_agent::chunk::1",
+          "knowledge_id": "knowledge_retrieval_agent",
+          "distance": 1.86320289,
+          "source_title": "OpenAI Documentation - Retrieval",
+          "source_url": "https://platform.openai.com/docs/guides/retrieval"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-015",
+      "query_text": "document parsing",
+      "latency_ms": 1.525,
+      "gold_knowledge_ids": [
+        "document_parsing"
+      ],
+      "retrieved_knowledge_ids": [
+        "retrieval_reranking",
+        "document_parsing",
+        "frontend_vue_state",
+        "citation_traceability",
+        "prompt_context_design",
+        "prompt_injection_defense",
+        "hallucination_guardrails",
+        "review_validation_agent",
+        "fastapi_endpoint_design",
+        "sqlalchemy_modeling",
+        "mysql_indexing",
+        "alembic_migrations"
+      ],
+      "failures": [],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "retrieval_reranking::chunk::0",
+          "knowledge_id": "retrieval_reranking",
+          "distance": 1.82995394,
+          "source_title": "OpenAI Cookbook - Search and reranking with embeddings",
+          "source_url": "https://cookbook.openai.com/examples/search_reranking_with_cross-encoders"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "document_parsing::chunk::0",
+          "knowledge_id": "document_parsing",
+          "distance": 1.83760041,
+          "source_title": "pypdf Documentation - Text extraction",
+          "source_url": "https://pypdf.readthedocs.io/en/stable/user/extract-text.html"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "frontend_vue_state::chunk::0",
+          "knowledge_id": "frontend_vue_state",
+          "distance": 1.85400552,
+          "source_title": "Pinia Documentation - Core concepts",
+          "source_url": "https://pinia.vuejs.org/core-concepts/"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "citation_traceability::chunk::0",
+          "knowledge_id": "citation_traceability",
+          "distance": 1.8834237,
+          "source_title": "W3C PROV-O: The PROV Ontology",
+          "source_url": "https://www.w3.org/TR/prov-o/"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "prompt_context_design::chunk::0",
+          "knowledge_id": "prompt_context_design",
+          "distance": 1.90214754,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "prompt_injection_defense::chunk::0",
+          "knowledge_id": "prompt_injection_defense",
+          "distance": 1.90815512,
+          "source_title": "OWASP Cheat Sheet - LLM Prompt Injection Prevention",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "hallucination_guardrails::chunk::0",
+          "knowledge_id": "hallucination_guardrails",
+          "distance": 1.90934808,
+          "source_title": "NIST AI 600-1 - Artificial Intelligence Risk Management Framework: Generative AI Profile",
+          "source_url": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.600-1.pdf"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "review_validation_agent::chunk::0",
+          "knowledge_id": "review_validation_agent",
+          "distance": 1.94749553,
+          "source_title": "OpenAI Documentation - Evaluation Best Practices",
+          "source_url": "https://platform.openai.com/docs/guides/evaluation-best-practices"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "fastapi_endpoint_design::chunk::0",
+          "knowledge_id": "fastapi_endpoint_design",
+          "distance": 1.9483085,
+          "source_title": "FastAPI Documentation - Bigger Applications",
+          "source_url": "https://fastapi.tiangolo.com/tutorial/bigger-applications/"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "sqlalchemy_modeling::chunk::0",
+          "knowledge_id": "sqlalchemy_modeling",
+          "distance": 1.95071858,
+          "source_title": "SQLAlchemy 2.0 Documentation - ORM Quick Start",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "mysql_indexing::chunk::0",
+          "knowledge_id": "mysql_indexing",
+          "distance": 1.95242139,
+          "source_title": "MySQL 8.0 Reference Manual - Optimization and Indexes",
+          "source_url": "https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "alembic_migrations::chunk::0",
+          "knowledge_id": "alembic_migrations",
+          "distance": 1.9537379,
+          "source_title": "Alembic Documentation - Tutorial",
+          "source_url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-016",
+      "query_text": "FastAPI 接口设计 fastapi backend",
+      "latency_ms": 1.54,
+      "gold_knowledge_ids": [
+        "ai_app_dev_overview",
+        "fastapi_endpoint_design",
+        "http_rest_basics"
+      ],
+      "retrieved_knowledge_ids": [
+        "fastapi_endpoint_design",
+        "streaming_responses",
+        "orchestrator_workflow",
+        "http_rest_basics",
+        "frontend_vue_state",
+        "sse_progress_events",
+        "git_collaboration",
+        "mysql_indexing",
+        "agent_role_design",
+        "review_validation_agent",
+        "langgraph_stategraph",
+        "sqlalchemy_modeling"
+      ],
+      "failures": [
+        "recall_at_12"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "fastapi_endpoint_design::chunk::0",
+          "knowledge_id": "fastapi_endpoint_design",
+          "distance": 1.53765721,
+          "source_title": "FastAPI Documentation - Bigger Applications",
+          "source_url": "https://fastapi.tiangolo.com/tutorial/bigger-applications/"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "streaming_responses::chunk::0",
+          "knowledge_id": "streaming_responses",
+          "distance": 1.86918601,
+          "source_title": "MDN Web Docs - Using server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "orchestrator_workflow::chunk::0",
+          "knowledge_id": "orchestrator_workflow",
+          "distance": 1.88264024,
+          "source_title": "LangGraph Documentation - Workflows and Agents",
+          "source_url": "https://docs.langchain.com/oss/python/langgraph/workflows-agents"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "http_rest_basics::chunk::0",
+          "knowledge_id": "http_rest_basics",
+          "distance": 1.88939975,
+          "source_title": "RFC 9110 - HTTP Semantics",
+          "source_url": "https://datatracker.ietf.org/doc/html/rfc9110"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "frontend_vue_state::chunk::0",
+          "knowledge_id": "frontend_vue_state",
+          "distance": 1.89118214,
+          "source_title": "Pinia Documentation - Core concepts",
+          "source_url": "https://pinia.vuejs.org/core-concepts/"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "sse_progress_events::chunk::0",
+          "knowledge_id": "sse_progress_events",
+          "distance": 1.8952003,
+          "source_title": "MDN Web Docs - Server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "git_collaboration::chunk::0",
+          "knowledge_id": "git_collaboration",
+          "distance": 1.90950481,
+          "source_title": "Pro Git - Distributed Git and Contributing to a Project",
+          "source_url": "https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "mysql_indexing::chunk::0",
+          "knowledge_id": "mysql_indexing",
+          "distance": 1.9148888,
+          "source_title": "MySQL 8.0 Reference Manual - Optimization and Indexes",
+          "source_url": "https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "agent_role_design::chunk::0",
+          "knowledge_id": "agent_role_design",
+          "distance": 1.92072989,
+          "source_title": "OpenAI Agents SDK - Agents",
+          "source_url": "https://openai.github.io/openai-agents-python/agents/"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "review_validation_agent::chunk::0",
+          "knowledge_id": "review_validation_agent",
+          "distance": 1.92173096,
+          "source_title": "OpenAI Documentation - Evaluation Best Practices",
+          "source_url": "https://platform.openai.com/docs/guides/evaluation-best-practices"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "langgraph_stategraph::chunk::0",
+          "knowledge_id": "langgraph_stategraph",
+          "distance": 1.95357929,
+          "source_title": "LangGraph Documentation - Graph API",
+          "source_url": "https://docs.langchain.com/oss/python/langgraph/graph-api"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "sqlalchemy_modeling::chunk::0",
+          "knowledge_id": "sqlalchemy_modeling",
+          "distance": 1.95592136,
+          "source_title": "SQLAlchemy 2.0 Documentation - ORM Quick Start",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-017",
+      "query_text": "SQLAlchemy 模型设计 sqlalchemy orm",
+      "latency_ms": 1.591,
+      "gold_knowledge_ids": [
+        "data_schema_design",
+        "sqlalchemy_modeling"
+      ],
+      "retrieved_knowledge_ids": [
+        "sqlalchemy_modeling",
+        "llm_api_calling",
+        "api_resilience_retry",
+        "data_schema_design",
+        "embedding_basics",
+        "prompt_context_design",
+        "function_calling_tools",
+        "fastapi_endpoint_design",
+        "structured_output_validation",
+        "mysql_indexing",
+        "sse_progress_events",
+        "python_async_concurrency"
+      ],
+      "failures": [],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "sqlalchemy_modeling::chunk::0",
+          "knowledge_id": "sqlalchemy_modeling",
+          "distance": 1.42697768,
+          "source_title": "SQLAlchemy 2.0 Documentation - ORM Quick Start",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "llm_api_calling::chunk::0",
+          "knowledge_id": "llm_api_calling",
+          "distance": 1.5468585,
+          "source_title": "OpenAI API Reference - Responses",
+          "source_url": "https://developers.openai.com/api/reference/resources/responses"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "api_resilience_retry::chunk::0",
+          "knowledge_id": "api_resilience_retry",
+          "distance": 1.73187013,
+          "source_title": "OpenAI Cookbook - How to Handle Rate Limits",
+          "source_url": "https://cookbook.openai.com/examples/how_to_handle_rate_limits"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "data_schema_design::chunk::0",
+          "knowledge_id": "data_schema_design",
+          "distance": 1.75535844,
+          "source_title": "SQLAlchemy Documentation - Declarative Table Configuration",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "embedding_basics::chunk::0",
+          "knowledge_id": "embedding_basics",
+          "distance": 1.75667944,
+          "source_title": "OpenAI Documentation - Embeddings",
+          "source_url": "https://platform.openai.com/docs/guides/embeddings"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "prompt_context_design::chunk::0",
+          "knowledge_id": "prompt_context_design",
+          "distance": 1.75931476,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "function_calling_tools::chunk::0",
+          "knowledge_id": "function_calling_tools",
+          "distance": 1.76455881,
+          "source_title": "OpenAI Documentation - Function calling",
+          "source_url": "https://platform.openai.com/docs/guides/function-calling"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "fastapi_endpoint_design::chunk::0",
+          "knowledge_id": "fastapi_endpoint_design",
+          "distance": 1.76882861,
+          "source_title": "FastAPI Documentation - Bigger Applications",
+          "source_url": "https://fastapi.tiangolo.com/tutorial/bigger-applications/"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "structured_output_validation::chunk::0",
+          "knowledge_id": "structured_output_validation",
+          "distance": 1.78636749,
+          "source_title": "Pydantic Documentation - Models",
+          "source_url": "https://docs.pydantic.dev/latest/concepts/models/"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "mysql_indexing::chunk::0",
+          "knowledge_id": "mysql_indexing",
+          "distance": 1.787222,
+          "source_title": "MySQL 8.0 Reference Manual - Optimization and Indexes",
+          "source_url": "https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "sse_progress_events::chunk::0",
+          "knowledge_id": "sse_progress_events",
+          "distance": 1.79040061,
+          "source_title": "MDN Web Docs - Server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "python_async_concurrency::chunk::0",
+          "knowledge_id": "python_async_concurrency",
+          "distance": 1.79507379,
+          "source_title": "Python 3 Documentation - asyncio",
+          "source_url": "https://docs.python.org/3/library/asyncio.html"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-018",
+      "query_text": "MySQL 索引与查询 mysql index",
+      "latency_ms": 1.72,
+      "gold_knowledge_ids": [
+        "ai_app_dev_overview",
+        "mysql_indexing",
+        "sqlalchemy_modeling"
+      ],
+      "retrieved_knowledge_ids": [
+        "mysql_indexing",
+        "knowledge_retrieval_agent",
+        "sqlalchemy_modeling",
+        "chromadb_collections",
+        "data_schema_design",
+        "prompt_evaluation",
+        "metadata_filtering",
+        "alembic_migrations",
+        "citation_traceability",
+        "rag_pipeline_overview",
+        "prompt_injection_defense"
+      ],
+      "failures": [
+        "recall_at_12"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "mysql_indexing::chunk::0",
+          "knowledge_id": "mysql_indexing",
+          "distance": 1.10058443,
+          "source_title": "MySQL 8.0 Reference Manual - Optimization and Indexes",
+          "source_url": "https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "knowledge_retrieval_agent::chunk::1",
+          "knowledge_id": "knowledge_retrieval_agent",
+          "distance": 1.65520231,
+          "source_title": "OpenAI Documentation - Retrieval",
+          "source_url": "https://platform.openai.com/docs/guides/retrieval"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "sqlalchemy_modeling::chunk::0",
+          "knowledge_id": "sqlalchemy_modeling",
+          "distance": 1.68946495,
+          "source_title": "SQLAlchemy 2.0 Documentation - ORM Quick Start",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "chromadb_collections::chunk::0",
+          "knowledge_id": "chromadb_collections",
+          "distance": 1.71938996,
+          "source_title": "Chroma Documentation - Collections",
+          "source_url": "https://docs.trychroma.com/docs/collections/manage-collections"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "data_schema_design::chunk::0",
+          "knowledge_id": "data_schema_design",
+          "distance": 1.75252229,
+          "source_title": "SQLAlchemy Documentation - Declarative Table Configuration",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "prompt_evaluation::chunk::0",
+          "knowledge_id": "prompt_evaluation",
+          "distance": 1.76974394,
+          "source_title": "OpenAI Documentation - Evaluation best practices",
+          "source_url": "https://platform.openai.com/docs/guides/evals"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "metadata_filtering::chunk::0",
+          "knowledge_id": "metadata_filtering",
+          "distance": 1.77059674,
+          "source_title": "Chroma Documentation - Metadata filtering",
+          "source_url": "https://docs.trychroma.com/docs/querying-collections/metadata-filtering"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "alembic_migrations::chunk::0",
+          "knowledge_id": "alembic_migrations",
+          "distance": 1.78622634,
+          "source_title": "Alembic Documentation - Tutorial",
+          "source_url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "citation_traceability::chunk::0",
+          "knowledge_id": "citation_traceability",
+          "distance": 1.78778869,
+          "source_title": "W3C PROV-O: The PROV Ontology",
+          "source_url": "https://www.w3.org/TR/prov-o/"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "rag_pipeline_overview::chunk::0",
+          "knowledge_id": "rag_pipeline_overview",
+          "distance": 1.78829755,
+          "source_title": "OpenAI Cookbook - Question answering using embeddings",
+          "source_url": "https://cookbook.openai.com/examples/question_answering_using_embeddings"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "prompt_injection_defense::chunk::1",
+          "knowledge_id": "prompt_injection_defense",
+          "distance": 1.80135644,
+          "source_title": "OWASP Cheat Sheet - LLM Prompt Injection Prevention",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-019",
+      "query_text": "chromadb collection",
+      "latency_ms": 1.604,
+      "gold_knowledge_ids": [
+        "chromadb_collections",
+        "embedding_basics"
+      ],
+      "retrieved_knowledge_ids": [
+        "chromadb_collections",
+        "review_validation_agent",
+        "llm_judge_reliability",
+        "prompt_evaluation",
+        "evaluation_metrics",
+        "data_schema_design",
+        "prompt_output_format",
+        "pydantic_schema_validation",
+        "retrieval_reranking",
+        "fastapi_endpoint_design",
+        "vector_similarity",
+        "metadata_filtering"
+      ],
+      "failures": [
+        "recall_at_12",
+        "priority"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "chromadb_collections::chunk::0",
+          "knowledge_id": "chromadb_collections",
+          "distance": 1.588932,
+          "source_title": "Chroma Documentation - Collections",
+          "source_url": "https://docs.trychroma.com/docs/collections/manage-collections"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "review_validation_agent::chunk::0",
+          "knowledge_id": "review_validation_agent",
+          "distance": 1.61496721,
+          "source_title": "OpenAI Documentation - Evaluation Best Practices",
+          "source_url": "https://platform.openai.com/docs/guides/evaluation-best-practices"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "llm_judge_reliability::chunk::0",
+          "knowledge_id": "llm_judge_reliability",
+          "distance": 1.73372752,
+          "source_title": "OpenAI Cookbook - Evaluating Model Performance",
+          "source_url": "https://cookbook.openai.com/examples/evaluation/getting_started_with_openai_evals"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "prompt_evaluation::chunk::0",
+          "knowledge_id": "prompt_evaluation",
+          "distance": 1.80068398,
+          "source_title": "OpenAI Documentation - Evaluation best practices",
+          "source_url": "https://platform.openai.com/docs/guides/evals"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "evaluation_metrics::chunk::0",
+          "knowledge_id": "evaluation_metrics",
+          "distance": 1.82300712,
+          "source_title": "OpenAI Documentation - Evaluation Best Practices",
+          "source_url": "https://platform.openai.com/docs/guides/evaluation-best-practices"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "data_schema_design::chunk::0",
+          "knowledge_id": "data_schema_design",
+          "distance": 1.83168149,
+          "source_title": "SQLAlchemy Documentation - Declarative Table Configuration",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "prompt_output_format::chunk::0",
+          "knowledge_id": "prompt_output_format",
+          "distance": 1.84004265,
+          "source_title": "OpenAI Documentation - Structured Outputs",
+          "source_url": "https://platform.openai.com/docs/guides/structured-outputs"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "pydantic_schema_validation::chunk::0",
+          "knowledge_id": "pydantic_schema_validation",
+          "distance": 1.88608565,
+          "source_title": "Pydantic Documentation - Models and validators",
+          "source_url": "https://docs.pydantic.dev/latest/concepts/validators/"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "retrieval_reranking::chunk::0",
+          "knowledge_id": "retrieval_reranking",
+          "distance": 1.88663596,
+          "source_title": "OpenAI Cookbook - Search and reranking with embeddings",
+          "source_url": "https://cookbook.openai.com/examples/search_reranking_with_cross-encoders"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "fastapi_endpoint_design::chunk::0",
+          "knowledge_id": "fastapi_endpoint_design",
+          "distance": 1.89661701,
+          "source_title": "FastAPI Documentation - Bigger Applications",
+          "source_url": "https://fastapi.tiangolo.com/tutorial/bigger-applications/"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "vector_similarity::chunk::0",
+          "knowledge_id": "vector_similarity",
+          "distance": 1.89843266,
+          "source_title": "Chroma Documentation - Collections and distance metrics",
+          "source_url": "https://docs.trychroma.com/docs/collections/configure"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "metadata_filtering::chunk::0",
+          "knowledge_id": "metadata_filtering",
+          "distance": 1.90071109,
+          "source_title": "Chroma Documentation - Metadata filtering",
+          "source_url": "https://docs.trychroma.com/docs/querying-collections/metadata-filtering"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-020",
+      "query_text": "axios frontend",
+      "latency_ms": 1.753,
+      "gold_knowledge_ids": [
+        "frontend_api_client",
+        "sse_progress_events"
+      ],
+      "retrieved_knowledge_ids": [
+        "frontend_api_client",
+        "alembic_migrations",
+        "retrieval_reranking",
+        "automated_testing",
+        "prompt_injection_defense",
+        "knowledge_retrieval_agent",
+        "document_parsing",
+        "prompt_output_format",
+        "privacy_log_policy",
+        "sqlalchemy_modeling",
+        "openai_compatible_api",
+        "docker_containerization"
+      ],
+      "failures": [
+        "recall_at_12"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "frontend_api_client::chunk::0",
+          "knowledge_id": "frontend_api_client",
+          "distance": 1.75404052,
+          "source_title": "Axios Documentation - The Axios Instance",
+          "source_url": "https://axios-http.com/docs/instance"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "alembic_migrations::chunk::0",
+          "knowledge_id": "alembic_migrations",
+          "distance": 1.8612137,
+          "source_title": "Alembic Documentation - Tutorial",
+          "source_url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "retrieval_reranking::chunk::0",
+          "knowledge_id": "retrieval_reranking",
+          "distance": 1.88663596,
+          "source_title": "OpenAI Cookbook - Search and reranking with embeddings",
+          "source_url": "https://cookbook.openai.com/examples/search_reranking_with_cross-encoders"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "automated_testing::chunk::0",
+          "knowledge_id": "automated_testing",
+          "distance": 1.9125252,
+          "source_title": "pytest Documentation - Good Integration Practices",
+          "source_url": "https://docs.pytest.org/en/stable/explanation/goodpractices.html"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "prompt_injection_defense::chunk::0",
+          "knowledge_id": "prompt_injection_defense",
+          "distance": 1.93111634,
+          "source_title": "OWASP Cheat Sheet - LLM Prompt Injection Prevention",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "knowledge_retrieval_agent::chunk::1",
+          "knowledge_id": "knowledge_retrieval_agent",
+          "distance": 1.93160144,
+          "source_title": "OpenAI Documentation - Retrieval",
+          "source_url": "https://platform.openai.com/docs/guides/retrieval"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "document_parsing::chunk::0",
+          "knowledge_id": "document_parsing",
+          "distance": 1.9458668,
+          "source_title": "pypdf Documentation - Text extraction",
+          "source_url": "https://pypdf.readthedocs.io/en/stable/user/extract-text.html"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "prompt_output_format::chunk::0",
+          "knowledge_id": "prompt_output_format",
+          "distance": 1.94668088,
+          "source_title": "OpenAI Documentation - Structured Outputs",
+          "source_url": "https://platform.openai.com/docs/guides/structured-outputs"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "privacy_log_policy::chunk::0",
+          "knowledge_id": "privacy_log_policy",
+          "distance": 1.94911781,
+          "source_title": "OWASP Logging Cheat Sheet",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "sqlalchemy_modeling::chunk::0",
+          "knowledge_id": "sqlalchemy_modeling",
+          "distance": 1.95071858,
+          "source_title": "SQLAlchemy 2.0 Documentation - ORM Quick Start",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "openai_compatible_api::chunk::0",
+          "knowledge_id": "openai_compatible_api",
+          "distance": 1.95351351,
+          "source_title": "OpenAI API Reference",
+          "source_url": "https://developers.openai.com/api/reference/overview"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "docker_containerization::chunk::0",
+          "knowledge_id": "docker_containerization",
+          "distance": 1.9542491,
+          "source_title": "Docker Documentation - Build and Run Your Image",
+          "source_url": "https://docs.docker.com/get-started/introduction/build-and-push-first-image/"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-021",
+      "query_text": "langgraph stategraph",
+      "latency_ms": 1.51,
+      "gold_knowledge_ids": [
+        "agent_role_design",
+        "langgraph_stategraph",
+        "orchestrator_workflow"
+      ],
+      "retrieved_knowledge_ids": [
+        "langgraph_stategraph",
+        "prompt_output_format",
+        "sqlalchemy_modeling",
+        "frontend_api_client",
+        "frontend_vue_state",
+        "sse_progress_events",
+        "alembic_migrations",
+        "ai_app_dev_overview",
+        "data_schema_design",
+        "prompt_basic",
+        "agent_role_design",
+        "git_collaboration"
+      ],
+      "failures": [
+        "recall_at_12"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "langgraph_stategraph::chunk::0",
+          "knowledge_id": "langgraph_stategraph",
+          "distance": 1.53290063,
+          "source_title": "LangGraph Documentation - Graph API",
+          "source_url": "https://docs.langchain.com/oss/python/langgraph/graph-api"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "prompt_output_format::chunk::0",
+          "knowledge_id": "prompt_output_format",
+          "distance": 1.78672353,
+          "source_title": "OpenAI Documentation - Structured Outputs",
+          "source_url": "https://platform.openai.com/docs/guides/structured-outputs"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "sqlalchemy_modeling::chunk::0",
+          "knowledge_id": "sqlalchemy_modeling",
+          "distance": 1.95071858,
+          "source_title": "SQLAlchemy 2.0 Documentation - ORM Quick Start",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "frontend_api_client::chunk::0",
+          "knowledge_id": "frontend_api_client",
+          "distance": 1.9508081,
+          "source_title": "Axios Documentation - The Axios Instance",
+          "source_url": "https://axios-http.com/docs/instance"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "frontend_vue_state::chunk::0",
+          "knowledge_id": "frontend_vue_state",
+          "distance": 1.95133517,
+          "source_title": "Pinia Documentation - Core concepts",
+          "source_url": "https://pinia.vuejs.org/core-concepts/"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "sse_progress_events::chunk::0",
+          "knowledge_id": "sse_progress_events",
+          "distance": 1.95313215,
+          "source_title": "MDN Web Docs - Server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "alembic_migrations::chunk::0",
+          "knowledge_id": "alembic_migrations",
+          "distance": 1.9537379,
+          "source_title": "Alembic Documentation - Tutorial",
+          "source_url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "ai_app_dev_overview::chunk::0",
+          "knowledge_id": "ai_app_dev_overview",
+          "distance": 1.95607312,
+          "source_title": "NIST AI Risk Management Framework Playbook",
+          "source_url": "https://airc.nist.gov/AI_RMF_Knowledge_Base/Playbook"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "data_schema_design::chunk::0",
+          "knowledge_id": "data_schema_design",
+          "distance": 1.95792037,
+          "source_title": "SQLAlchemy Documentation - Declarative Table Configuration",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "prompt_basic::chunk::0",
+          "knowledge_id": "prompt_basic",
+          "distance": 2.0,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "agent_role_design::chunk::0",
+          "knowledge_id": "agent_role_design",
+          "distance": 2.0,
+          "source_title": "OpenAI Agents SDK - Agents",
+          "source_url": "https://openai.github.io/openai-agents-python/agents/"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "git_collaboration::chunk::0",
+          "knowledge_id": "git_collaboration",
+          "distance": 2.0,
+          "source_title": "Pro Git - Distributed Git and Contributing to a Project",
+          "source_url": "https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-022",
+      "query_text": "编排智能体工作流 orchestrator workflow",
+      "latency_ms": 1.958,
+      "gold_knowledge_ids": [
+        "langgraph_stategraph",
+        "orchestrator_workflow"
+      ],
+      "retrieved_knowledge_ids": [
+        "orchestrator_workflow",
+        "knowledge_retrieval_agent",
+        "agent_role_design",
+        "ai_app_dev_overview",
+        "mysql_indexing",
+        "langgraph_stategraph",
+        "function_calling_tools",
+        "llm_api_calling",
+        "data_schema_design",
+        "prompt_context_design",
+        "rag_chunking"
+      ],
+      "failures": [],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "orchestrator_workflow::chunk::0",
+          "knowledge_id": "orchestrator_workflow",
+          "distance": 1.37433868,
+          "source_title": "LangGraph Documentation - Workflows and Agents",
+          "source_url": "https://docs.langchain.com/oss/python/langgraph/workflows-agents"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "knowledge_retrieval_agent::chunk::0",
+          "knowledge_id": "knowledge_retrieval_agent",
+          "distance": 1.66640127,
+          "source_title": "OpenAI Documentation - Retrieval",
+          "source_url": "https://platform.openai.com/docs/guides/retrieval"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "agent_role_design::chunk::0",
+          "knowledge_id": "agent_role_design",
+          "distance": 1.77109164,
+          "source_title": "OpenAI Agents SDK - Agents",
+          "source_url": "https://openai.github.io/openai-agents-python/agents/"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "ai_app_dev_overview::chunk::0",
+          "knowledge_id": "ai_app_dev_overview",
+          "distance": 1.77308797,
+          "source_title": "NIST AI Risk Management Framework Playbook",
+          "source_url": "https://airc.nist.gov/AI_RMF_Knowledge_Base/Playbook"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "mysql_indexing::chunk::0",
+          "knowledge_id": "mysql_indexing",
+          "distance": 1.77313014,
+          "source_title": "MySQL 8.0 Reference Manual - Optimization and Indexes",
+          "source_url": "https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "langgraph_stategraph::chunk::0",
+          "knowledge_id": "langgraph_stategraph",
+          "distance": 1.77314765,
+          "source_title": "LangGraph Documentation - Graph API",
+          "source_url": "https://docs.langchain.com/oss/python/langgraph/graph-api"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "function_calling_tools::chunk::0",
+          "knowledge_id": "function_calling_tools",
+          "distance": 1.77471309,
+          "source_title": "OpenAI Documentation - Function calling",
+          "source_url": "https://platform.openai.com/docs/guides/function-calling"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "llm_api_calling::chunk::0",
+          "knowledge_id": "llm_api_calling",
+          "distance": 1.78993385,
+          "source_title": "OpenAI API Reference - Responses",
+          "source_url": "https://developers.openai.com/api/reference/resources/responses"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "data_schema_design::chunk::0",
+          "knowledge_id": "data_schema_design",
+          "distance": 1.79935102,
+          "source_title": "SQLAlchemy Documentation - Declarative Table Configuration",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "prompt_context_design::chunk::0",
+          "knowledge_id": "prompt_context_design",
+          "distance": 1.80558687,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "rag_chunking::chunk::1",
+          "knowledge_id": "rag_chunking",
+          "distance": 1.80745438,
+          "source_title": "OpenAI Cookbook - Embedding long inputs",
+          "source_url": "https://cookbook.openai.com/examples/embedding_long_inputs"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-023",
+      "query_text": "知识检索智能体 agent retrieval",
+      "latency_ms": 1.655,
+      "gold_knowledge_ids": [
+        "agent_role_design",
+        "knowledge_retrieval_agent",
+        "rag_pipeline_overview"
+      ],
+      "retrieved_knowledge_ids": [
+        "knowledge_retrieval_agent",
+        "content_generation_agent",
+        "metadata_filtering",
+        "token_context_budget",
+        "rag_pipeline_overview",
+        "rag_chunking",
+        "retrieval_reranking",
+        "agent_role_design",
+        "privacy_log_policy",
+        "vector_similarity",
+        "streaming_responses"
+      ],
+      "failures": [],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "knowledge_retrieval_agent::chunk::1",
+          "knowledge_id": "knowledge_retrieval_agent",
+          "distance": 1.31040461,
+          "source_title": "OpenAI Documentation - Retrieval",
+          "source_url": "https://platform.openai.com/docs/guides/retrieval"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "content_generation_agent::chunk::0",
+          "knowledge_id": "content_generation_agent",
+          "distance": 1.59015063,
+          "source_title": "OpenAI Documentation - Prompt Engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "metadata_filtering::chunk::0",
+          "knowledge_id": "metadata_filtering",
+          "distance": 1.66632253,
+          "source_title": "Chroma Documentation - Metadata filtering",
+          "source_url": "https://docs.trychroma.com/docs/querying-collections/metadata-filtering"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "token_context_budget::chunk::0",
+          "knowledge_id": "token_context_budget",
+          "distance": 1.66996276,
+          "source_title": "OpenAI Cookbook - How to count tokens with tiktoken",
+          "source_url": "https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "rag_pipeline_overview::chunk::0",
+          "knowledge_id": "rag_pipeline_overview",
+          "distance": 1.68244633,
+          "source_title": "OpenAI Cookbook - Question answering using embeddings",
+          "source_url": "https://cookbook.openai.com/examples/question_answering_using_embeddings"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "rag_chunking::chunk::1",
+          "knowledge_id": "rag_chunking",
+          "distance": 1.69466454,
+          "source_title": "OpenAI Cookbook - Embedding long inputs",
+          "source_url": "https://cookbook.openai.com/examples/embedding_long_inputs"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "retrieval_reranking::chunk::0",
+          "knowledge_id": "retrieval_reranking",
+          "distance": 1.71426547,
+          "source_title": "OpenAI Cookbook - Search and reranking with embeddings",
+          "source_url": "https://cookbook.openai.com/examples/search_reranking_with_cross-encoders"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "agent_role_design::chunk::0",
+          "knowledge_id": "agent_role_design",
+          "distance": 1.73938544,
+          "source_title": "OpenAI Agents SDK - Agents",
+          "source_url": "https://openai.github.io/openai-agents-python/agents/"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "privacy_log_policy::chunk::0",
+          "knowledge_id": "privacy_log_policy",
+          "distance": 1.74350248,
+          "source_title": "OWASP Logging Cheat Sheet",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "vector_similarity::chunk::0",
+          "knowledge_id": "vector_similarity",
+          "distance": 1.7653325,
+          "source_title": "Chroma Documentation - Collections and distance metrics",
+          "source_url": "https://docs.trychroma.com/docs/collections/configure"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "streaming_responses::chunk::0",
+          "knowledge_id": "streaming_responses",
+          "distance": 1.77472303,
+          "source_title": "MDN Web Docs - Using server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-024",
+      "query_text": "评审与校验智能体 agent review",
+      "latency_ms": 1.663,
+      "gold_knowledge_ids": [
+        "content_generation_agent",
+        "review_validation_agent"
+      ],
+      "retrieved_knowledge_ids": [
+        "review_validation_agent",
+        "content_generation_agent",
+        "knowledge_retrieval_agent",
+        "agent_role_design",
+        "pydantic_schema_validation",
+        "ai_app_dev_overview",
+        "prompt_evaluation",
+        "prompt_basic",
+        "langgraph_stategraph",
+        "retrieval_reranking",
+        "alembic_migrations"
+      ],
+      "failures": [],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "review_validation_agent::chunk::0",
+          "knowledge_id": "review_validation_agent",
+          "distance": 1.54101045,
+          "source_title": "OpenAI Documentation - Evaluation Best Practices",
+          "source_url": "https://platform.openai.com/docs/guides/evaluation-best-practices"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "content_generation_agent::chunk::0",
+          "knowledge_id": "content_generation_agent",
+          "distance": 1.6460325,
+          "source_title": "OpenAI Documentation - Prompt Engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "knowledge_retrieval_agent::chunk::1",
+          "knowledge_id": "knowledge_retrieval_agent",
+          "distance": 1.67385403,
+          "source_title": "OpenAI Documentation - Retrieval",
+          "source_url": "https://platform.openai.com/docs/guides/retrieval"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "agent_role_design::chunk::0",
+          "knowledge_id": "agent_role_design",
+          "distance": 1.68304996,
+          "source_title": "OpenAI Agents SDK - Agents",
+          "source_url": "https://openai.github.io/openai-agents-python/agents/"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "pydantic_schema_validation::chunk::0",
+          "knowledge_id": "pydantic_schema_validation",
+          "distance": 1.68314518,
+          "source_title": "Pydantic Documentation - Models and validators",
+          "source_url": "https://docs.pydantic.dev/latest/concepts/validators/"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "ai_app_dev_overview::chunk::0",
+          "knowledge_id": "ai_app_dev_overview",
+          "distance": 1.7556332,
+          "source_title": "NIST AI Risk Management Framework Playbook",
+          "source_url": "https://airc.nist.gov/AI_RMF_Knowledge_Base/Playbook"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "prompt_evaluation::chunk::0",
+          "knowledge_id": "prompt_evaluation",
+          "distance": 1.76239953,
+          "source_title": "OpenAI Documentation - Evaluation best practices",
+          "source_url": "https://platform.openai.com/docs/guides/evals"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "prompt_basic::chunk::0",
+          "knowledge_id": "prompt_basic",
+          "distance": 1.77688653,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "langgraph_stategraph::chunk::0",
+          "knowledge_id": "langgraph_stategraph",
+          "distance": 1.79377059,
+          "source_title": "LangGraph Documentation - Graph API",
+          "source_url": "https://docs.langchain.com/oss/python/langgraph/graph-api"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "retrieval_reranking::chunk::0",
+          "knowledge_id": "retrieval_reranking",
+          "distance": 1.79729164,
+          "source_title": "OpenAI Cookbook - Search and reranking with embeddings",
+          "source_url": "https://cookbook.openai.com/examples/search_reranking_with_cross-encoders"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "alembic_migrations::chunk::0",
+          "knowledge_id": "alembic_migrations",
+          "distance": 1.79779036,
+          "source_title": "Alembic Documentation - Tutorial",
+          "source_url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-025",
+      "query_text": "testing pytest quality",
+      "latency_ms": 1.646,
+      "gold_knowledge_ids": [
+        "automated_testing",
+        "evaluation_metrics"
+      ],
+      "retrieved_knowledge_ids": [
+        "automated_testing",
+        "sqlalchemy_modeling",
+        "prompt_injection_defense",
+        "prompt_output_format",
+        "vector_similarity",
+        "embedding_basics",
+        "streaming_responses",
+        "sse_progress_events",
+        "agent_role_design",
+        "llm_api_calling",
+        "orchestrator_workflow",
+        "data_schema_design"
+      ],
+      "failures": [
+        "recall_at_12"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "automated_testing::chunk::0",
+          "knowledge_id": "automated_testing",
+          "distance": 1.79672693,
+          "source_title": "pytest Documentation - Good Integration Practices",
+          "source_url": "https://docs.pytest.org/en/stable/explanation/goodpractices.html"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "sqlalchemy_modeling::chunk::0",
+          "knowledge_id": "sqlalchemy_modeling",
+          "distance": 1.84730711,
+          "source_title": "SQLAlchemy 2.0 Documentation - ORM Quick Start",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "prompt_injection_defense::chunk::1",
+          "knowledge_id": "prompt_injection_defense",
+          "distance": 1.91860431,
+          "source_title": "OWASP Cheat Sheet - LLM Prompt Injection Prevention",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "prompt_output_format::chunk::0",
+          "knowledge_id": "prompt_output_format",
+          "distance": 1.95869919,
+          "source_title": "OpenAI Documentation - Structured Outputs",
+          "source_url": "https://platform.openai.com/docs/guides/structured-outputs"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "vector_similarity::chunk::0",
+          "knowledge_id": "vector_similarity",
+          "distance": 1.96066314,
+          "source_title": "Chroma Documentation - Collections and distance metrics",
+          "source_url": "https://docs.trychroma.com/docs/collections/configure"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "embedding_basics::chunk::0",
+          "knowledge_id": "embedding_basics",
+          "distance": 1.96168695,
+          "source_title": "OpenAI Documentation - Embeddings",
+          "source_url": "https://platform.openai.com/docs/guides/embeddings"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "streaming_responses::chunk::0",
+          "knowledge_id": "streaming_responses",
+          "distance": 1.96223725,
+          "source_title": "MDN Web Docs - Using server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "sse_progress_events::chunk::0",
+          "knowledge_id": "sse_progress_events",
+          "distance": 1.96369632,
+          "source_title": "MDN Web Docs - Server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "agent_role_design::chunk::0",
+          "knowledge_id": "agent_role_design",
+          "distance": 1.96567503,
+          "source_title": "OpenAI Agents SDK - Agents",
+          "source_url": "https://openai.github.io/openai-agents-python/agents/"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "llm_api_calling::chunk::0",
+          "knowledge_id": "llm_api_calling",
+          "distance": 1.96587547,
+          "source_title": "OpenAI API Reference - Responses",
+          "source_url": "https://developers.openai.com/api/reference/resources/responses"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "orchestrator_workflow::chunk::0",
+          "knowledge_id": "orchestrator_workflow",
+          "distance": 1.96612115,
+          "source_title": "LangGraph Documentation - Workflows and Agents",
+          "source_url": "https://docs.langchain.com/oss/python/langgraph/workflows-agents"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "data_schema_design::chunk::0",
+          "knowledge_id": "data_schema_design",
+          "distance": 1.96740526,
+          "source_title": "SQLAlchemy Documentation - Declarative Table Configuration",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-026",
+      "query_text": "security secrets configuration",
+      "latency_ms": 1.675,
+      "gold_knowledge_ids": [
+        "http_rest_basics",
+        "secret_management"
+      ],
+      "retrieved_knowledge_ids": [
+        "sqlalchemy_modeling",
+        "data_schema_design",
+        "secret_management",
+        "mysql_indexing",
+        "python_async_concurrency",
+        "http_rest_basics",
+        "sse_progress_events",
+        "agent_role_design",
+        "orchestrator_workflow",
+        "prompt_injection_defense",
+        "fastapi_endpoint_design",
+        "git_collaboration"
+      ],
+      "failures": [],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "sqlalchemy_modeling::chunk::0",
+          "knowledge_id": "sqlalchemy_modeling",
+          "distance": 1.69461422,
+          "source_title": "SQLAlchemy 2.0 Documentation - ORM Quick Start",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "data_schema_design::chunk::0",
+          "knowledge_id": "data_schema_design",
+          "distance": 1.80443157,
+          "source_title": "SQLAlchemy Documentation - Declarative Table Configuration",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/declarative_tables.html"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "secret_management::chunk::0",
+          "knowledge_id": "secret_management",
+          "distance": 1.82472317,
+          "source_title": "OWASP Cheat Sheet - Secrets Management",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "mysql_indexing::chunk::0",
+          "knowledge_id": "mysql_indexing",
+          "distance": 1.85258308,
+          "source_title": "MySQL 8.0 Reference Manual - Optimization and Indexes",
+          "source_url": "https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "python_async_concurrency::chunk::0",
+          "knowledge_id": "python_async_concurrency",
+          "distance": 1.85802296,
+          "source_title": "Python 3 Documentation - asyncio",
+          "source_url": "https://docs.python.org/3/library/asyncio.html"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "http_rest_basics::chunk::0",
+          "knowledge_id": "http_rest_basics",
+          "distance": 1.9233739,
+          "source_title": "RFC 9110 - HTTP Semantics",
+          "source_url": "https://datatracker.ietf.org/doc/html/rfc9110"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "sse_progress_events::chunk::0",
+          "knowledge_id": "sse_progress_events",
+          "distance": 1.92739264,
+          "source_title": "MDN Web Docs - Server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "agent_role_design::chunk::0",
+          "knowledge_id": "agent_role_design",
+          "distance": 1.93135007,
+          "source_title": "OpenAI Agents SDK - Agents",
+          "source_url": "https://openai.github.io/openai-agents-python/agents/"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "orchestrator_workflow::chunk::0",
+          "knowledge_id": "orchestrator_workflow",
+          "distance": 1.93224231,
+          "source_title": "LangGraph Documentation - Workflows and Agents",
+          "source_url": "https://docs.langchain.com/oss/python/langgraph/workflows-agents"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "prompt_injection_defense::chunk::1",
+          "knowledge_id": "prompt_injection_defense",
+          "distance": 1.95930215,
+          "source_title": "OWASP Cheat Sheet - LLM Prompt Injection Prevention",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "fastapi_endpoint_design::chunk::0",
+          "knowledge_id": "fastapi_endpoint_design",
+          "distance": 1.95995994,
+          "source_title": "FastAPI Documentation - Bigger Applications",
+          "source_url": "https://fastapi.tiangolo.com/tutorial/bigger-applications/"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "git_collaboration::chunk::0",
+          "knowledge_id": "git_collaboration",
+          "distance": 1.96081443,
+          "source_title": "Pro Git - Distributed Git and Contributing to a Project",
+          "source_url": "https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-027",
+      "query_text": "security prompt-injection agents",
+      "latency_ms": 1.843,
+      "gold_knowledge_ids": [
+        "hallucination_guardrails",
+        "prompt_injection_defense"
+      ],
+      "retrieved_knowledge_ids": [
+        "prompt_injection_defense",
+        "automated_testing",
+        "sqlalchemy_modeling",
+        "content_generation_agent",
+        "git_collaboration",
+        "mysql_indexing",
+        "secret_management",
+        "prompt_output_format",
+        "prompt_evaluation",
+        "metadata_filtering",
+        "http_rest_basics"
+      ],
+      "failures": [
+        "recall_at_12"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "prompt_injection_defense::chunk::1",
+          "knowledge_id": "prompt_injection_defense",
+          "distance": 1.65604042,
+          "source_title": "OWASP Cheat Sheet - LLM Prompt Injection Prevention",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "automated_testing::chunk::0",
+          "knowledge_id": "automated_testing",
+          "distance": 1.8854686,
+          "source_title": "pytest Documentation - Good Integration Practices",
+          "source_url": "https://docs.pytest.org/en/stable/explanation/goodpractices.html"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "sqlalchemy_modeling::chunk::0",
+          "knowledge_id": "sqlalchemy_modeling",
+          "distance": 1.90321322,
+          "source_title": "SQLAlchemy 2.0 Documentation - ORM Quick Start",
+          "source_url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "content_generation_agent::chunk::0",
+          "knowledge_id": "content_generation_agent",
+          "distance": 1.91669077,
+          "source_title": "OpenAI Documentation - Prompt Engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "git_collaboration::chunk::0",
+          "knowledge_id": "git_collaboration",
+          "distance": 1.9337643,
+          "source_title": "Pro Git - Distributed Git and Contributing to a Project",
+          "source_url": "https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "mysql_indexing::chunk::0",
+          "knowledge_id": "mysql_indexing",
+          "distance": 1.93770498,
+          "source_title": "MySQL 8.0 Reference Manual - Optimization and Indexes",
+          "source_url": "https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "secret_management::chunk::0",
+          "knowledge_id": "secret_management",
+          "distance": 1.94074562,
+          "source_title": "OWASP Cheat Sheet - Secrets Management",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "prompt_output_format::chunk::0",
+          "knowledge_id": "prompt_output_format",
+          "distance": 1.96509444,
+          "source_title": "OpenAI Documentation - Structured Outputs",
+          "source_url": "https://platform.openai.com/docs/guides/structured-outputs"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "prompt_evaluation::chunk::0",
+          "knowledge_id": "prompt_evaluation",
+          "distance": 1.96737926,
+          "source_title": "OpenAI Documentation - Evaluation best practices",
+          "source_url": "https://platform.openai.com/docs/guides/evals"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "metadata_filtering::chunk::0",
+          "knowledge_id": "metadata_filtering",
+          "distance": 1.96750008,
+          "source_title": "Chroma Documentation - Metadata filtering",
+          "source_url": "https://docs.trychroma.com/docs/querying-collections/metadata-filtering"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "http_rest_basics::chunk::0",
+          "knowledge_id": "http_rest_basics",
+          "distance": 1.96761956,
+          "source_title": "RFC 9110 - HTTP Semantics",
+          "source_url": "https://datatracker.ietf.org/doc/html/rfc9110"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-028",
+      "query_text": "模型 API 限流、重试与故障处理 api retry resilience",
+      "latency_ms": 2.584,
+      "gold_knowledge_ids": [
+        "api_resilience_retry",
+        "llm_api_calling",
+        "python_async_concurrency"
+      ],
+      "retrieved_knowledge_ids": [
+        "api_resilience_retry",
+        "llm_api_calling",
+        "structured_output_validation",
+        "embedding_basics",
+        "pydantic_schema_validation",
+        "privacy_log_policy",
+        "python_api_basics",
+        "python_async_concurrency",
+        "automated_testing",
+        "function_calling_tools",
+        "fastapi_endpoint_design",
+        "retrieval_reranking"
+      ],
+      "failures": [],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "api_resilience_retry::chunk::0",
+          "knowledge_id": "api_resilience_retry",
+          "distance": 1.34720319,
+          "source_title": "OpenAI Cookbook - How to Handle Rate Limits",
+          "source_url": "https://cookbook.openai.com/examples/how_to_handle_rate_limits"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "llm_api_calling::chunk::0",
+          "knowledge_id": "llm_api_calling",
+          "distance": 1.67108626,
+          "source_title": "OpenAI API Reference - Responses",
+          "source_url": "https://developers.openai.com/api/reference/resources/responses"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "structured_output_validation::chunk::0",
+          "knowledge_id": "structured_output_validation",
+          "distance": 1.67577188,
+          "source_title": "Pydantic Documentation - Models",
+          "source_url": "https://docs.pydantic.dev/latest/concepts/models/"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "embedding_basics::chunk::0",
+          "knowledge_id": "embedding_basics",
+          "distance": 1.70764906,
+          "source_title": "OpenAI Documentation - Embeddings",
+          "source_url": "https://platform.openai.com/docs/guides/embeddings"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "pydantic_schema_validation::chunk::0",
+          "knowledge_id": "pydantic_schema_validation",
+          "distance": 1.73422171,
+          "source_title": "Pydantic Documentation - Models and validators",
+          "source_url": "https://docs.pydantic.dev/latest/concepts/validators/"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "privacy_log_policy::chunk::0",
+          "knowledge_id": "privacy_log_policy",
+          "distance": 1.76256934,
+          "source_title": "OWASP Logging Cheat Sheet",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "python_api_basics::chunk::0",
+          "knowledge_id": "python_api_basics",
+          "distance": 1.77474282,
+          "source_title": "Python 3 Documentation - urllib.request",
+          "source_url": "https://docs.python.org/3/library/urllib.request.html"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "python_async_concurrency::chunk::0",
+          "knowledge_id": "python_async_concurrency",
+          "distance": 1.80043227,
+          "source_title": "Python 3 Documentation - asyncio",
+          "source_url": "https://docs.python.org/3/library/asyncio.html"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "automated_testing::chunk::0",
+          "knowledge_id": "automated_testing",
+          "distance": 1.80951499,
+          "source_title": "pytest Documentation - Good Integration Practices",
+          "source_url": "https://docs.pytest.org/en/stable/explanation/goodpractices.html"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "function_calling_tools::chunk::0",
+          "knowledge_id": "function_calling_tools",
+          "distance": 1.83622514,
+          "source_title": "OpenAI Documentation - Function calling",
+          "source_url": "https://platform.openai.com/docs/guides/function-calling"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "fastapi_endpoint_design::chunk::0",
+          "knowledge_id": "fastapi_endpoint_design",
+          "distance": 1.83919525,
+          "source_title": "FastAPI Documentation - Bigger Applications",
+          "source_url": "https://fastapi.tiangolo.com/tutorial/bigger-applications/"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "retrieval_reranking::chunk::0",
+          "knowledge_id": "retrieval_reranking",
+          "distance": 1.8413034,
+          "source_title": "OpenAI Cookbook - Search and reranking with embeddings",
+          "source_url": "https://cookbook.openai.com/examples/search_reranking_with_cross-encoders"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-029",
+      "query_text": "隐私与日志策略 privacy logging",
+      "latency_ms": 1.831,
+      "gold_knowledge_ids": [
+        "data_schema_design",
+        "privacy_log_policy"
+      ],
+      "retrieved_knowledge_ids": [
+        "privacy_log_policy",
+        "observability_tracing",
+        "rag_chunking",
+        "llm_api_calling",
+        "pydantic_schema_validation",
+        "vector_similarity",
+        "secret_management",
+        "ai_app_dev_overview",
+        "embedding_basics",
+        "streaming_responses",
+        "prompt_basic"
+      ],
+      "failures": [
+        "recall_at_12",
+        "discovered_prerequisite"
+      ],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "privacy_log_policy::chunk::0",
+          "knowledge_id": "privacy_log_policy",
+          "distance": 1.31600662,
+          "source_title": "OWASP Logging Cheat Sheet",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "observability_tracing::chunk::0",
+          "knowledge_id": "observability_tracing",
+          "distance": 1.76056202,
+          "source_title": "OpenTelemetry Documentation - Observability Primer",
+          "source_url": "https://opentelemetry.io/docs/concepts/observability-primer/"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "rag_chunking::chunk::0",
+          "knowledge_id": "rag_chunking",
+          "distance": 1.76379979,
+          "source_title": "OpenAI Cookbook - Embedding long inputs",
+          "source_url": "https://cookbook.openai.com/examples/embedding_long_inputs"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "llm_api_calling::chunk::0",
+          "knowledge_id": "llm_api_calling",
+          "distance": 1.79642715,
+          "source_title": "OpenAI API Reference - Responses",
+          "source_url": "https://developers.openai.com/api/reference/resources/responses"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "pydantic_schema_validation::chunk::0",
+          "knowledge_id": "pydantic_schema_validation",
+          "distance": 1.8085856,
+          "source_title": "Pydantic Documentation - Models and validators",
+          "source_url": "https://docs.pydantic.dev/latest/concepts/validators/"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "vector_similarity::chunk::0",
+          "knowledge_id": "vector_similarity",
+          "distance": 1.82933273,
+          "source_title": "Chroma Documentation - Collections and distance metrics",
+          "source_url": "https://docs.trychroma.com/docs/collections/configure"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "secret_management::chunk::0",
+          "knowledge_id": "secret_management",
+          "distance": 1.84790847,
+          "source_title": "OWASP Cheat Sheet - Secrets Management",
+          "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "ai_app_dev_overview::chunk::0",
+          "knowledge_id": "ai_app_dev_overview",
+          "distance": 1.85237616,
+          "source_title": "NIST AI Risk Management Framework Playbook",
+          "source_url": "https://airc.nist.gov/AI_RMF_Knowledge_Base/Playbook"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "embedding_basics::chunk::0",
+          "knowledge_id": "embedding_basics",
+          "distance": 1.85455281,
+          "source_title": "OpenAI Documentation - Embeddings",
+          "source_url": "https://platform.openai.com/docs/guides/embeddings"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "streaming_responses::chunk::0",
+          "knowledge_id": "streaming_responses",
+          "distance": 1.85664193,
+          "source_title": "MDN Web Docs - Using server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "prompt_basic::chunk::0",
+          "knowledge_id": "prompt_basic",
+          "distance": 1.86240745,
+          "source_title": "OpenAI Documentation - Prompt engineering",
+          "source_url": "https://platform.openai.com/docs/guides/prompt-engineering"
+        }
+      ]
+    },
+    {
+      "case_id": "RAG-DEV-030",
+      "query_text": "sse progress",
+      "latency_ms": 1.57,
+      "gold_knowledge_ids": [
+        "sse_progress_events"
+      ],
+      "retrieved_knowledge_ids": [
+        "sse_progress_events",
+        "python_async_concurrency",
+        "document_parsing",
+        "function_calling_tools",
+        "fastapi_endpoint_design",
+        "chromadb_collections",
+        "token_context_budget",
+        "frontend_vue_state",
+        "alembic_migrations",
+        "agent_role_design",
+        "evaluation_metrics",
+        "llm_api_calling"
+      ],
+      "failures": [],
+      "top_12": [
+        {
+          "rank": 1,
+          "chunk_id": "sse_progress_events::chunk::0",
+          "knowledge_id": "sse_progress_events",
+          "distance": 1.71879291,
+          "source_title": "MDN Web Docs - Server-sent events",
+          "source_url": "https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events"
+        },
+        {
+          "rank": 2,
+          "chunk_id": "python_async_concurrency::chunk::0",
+          "knowledge_id": "python_async_concurrency",
+          "distance": 1.81670843,
+          "source_title": "Python 3 Documentation - asyncio",
+          "source_url": "https://docs.python.org/3/library/asyncio.html"
+        },
+        {
+          "rank": 3,
+          "chunk_id": "document_parsing::chunk::0",
+          "knowledge_id": "document_parsing",
+          "distance": 1.83760041,
+          "source_title": "pypdf Documentation - Text extraction",
+          "source_url": "https://pypdf.readthedocs.io/en/stable/user/extract-text.html"
+        },
+        {
+          "rank": 4,
+          "chunk_id": "function_calling_tools::chunk::0",
+          "knowledge_id": "function_calling_tools",
+          "distance": 1.83801154,
+          "source_title": "OpenAI Documentation - Function calling",
+          "source_url": "https://platform.openai.com/docs/guides/function-calling"
+        },
+        {
+          "rank": 5,
+          "chunk_id": "fastapi_endpoint_design::chunk::0",
+          "knowledge_id": "fastapi_endpoint_design",
+          "distance": 1.89661701,
+          "source_title": "FastAPI Documentation - Bigger Applications",
+          "source_url": "https://fastapi.tiangolo.com/tutorial/bigger-applications/"
+        },
+        {
+          "rank": 6,
+          "chunk_id": "chromadb_collections::chunk::0",
+          "knowledge_id": "chromadb_collections",
+          "distance": 1.897233,
+          "source_title": "Chroma Documentation - Collections",
+          "source_url": "https://docs.trychroma.com/docs/collections/manage-collections"
+        },
+        {
+          "rank": 7,
+          "chunk_id": "token_context_budget::chunk::0",
+          "knowledge_id": "token_context_budget",
+          "distance": 1.90179428,
+          "source_title": "OpenAI Cookbook - How to count tokens with tiktoken",
+          "source_url": "https://cookbook.openai.com/examples/how_to_count_tokens_with_tiktoken"
+        },
+        {
+          "rank": 8,
+          "chunk_id": "frontend_vue_state::chunk::0",
+          "knowledge_id": "frontend_vue_state",
+          "distance": 1.90267035,
+          "source_title": "Pinia Documentation - Core concepts",
+          "source_url": "https://pinia.vuejs.org/core-concepts/"
+        },
+        {
+          "rank": 9,
+          "chunk_id": "alembic_migrations::chunk::0",
+          "knowledge_id": "alembic_migrations",
+          "distance": 1.9074758,
+          "source_title": "Alembic Documentation - Tutorial",
+          "source_url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html"
+        },
+        {
+          "rank": 10,
+          "chunk_id": "agent_role_design::chunk::0",
+          "knowledge_id": "agent_role_design",
+          "distance": 1.91137332,
+          "source_title": "OpenAI Agents SDK - Agents",
+          "source_url": "https://openai.github.io/openai-agents-python/agents/"
+        },
+        {
+          "rank": 11,
+          "chunk_id": "evaluation_metrics::chunk::0",
+          "knowledge_id": "evaluation_metrics",
+          "distance": 1.91150356,
+          "source_title": "OpenAI Documentation - Evaluation Best Practices",
+          "source_url": "https://platform.openai.com/docs/guides/evaluation-best-practices"
+        },
+        {
+          "rank": 12,
+          "chunk_id": "llm_api_calling::chunk::0",
+          "knowledge_id": "llm_api_calling",
+          "distance": 1.91189085,
+          "source_title": "OpenAI API Reference - Responses",
+          "source_url": "https://developers.openai.com/api/reference/resources/responses"
+        }
+      ]
+    }
+  ],
+  "evaluated_at": "2026-07-23T07:05:29.082560+00:00"
+}

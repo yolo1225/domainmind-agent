@@ -52,6 +52,7 @@ services:
       - ./backend:/app/backend
       - ./data:/app/data
       - ./storage:/app/storage
+      - candidate_index_state:/app/storage/candidate-index
       - ./reports:/app/reports
     depends_on:
       mysql:
@@ -90,3 +91,4 @@ volumes:
   mysql_data:
   chroma_data:
   frontend_node_modules:
+  candidate_index_state:

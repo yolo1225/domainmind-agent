@@ -71,7 +71,20 @@ curl "http://localhost:8000/api/v1/knowledge/search?query=RAG文档切片&n_resu
 docker compose up -d
 ```
 
-## 真实评测与演示验收
+## V2 Candidate 索引真实验收
+
+候选索引与 V1/mock collection 隔离。以下命令会调用真实 embedding 服务并产生费用；仅在
+已填写模型配置、Docker 服务已启动时执行：
+
+```powershell
+docker compose exec backend python -m app.scripts.check_embedding_provider --live --json
+docker compose exec backend python -m app.scripts.build_chroma_candidate_index --domain-code ai_app_dev --reset --live --json
+docker compose exec -e RUN_LIVE_EMBEDDING_TESTS=true backend python -m pytest tests/integration -m live -q
+```
+
+重建成功后，检查容器内 `/app/storage/candidate-index/ai_app_dev/manifest.json`：其领域、模型名、
+实际向量维度、`cosine` 距离、chunker 版本、数据版本和 active collection 必须一致。此流程不会修改 V1 collection。
+
 
 真实评测必须按顺序执行，避免直接进行高成本的 50 案例调用：
 
@@ -114,3 +127,18 @@ npm run dev
 - 50 个 JSON 金标准案例、baseline/live 报告和任务/Agent P50/P95
 
 当前仓库没有真实模型密钥，因此只完成了代码和自动化验证；真实 6/15/50 案例及七分支运行需在填写 `.env` 后执行。
+
+## V2 检索算法验收
+
+V2 检索智能体与 V1 演示链路并行存在。它只读取 candidate manifest 指向的 active collection，
+不会读取、修改或替换 `knowledge_ai_app_dev` 的 V1/mock 索引。V2 评测会调用真实 embedding，必须显式
+传入 `--live`；请先完成 candidate 索引验收。
+
+```powershell
+docker compose exec backend python -m pytest tests/unit/test_v2_retrieval.py -q
+docker compose exec -e RUN_LIVE_EMBEDDING_TESTS=true backend python -m pytest tests/integration/test_v2_retrieval_live.py -m live -q
+docker compose exec backend python -m app.scripts.evaluate_rag --engine v2-candidate --mode full --split development --live --json
+```
+
+JSON 报告会记录 embedding 模型、candidate `index_version`、检索路径、来源完整性、P50/P95 与失败 case ID。
+开发集可用于阶段四调参；冻结 acceptance 集只在算法版本冻结后运行，不能用于逐例调参。
