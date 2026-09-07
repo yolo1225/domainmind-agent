@@ -277,7 +277,7 @@ def serialize_document(document: KnowledgeDocument) -> dict[str, object]:
         "source_title": document.source_title,
         "license_note": document.license_note,
         "uploaded_by": document.uploaded_by,
-        "is_system": document.file_type == "seed_package",
+        "is_system": document.file_type in {"seed_package", "submission_fixture"},
         "indexed_at": document.indexed_at.isoformat() if document.indexed_at else None,
         "created_at": document.created_at.isoformat() if document.created_at else None,
     }

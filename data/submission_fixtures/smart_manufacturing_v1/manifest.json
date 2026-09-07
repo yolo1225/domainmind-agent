@@ -8,6 +8,12 @@
     "knowledge_catalog_fingerprint": "sha256:83969cdc879536b399aa1fef27bb7c3fce32ab8a89ec9d377d532b835b8616f7",
     "question_inventory_fingerprint": "sha256:90b20c84148983e90acf1681610a103046b7d7e447bff3db54329cbfb2f39dcf"
   },
+  "manual_import_assets": {
+    "knowledge_package": "import_source/01-smart-manufacturing-complete.md",
+    "question_workbook": "import_source/smart_manufacturing-question-bank-filled.xlsx",
+    "knowledge_catalog_fingerprint": "sha256:00581fbbf84b60e7e2796a4b2c9c8f76227525bc934831ebef5c2343e1df71d1",
+    "question_inventory_fingerprint": "sha256:5a922bf620e87aaf9a9b6b716431014fdc76fd885c2a1898bc2945aa917e2f2b"
+  },
   "counts": {
     "knowledge_items": 67,
     "knowledge_relations": 49,
@@ -57,6 +63,9 @@
     "import_source/01-smart-manufacturing-complete.md": {
       "sha256": "7aeb2bc43ba65cf32eb454af3ed320e96773a34c83327e529ed46468f4fdc8b6"
     },
+    "import_source/smart_manufacturing-question-bank-filled.xlsx": {
+      "sha256": "50437aadf595b72cfccbbcfdece57cefe5d56560ed682493e13d6b79b9b66d45"
+    },
     "source_assets/01-smart-manufacturing-complete.md": {
       "sha256": "7e1ea33aa3a6f02ffd15d041beb0bb3725d8f22bebbf56d3c6cb572139c1c289"
     },
@@ -64,7 +73,7 @@
       "sha256": "69dc1305d6e061a6b6f94e95084a00654531b84235d2673d37334e4287fb32ff"
     },
     "README.md": {
-      "sha256": "9408ad7c69e83011f2b617bf329b7e51fc1abf7b9280b3c4acd2b75c2042302d"
+      "sha256": "194e56a76e49ad03a684c5f8978b274a0fdc437b19768e9c7064084128468640"
     }
   },
   "import_source": {

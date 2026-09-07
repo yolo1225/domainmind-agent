@@ -90,8 +90,10 @@ def get_row(db: Session) -> ModelConfig | None:
 def _apply(config: dict[str, Any], api_key_value: str | None, *, clear_key: bool = False) -> None:
     """Apply overrides to the runtime settings singleton (read at call time)."""
     for key in EDITABLE_KEYS:
-        if key in config:
-            setattr(settings, key, config[key] or None)
+        value = _strip(config.get(key))
+        # An empty database field means "use the .env fallback", not "erase it".
+        if value:
+            setattr(settings, key, value)
     if clear_key:
         settings.openai_api_key = None
     elif api_key_value:
@@ -152,16 +154,8 @@ def save_config(
         row.api_key_encrypted = encrypt_api_key(openai_api_key.strip())
     db.commit()
 
-    for key in EDITABLE_KEYS:
-        setattr(settings, key, config[key] or None)
-    if clear_openai_api_key:
-        settings.openai_api_key = None
-    elif openai_api_key and openai_api_key.strip():
-        settings.openai_api_key = openai_api_key.strip()
-    elif row.api_key_encrypted:
-        decrypted = decrypt_api_key(row.api_key_encrypted)
-        if decrypted:
-            settings.openai_api_key = decrypted
+    decrypted = decrypt_api_key(row.api_key_encrypted) if row.api_key_encrypted else None
+    _apply(config, decrypted, clear_key=clear_openai_api_key)
 
 
 def effective_config() -> dict[str, Any]:

@@ -96,7 +96,7 @@ def _validate_ai_app_dev_baseline(summary: dict[str, Any]) -> None:
         "mastery_validation": 150,
     }:
         raise SubmissionFixtureError("fixture_ai_app_dev_purpose_counts_invalid")
-    if _expected_relation_counts(counts) != Counter({"prerequisite": 67, "related": 14}):
+    if _expected_relation_counts(counts) != Counter({"prerequisite": 92, "related": 14}):
         raise SubmissionFixtureError("fixture_ai_app_dev_relation_counts_invalid")
     if counts.get("evaluation_cases") != 50 or counts.get("manual_demo_cases") != 3:
         raise SubmissionFixtureError("fixture_ai_app_dev_demo_counts_invalid")
@@ -144,28 +144,29 @@ def _validate_learner_profiles(
     return payload
 
 
-def _validate_smart_manufacturing_source_assets(
+def _validate_smart_manufacturing_question_assets(
     root: Path,
     manifest: dict[str, Any],
     *,
     expected_knowledge: int,
+    key: str,
 ) -> None:
-    """Check the submitted XLSX metadata as well as its manifest hash."""
-    assets = manifest.get("source_assets")
+    """Check each submitted smart-manufacturing Markdown/XLSX pairing."""
+    assets = manifest.get(key)
     if not isinstance(assets, dict):
-        raise SubmissionFixtureError("fixture_source_assets_manifest_invalid")
+        raise SubmissionFixtureError(f"fixture_{key}_manifest_invalid")
     knowledge_path = root / str(assets.get("knowledge_package") or "")
     workbook_path = root / str(assets.get("question_workbook") or "")
     if not knowledge_path.is_file() or not workbook_path.is_file():
-        raise SubmissionFixtureError("fixture_source_assets_missing")
+        raise SubmissionFixtureError(f"fixture_{key}_missing")
     if len(re.findall(r"^## ", knowledge_path.read_text(encoding="utf-8"), flags=re.MULTILINE)) != expected_knowledge:
-        raise SubmissionFixtureError("fixture_source_knowledge_count_invalid")
+        raise SubmissionFixtureError(f"fixture_{key}_knowledge_count_invalid")
     from openpyxl import load_workbook
 
     workbook = load_workbook(workbook_path, read_only=True, data_only=True)
     try:
         if "元数据" not in workbook.sheetnames:
-            raise SubmissionFixtureError("fixture_source_workbook_metadata_missing")
+            raise SubmissionFixtureError(f"fixture_{key}_workbook_metadata_missing")
         metadata = {
             str(key): str(value)
             for key, value in workbook["元数据"].iter_rows(min_row=1, max_col=2, values_only=True)
@@ -178,7 +179,7 @@ def _validate_smart_manufacturing_source_assets(
         or metadata.get("knowledge_catalog_fingerprint") != assets.get("knowledge_catalog_fingerprint")
         or metadata.get("question_inventory_fingerprint") != assets.get("question_inventory_fingerprint")
     ):
-        raise SubmissionFixtureError("fixture_source_workbook_fingerprint_invalid")
+        raise SubmissionFixtureError(f"fixture_{key}_workbook_fingerprint_invalid")
 
 
 def validate_submission_fixture(fixture_dir: Path | str | None = None) -> dict[str, Any]:
@@ -240,9 +241,10 @@ def validate_submission_fixture(fixture_dir: Path | str | None = None) -> dict[s
     ):
         raise SubmissionFixtureError("fixture_knowledge_count_or_identity_invalid")
     if domain_code == "smart_manufacturing":
-        _validate_smart_manufacturing_source_assets(
-            root, manifest, expected_knowledge=expected_knowledge
-        )
+        for asset_key in ("source_assets", "manual_import_assets"):
+            _validate_smart_manufacturing_question_assets(
+                root, manifest, expected_knowledge=expected_knowledge, key=asset_key
+            )
     knowledge_id_set = set(knowledge_ids)
     relation_counts: Counter[str] = Counter()
     relation_keys: set[tuple[str, str, str]] = set()

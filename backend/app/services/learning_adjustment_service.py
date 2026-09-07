@@ -1181,9 +1181,22 @@ def decide_proposal_resource(
     learner = db.get(Learner, proposal.learner_id) if proposal else None
     if proposal is None or learner is None or learner.public_id != learner_public_id:
         raise ValueError("learning_adjustment_proposal_not_found")
+    if decision not in {"generate", "skip"}:
+        raise ValueError("invalid_resource_decision")
+
+    # A learner may dismiss an already-shown recommendation even if the path
+    # has since advanced. Staleness only prevents creating a new resource.
+    if decision == "skip":
+        if proposal.status == "resource_skipped":
+            return {"proposal_id": proposal.public_id, "decision": "skip", "task_id": None}, None
+        if proposal.status in {"resource_pending", "resource_started", "stale"}:
+            proposal.status = "resource_skipped"
+            proposal.resource_decision = "skip"
+            db.commit()
+            return {"proposal_id": proposal.public_id, "decision": "skip", "task_id": None}, None
+        raise ValueError("learning_adjustment_proposal_stale")
+
     existing = db.get(GenerationTask, proposal.generation_task_id) if proposal.generation_task_id else None
-    if proposal.status == "resource_skipped":
-        return {"proposal_id": proposal.public_id, "decision": "skip", "task_id": None}, None
     if proposal.status not in {"resource_pending", "resource_started"}:
         raise ValueError("learning_adjustment_proposal_stale")
     recommendation = proposal.resource_recommendation_json or {}
@@ -1197,13 +1210,6 @@ def decide_proposal_resource(
         proposal.status = "stale"
         db.commit()
         raise ValueError("learning_adjustment_proposal_stale")
-    if decision == "skip":
-        proposal.status = "resource_skipped"
-        proposal.resource_decision = "skip"
-        db.commit()
-        return {"proposal_id": proposal.public_id, "decision": "skip", "task_id": None}, None
-    if decision != "generate":
-        raise ValueError("invalid_resource_decision")
     resource_types = list(recommendation.get("resource_types") or [])
     is_node_advancement = decision_type == "next_stage" or recommendation.get("mode") == "next_node"
     if is_node_advancement and set(resource_types) != NODE_ADVANCEMENT_RESOURCE_TYPES:

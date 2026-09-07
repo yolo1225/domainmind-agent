@@ -24,7 +24,9 @@
 .\start.bat
 ```
 
-启动只执行迁移、管理员初始化和种子导入。未配置真实模型或 candidate index 时，服务、诊断和知识管理仍可用，但资源生成会返回 `CANDIDATE_RAG_NOT_READY`，不会回退到 mock 索引。
+`start.bat` 在空 Docker 卷中执行迁移、管理员初始化，并加载提交夹具 `ai_app_dev_submission_fixture_v1`：75 条知识点、106 条关系和 465 道活动题。若数据库已有普通开发种子或其他领域数据，启动会安全失败而不是混合基线；此时应清空 Docker 卷后再启动。
+
+未配置真实模型或 Candidate index 时，服务、诊断和知识管理仍可用，但资源生成会返回 `CANDIDATE_RAG_NOT_READY`，不会回退到 mock 索引。开发环境如需使用较小的默认种子，可显式运行 `./scripts/demo.ps1 start`。
 
 配置 `OPENAI_API_BASE`、`OPENAI_API_KEY`、三个审核/生成模型及 `EMBEDDING_MODEL` 后，显式构建真实索引：
 

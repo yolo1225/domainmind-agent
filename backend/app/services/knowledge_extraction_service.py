@@ -39,7 +39,11 @@ def replace_candidates(
     knowledge_ids: list[str] = []
     external_to_candidate: dict[str, str] = {}
     for index, section in enumerate(sections, start=1):
-        heading = normalize_knowledge_name(" / ".join(section["heading_path"]))
+        # The complete heading path remains in source_locator_json for
+        # traceability. A knowledge item's display name is its own leaf
+        # heading, so a document title never leaks into every node label.
+        heading_path = list(section["heading_path"])
+        heading = normalize_knowledge_name(str(heading_path[-1]))
         metadata = dict(section.get("metadata") or {})
         external_id = str(metadata.get("knowledge_id") or "").strip() or None
         public_id = _candidate_id(document.public_id, "knowledge_item", section["checksum"])

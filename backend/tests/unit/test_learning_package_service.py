@@ -34,7 +34,10 @@ from app.services.learning_package_service import (
     package_member_rows,
     serialize_package,
 )
-from app.services.learning_adjustment_service import pending_resource_proposals
+from app.services.learning_adjustment_service import (
+    decide_proposal_resource,
+    pending_resource_proposals,
+)
 from app.services.node_mastery_service import affected_resource_types
 
 
@@ -115,6 +118,68 @@ def _package_fixture(
     ensure_package_members(db, source_task)
     db.flush()
     return learner, profile, source_task, resources
+
+
+def test_stale_resource_proposal_can_still_be_skipped() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    Base.metadata.create_all(engine)
+    Session = sessionmaker(bind=engine)
+    with Session() as db:
+        learner, profile, _task, resources = _package_fixture(db, ("lecture",))
+        path = LearningPath(
+            public_id="path_stale_proposal",
+            learner_id=learner.id,
+            profile_id=profile.id,
+            domain_code="ai_app_dev",
+            status="active",
+            path_json={"current_node_id": "unit:current", "node_states": {}},
+        )
+        db.add(path)
+        db.flush()
+        session = TutoringSession(
+            public_id="tutoring_stale_proposal",
+            learner_id=learner.id,
+            resource_id=resources["lecture"].id,
+        )
+        db.add(session)
+        db.flush()
+        proposal = LearningAdjustmentProposal(
+            public_id="adjustment_stale_proposal",
+            learner_id=learner.id,
+            profile_id=profile.id,
+            learning_path_id=path.id,
+            resulting_profile_id=profile.id,
+            resulting_learning_path_id=path.id,
+            path_node_id="unit:previous",
+            tutoring_session_id=session.id,
+            source_resource_id=resources["lecture"].id,
+            hypothesis_type="mastery_up",
+            status="stale",
+            resource_recommendation_json={
+                "path_node_id": "unit:previous",
+                "resource_types": ["graded_quiz"],
+                "decision_type": "challenge",
+            },
+        )
+        db.add(proposal)
+        db.commit()
+
+        result, task = decide_proposal_resource(
+            db,
+            proposal_id=proposal.public_id,
+            learner_public_id=learner.public_id,
+            decision="skip",
+        )
+
+        db.refresh(proposal)
+        assert result == {
+            "proposal_id": "adjustment_stale_proposal",
+            "decision": "skip",
+            "task_id": None,
+        }
+        assert task is None
+        assert proposal.status == "resource_skipped"
+        assert proposal.resource_decision == "skip"
 
 
 def test_feedback_refresh_preserves_single_resource_package_scope() -> None:

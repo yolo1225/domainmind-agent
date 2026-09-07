@@ -45,8 +45,8 @@ def test_production_retrieval_reads_the_database_active_manifest(monkeypatch: py
     monkeypatch.setattr(retrieval_agent, "VectorStore", lambda: SimpleNamespace(client=object()))
     monkeypatch.setattr(
         retrieval_agent,
-        "Settings",
-        lambda: SimpleNamespace(
+        "settings",
+        SimpleNamespace(
             openai_api_base="https://example.com/v1",
             openai_api_key="test-key",
             embedding_model="test-embedding",

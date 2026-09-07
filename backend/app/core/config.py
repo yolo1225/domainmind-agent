@@ -63,7 +63,7 @@ class Settings(BaseSettings):
     allow_fixture_llm: bool = False
     enable_evaluation_overrides: bool = False
     enable_evaluation_runner: bool = False
-    enable_knowledge_import_models: bool = False
+    enable_knowledge_import_models: bool = True
     knowledge_import_model_concurrency: int = 4
     knowledge_import_generation_concurrency: int = 4
     knowledge_import_review_concurrency: int = 3

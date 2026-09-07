@@ -52,6 +52,7 @@ from app.models import (
 )
 from app.services.generation_service import persist_generated_resources
 from app.services.learning_path_service import normalize_learning_path
+from app.services.model_config_service import reload_from_db
 from app.services.profile_revision_service import persist_profile_revision
 from app.services.contract_mapping import profile_snapshot
 from app.services.node_generation_target_service import generation_basis_for_task
@@ -1025,6 +1026,9 @@ def recover_interrupted_generation_tasks() -> list[str]:
 
 
 def run_generation_task(task_id: str) -> dict[str, Any]:
+    # Model settings are persisted in MySQL and may be changed after backend startup.
+    # Reload them before constructing retrieval and generation agents.
+    reload_from_db()
     with SessionLocal() as db:
         task = db.scalar(select(GenerationTask).where(GenerationTask.public_id == task_id))
         if task is None:

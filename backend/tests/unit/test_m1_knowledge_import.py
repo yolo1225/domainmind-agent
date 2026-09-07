@@ -161,6 +161,39 @@ def test_structured_markdown_preserves_exact_metadata(tmp_path, monkeypatch) -> 
     assert "共 1 条" not in sections[0]["text"]
 
 
+def test_structured_markdown_uses_leaf_heading_for_knowledge_name(tmp_path, monkeypatch) -> None:
+    from app.services import knowledge_document_service
+
+    monkeypatch.setattr(knowledge_document_service, "KNOWLEDGE_STORAGE_ROOT", tmp_path)
+    path = tmp_path / "leaf-heading.md"
+    path.write_text(
+        "# 智能制造实训完整知识包 (smart_manufacturing)\n\n"
+        "## PLC 定义与循环扫描工作原理\n\n"
+        "- **knowledge_id:** `plc.scan`\n"
+        '- **ability_weights:** `{"theory":0.3,"practice":0.3,"problem_solving":0.25,"knowledge_breadth":0.15,"learning_speed":0}`\n\n'
+        "PLC 按读取输入、执行程序和更新输出的顺序循环扫描。\n",
+        encoding="utf-8",
+    )
+    document = KnowledgeDocument(
+        public_id="kdoc_leaf_heading", domain_code="smart_manufacturing",
+        original_name=path.name, stored_path=path.name, file_type="markdown",
+        mime_type="text/markdown", size_bytes=path.stat().st_size, sha256="c" * 64,
+        status="parsing", source_title="上传文件", license_note="test", uploaded_by="tester",
+    )
+    db = _session()
+    db.add(document)
+    db.commit()
+
+    candidates = replace_candidates(db, document, parse_document(document))
+    knowledge = next(item for item in candidates if item.candidate_type == "knowledge_item")
+
+    assert knowledge.payload_json["name"] == "PLC 定义与循环扫描工作原理"
+    assert knowledge.source_locator_json["heading_path"] == [
+        "智能制造实训完整知识包 (smart_manufacturing)",
+        "PLC 定义与循环扫描工作原理",
+    ]
+
+
 def test_source_withdrawal_keeps_shared_item_and_evidence_file(tmp_path, monkeypatch) -> None:
     from app.services import knowledge_document_service
 
