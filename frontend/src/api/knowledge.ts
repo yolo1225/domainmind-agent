@@ -230,7 +230,11 @@ export function disableQuestion(questionId: string, reason: string) {
 }
 
 export async function listKnowledgeRelations(domainCode: string) {
-  const relations = await getData<KnowledgeRelation[]>(`/knowledge/relations?domain_code=${encodeURIComponent(domainCode)}`)
+  const params = new URLSearchParams({
+    domain_code: domainCode,
+    limit: '500',
+  })
+  const relations = await getData<KnowledgeRelation[]>(`/knowledge/relations?${params.toString()}`)
   return relations.map(normalizeKnowledgeRelation)
 }
 

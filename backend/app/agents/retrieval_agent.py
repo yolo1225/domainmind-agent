@@ -4,7 +4,7 @@ from typing import Any
 
 from app.agents.contracts import RetrieveKnowledgeInput, RetrieveKnowledgeOutput
 from app.agents.prompt_registry import get_prompt
-from app.core.config import Settings
+from app.core.config import settings
 from app.core.db import SessionLocal
 from app.rag.database_manifest_store import DatabaseManifestStore
 from app.rag.embedding_provider import OpenAICompatibleEmbeddingProvider
@@ -27,7 +27,6 @@ class KnowledgeRetrievalAgent:
 
     @classmethod
     def production(cls, *, mode: str = "full") -> "KnowledgeRetrievalAgent":
-        settings = Settings()
         return cls(
             CandidateRetriever(
                 db=SessionLocal(),

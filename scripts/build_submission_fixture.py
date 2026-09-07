@@ -29,6 +29,37 @@ PURPOSE_SLOTS = (
     ("mastery_validation", "mastery_2", "challenge"),
 )
 
+# The expanded AI fundamentals section is part of the frozen submission
+# baseline. These declared course prerequisites keep every item connected to
+# the active learning graph without inventing relations at runtime.
+CURATED_PREREQUISITE_EXTENSIONS: dict[str, tuple[str, ...]] = {
+    "ki_0e673b8eec42b320": ("ki_65f1659af27d4984",),
+    "ki_185eac93556247a0": ("ki_947e73313a12fc88",),
+    "ki_23ed31d7af0f95d0": ("ki_d122c91269e87257",),
+    "ki_307d4cd9dc09951f": ("ki_8ba31f93fb9f7bcd",),
+    "ki_3e3229243be11058": ("ki_947e73313a12fc88",),
+    "ki_46d9d4de4c4835d2": ("ki_e82e51e944744bdb",),
+    "ki_63bef1cdb46b2948": ("ki_46d9d4de4c4835d2",),
+    "ki_65f1659af27d4984": ("ki_a23b92994c49c639",),
+    "ki_6613d44b56deaa3e": ("ki_d122c91269e87257",),
+    "ki_68375283ac5ca527": ("ai_app_dev_overview",),
+    "ki_747302beb84cdbdf": ("ki_a23b92994c49c639",),
+    "ki_747c6d2d0ed6ba38": ("ki_fc9bb9f9de5913e5",),
+    "ki_8107173e3737a444": ("ki_a23b92994c49c639",),
+    "ki_884cca8ccb2c9f0c": ("ki_747302beb84cdbdf",),
+    "ki_8ba31f93fb9f7bcd": ("ki_65f1659af27d4984",),
+    "ki_8fcfe12783a7baea": ("ki_185eac93556247a0",),
+    "ki_947e73313a12fc88": ("ki_6613d44b56deaa3e",),
+    "ki_96709f9830593e5c": ("ki_6613d44b56deaa3e",),
+    "ki_a23b92994c49c639": ("ai_app_dev_overview",),
+    "ki_d122c91269e87257": ("ki_e82e51e944744bdb",),
+    "ki_e669ac1d0bc95972": ("ki_884cca8ccb2c9f0c",),
+    "ki_e82e51e944744bdb": ("ki_a23b92994c49c639",),
+    "ki_eb61025d0c6deea3": ("ki_185eac93556247a0",),
+    "ki_f183dd3f6c58b215": ("ki_0e673b8eec42b320",),
+    "ki_fc9bb9f9de5913e5": ("ki_8107173e3737a444",),
+}
+
 
 def read_json(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -49,9 +80,14 @@ def sha256_file(path: Path) -> str:
 def canonical_knowledge(raw_items: list[dict[str, Any]]) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
     for item in raw_items:
+        knowledge_id = str(item["knowledge_id"])
+        prerequisites = list(item.get("prerequisites", []))
+        for prerequisite_id in CURATED_PREREQUISITE_EXTENSIONS.get(knowledge_id, ()):
+            if prerequisite_id not in prerequisites:
+                prerequisites.append(prerequisite_id)
         result.append(
             {
-                "knowledge_id": item["knowledge_id"],
+                "knowledge_id": knowledge_id,
                 "domain_code": item["domain_code"],
                 "name": item["name"],
                 "category": item["category"],
@@ -63,7 +99,7 @@ def canonical_knowledge(raw_items: list[dict[str, Any]]) -> list[dict[str, Any]]
                 "license_note": item["license_note"],
                 "ability_weights": item["ability_weights"],
                 "evidence_capabilities": item.get("evidence_capabilities", []),
-                "prerequisites": item.get("prerequisites", []),
+                "prerequisites": prerequisites,
                 "related": item.get("related", []),
             }
         )
@@ -257,7 +293,7 @@ def build() -> None:
     relation_counts = Counter(relation["relation_type"] for relation in relations)
     if len(items) != 75 or len(questions) != 465:
         raise ValueError("runtime snapshots do not match the required 75/465 baseline")
-    if relation_counts != Counter({"prerequisite": 67, "related": 14}):
+    if relation_counts != Counter({"prerequisite": 92, "related": 14}):
         raise ValueError(f"unexpected relation counts: {dict(relation_counts)}")
     if purpose_counts != Counter({"diagnosis": 90, "graded_quiz": 225, "mastery_validation": 150}):
         raise ValueError(f"unexpected purpose counts: {dict(purpose_counts)}")
@@ -335,7 +371,7 @@ def build() -> None:
         },
         "counts": {
             "knowledge_items": 75,
-            "prerequisite_relations": 67,
+            "prerequisite_relations": 92,
             "related_relations": 14,
             "active_questions": 465,
             "question_purposes": dict(sorted(purpose_counts.items())),

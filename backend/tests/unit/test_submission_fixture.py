@@ -4,11 +4,20 @@ import pytest
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
-from app.models import Domain, Learner, LearnerProfile, LearningPath
+from app.models import (
+    Domain,
+    KnowledgeDocument,
+    KnowledgeItem,
+    KnowledgeRelation,
+    Learner,
+    LearnerProfile,
+    LearningPath,
+)
 from app.models.base import Base
 from app.scripts import submission_fixture
 from app.scripts.submission_fixture import validate_submission_fixture
 from app.services.domain_runtime_service import load_domain_runtime
+from app.services.knowledge_document_service import serialize_document
 from app.services.profile_service import is_initial_profile_ready
 
 
@@ -23,8 +32,8 @@ def test_submission_fixture_is_complete_and_hash_locked() -> None:
     assert result["fixture_version"] == "ai_app_dev_submission_fixture_v1"
     assert result["counts"] == {
         "knowledge_items": 75,
-        "knowledge_relations": 81,
-        "prerequisite_relations": 67,
+        "knowledge_relations": 106,
+        "prerequisite_relations": 92,
         "related_relations": 14,
         "active_questions": 465,
         "question_purposes": {
@@ -51,8 +60,21 @@ def test_submission_fixture_loads_once_and_is_idempotent(monkeypatch) -> None:
     assert loaded["database"]["status"] == "loaded"
     assert repeated["database"]["status"] == "already_loaded"
     assert loaded["database"]["knowledge_items"] == 75
-    assert loaded["database"]["knowledge_relations"] == 81
+    assert loaded["database"]["knowledge_relations"] == 106
     assert loaded["database"]["active_questions"] == 465
+    with factory() as db:
+        document = db.scalar(select(KnowledgeDocument))
+        items = list(db.scalars(select(KnowledgeItem)))
+        relations = list(db.scalars(select(KnowledgeRelation)))
+
+    assert document is not None
+    assert serialize_document(document)["is_system"] is True
+    connected_item_ids = {
+        item_id
+        for relation in relations
+        for item_id in (relation.source_item_id, relation.target_item_id)
+    }
+    assert {item.id for item in items}.issubset(connected_item_ids)
 
 
 def test_submission_fixture_rejects_foreign_domain(monkeypatch) -> None:

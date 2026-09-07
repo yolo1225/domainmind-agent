@@ -32,7 +32,7 @@ if not exist ".env" (
         goto :fail
     )
     echo [INFO] Created .env from .env.example.
-    powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "$p='.env'; $c=Get-Content $p -Raw; $b=New-Object byte[] 48; [Security.Cryptography.RandomNumberGenerator]::Fill($b); $s=[Convert]::ToBase64String($b); $c=$c.Replace('JWT_SECRET_KEY=replace-with-a-long-random-secret','JWT_SECRET_KEY='+$s).Replace('INITIAL_ADMIN_PASSWORD=change-me-before-first-run','INITIAL_ADMIN_PASSWORD=12345678'); Set-Content -LiteralPath $p -Value $c -Encoding utf8"
+    powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $p='.env'; $utf8=[System.Text.UTF8Encoding]::new($false); $c=[System.IO.File]::ReadAllText($p,$utf8); $b=New-Object byte[] 48; $rng=[Security.Cryptography.RandomNumberGenerator]::Create(); try { $rng.GetBytes($b) } finally { $rng.Dispose() }; $s=[Convert]::ToBase64String($b); $c=$c.Replace('JWT_SECRET_KEY=replace-with-a-long-random-secret','JWT_SECRET_KEY='+$s).Replace('INITIAL_ADMIN_PASSWORD=change-me-before-first-run','INITIAL_ADMIN_PASSWORD=12345678'); [System.IO.File]::WriteAllText($p,$c,$utf8)"
     if errorlevel 1 (
         echo [ERROR] Failed to initialize authentication settings in .env.
         goto :fail
@@ -45,8 +45,9 @@ if not exist ".env" (
 if not exist "storage" mkdir "storage"
 set "START_LOG=%~dp0storage\start.log"
 
-echo [INFO] Recreating containers and starting Cognivia without deleting existing runtime data...
-powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "& { Start-Transcript -Path '%START_LOG%' -Force; try { & '%~dp0scripts\demo.ps1' start } finally { Stop-Transcript } }"
+echo [INFO] Starting Cognivia with the complete competition fixture (75 knowledge items, 106 relations, 465 questions)...
+echo [INFO] Existing ordinary seed data is not overwritten. Use an empty Docker volume for the first fixture startup.
+powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $transcriptStarted=$false; try { Start-Transcript -Path '%START_LOG%' -Force; $transcriptStarted=$true; & '%~dp0scripts\demo.ps1' start-fixture } catch { [Console]::Error.WriteLine($_.Exception.Message); exit 1 } finally { if ($transcriptStarted) { Stop-Transcript } }"
 if errorlevel 1 (
     echo [ERROR] Cognivia failed to start. Review the output above.
     echo [INFO] Full log: %START_LOG%

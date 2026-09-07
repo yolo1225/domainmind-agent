@@ -1,6 +1,6 @@
 param(
     [Parameter(Position = 0, Mandatory = $true)]
-    [ValidateSet("backup", "rebuild-index", "start", "reset", "verify", "stop")]
+    [ValidateSet("backup", "rebuild-index", "start", "start-fixture", "reset", "verify", "stop")]
     [string]$Action,
     [switch]$ConfirmReset
 )
@@ -12,8 +12,17 @@ Set-Location $ProjectRoot
 $ProjectName = if ($env:COMPOSE_PROJECT_NAME) {
     $env:COMPOSE_PROJECT_NAME
 } else {
-    ((Split-Path $ProjectRoot -Leaf).ToLowerInvariant() -replace "[^a-z0-9_-]", "")
+    $candidate = ((Split-Path $ProjectRoot -Leaf).ToLowerInvariant() -replace "[^a-z0-9_-]", "").Trim("_-")
+    if ($candidate -match "^[a-z](?:[a-z0-9_-]*[a-z0-9])?$") {
+        $candidate
+    } else {
+        "cognivia"
+    }
 }
+# Docker Compose otherwise derives a project name from the working directory.
+# Submission packages live in localized, numbered folders that cannot form a
+# valid image tag after Compose adds the service suffix.
+$env:COMPOSE_PROJECT_NAME = $ProjectName
 
 function Invoke-Compose {
     param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
@@ -63,6 +72,24 @@ function Wait-Frontend {
     throw "Frontend did not become healthy within 120 seconds."
 }
 
+function Get-FileSha256 {
+    param([Parameter(Mandatory = $true)][string]$Path)
+
+    $algorithm = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $stream = [System.IO.File]::OpenRead($Path)
+        try {
+            return ([System.BitConverter]::ToString($algorithm.ComputeHash($stream))).Replace("-", "").ToLowerInvariant()
+        }
+        finally {
+            $stream.Dispose()
+        }
+    }
+    finally {
+        $algorithm.Dispose()
+    }
+}
+
 function Get-BuildFingerprint {
     param([Parameter(Mandatory = $true)][string[]]$Paths)
 
@@ -71,7 +98,7 @@ function Get-BuildFingerprint {
         if (-not (Test-Path $absolutePath)) {
             throw "Build input not found: $absolutePath"
         }
-        "$path=$((Get-FileHash $absolutePath -Algorithm SHA256).Hash.ToLowerInvariant())"
+        "$path=$(Get-FileSha256 -Path $absolutePath)"
     }
     return $parts -join "`n"
 }
@@ -115,7 +142,7 @@ function Sync-FrontendDependencies {
         throw "Frontend package lock file not found: $lockFile"
     }
 
-    $expectedHash = (Get-FileHash $lockFile -Algorithm SHA256).Hash.ToLowerInvariant()
+    $expectedHash = Get-FileSha256 -Path $lockFile
     $currentHashOutput = & docker compose run --rm --no-deps frontend `
         sh -c 'cat node_modules/.cognivia-package-lock.sha256 2>/dev/null || true'
     if ($LASTEXITCODE -ne 0) {
@@ -299,6 +326,38 @@ switch ($Action) {
         Wait-Frontend
         Test-DemoEnvironment
         Write-Host "Demo environment: http://localhost:5173/"
+    }
+    "start-fixture" {
+        # The submission launcher uses the hash-locked competition baseline.
+        # It refuses ordinary seed data rather than mixing two domain baselines.
+        Ensure-ServiceImage -Service "backend" -BuildInputs @("backend/Dockerfile", "backend/pyproject.toml")
+        Ensure-ServiceImage -Service "frontend" -BuildInputs @("frontend/Dockerfile", "frontend/package.json", "frontend/package-lock.json")
+        Sync-FrontendDependencies
+        Invoke-Compose -Arguments @("up", "--detach", "--no-build", "mysql", "chromadb", "redis")
+        Invoke-Compose -Arguments @("up", "--detach", "--no-build", "--force-recreate", "backend")
+        Wait-Backend
+        Invoke-Compose -Arguments @("exec", "--no-TTY", "backend", "alembic", "upgrade", "head")
+        Invoke-Compose -Arguments @("exec", "--no-TTY", "backend", "python", "-m", "app.scripts.init_admin")
+        Invoke-Compose -Arguments @(
+            "exec", "--no-TTY", "backend", "python", "-m", "app.scripts.seed_data",
+            "--fixture-dir", "/app/data/submission_fixtures/ai_app_dev_v1", "--json"
+        )
+        try {
+            Sync-CandidateIndex
+        } catch {
+            # A judge can inspect the complete imported baseline without an
+            # external embedding provider. Keep all other index failures fatal.
+            $indexError = $_.Exception.Message
+            if ($indexError -match "EmbeddingConfigurationError|embedding provider configuration is missing") {
+                Write-Warning "Model configuration is incomplete; started without Candidate RAG. Configure the embedding provider and run ./scripts/demo.ps1 rebuild-index before live generation."
+            } else {
+                throw
+            }
+        }
+        Invoke-Compose -Arguments @("up", "--detach", "--no-build", "--force-recreate", "frontend")
+        Wait-Frontend
+        Test-DemoEnvironment
+        Write-Host "Submission fixture environment: http://localhost:5173/ (75 knowledge items, 106 relations, 465 active questions)"
     }
     "reset" {
         if (-not $ConfirmReset) {

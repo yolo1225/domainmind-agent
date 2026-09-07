@@ -17,7 +17,15 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_ROOT = PROJECT_ROOT / "data" / "submission_fixtures" / "smart_manufacturing_v1"
 SOURCE_MARKDOWN = PROJECT_ROOT / "deliverables" / "knowledge-import-packages" / "smart_manufacturing" / "01-smart-manufacturing-complete.md"
 SOURCE_QUESTIONS = PROJECT_ROOT / "deliverables" / "smart_manufacturing-question-bank-filled.xlsx"
+QUESTION_SOURCE_WORKBOOK = PROJECT_ROOT / "deliverables" / "smart_manufacturing-question-source.xlsx"
 FIXTURE_VERSION = "smart_manufacturing_submission_fixture_v1"
+# These fingerprints are produced by the current structured Markdown import
+# contract for ``import_source/01-smart-manufacturing-complete.md``.  The
+# submitted workbook must use this pair, rather than the provenance workbook
+# from ``source_assets`` (which describes a different Markdown package).
+MANUAL_IMPORT_CATALOG_FINGERPRINT = "sha256:00581fbbf84b60e7e2796a4b2c9c8f76227525bc934831ebef5c2343e1df71d1"
+MANUAL_IMPORT_INVENTORY_FINGERPRINT = "sha256:5a922bf620e87aaf9a9b6b716431014fdc76fd885c2a1898bc2945aa917e2f2b"
+MANUAL_IMPORT_WORKBOOK_NAME = "smart_manufacturing-question-bank-filled.xlsx"
 PURPOSE_SLOTS = (
     ("diagnosis", "diagnosis_1", "foundation"),
     ("graded_quiz", "graded_foundation", "foundation"),
@@ -27,6 +35,21 @@ PURPOSE_SLOTS = (
     ("mastery_validation", "mastery_2", "challenge"),
 )
 ABILITY_DIMENSIONS = ("theory", "practice", "problem_solving", "knowledge_breadth", "learning_speed")
+QUESTION_SOURCE_HEADERS = (
+    "知识点名称",
+    "purpose",
+    "quiz_level",
+    "题目类型",
+    "难度",
+    "题干",
+    "选项A",
+    "选项B",
+    "选项C",
+    "选项D",
+    "正确答案",
+    "解析",
+    "评分点",
+)
 
 
 def sha256(path: Path) -> str:
@@ -248,6 +271,152 @@ def _build_import_markdown(items: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def _manual_import_knowledge_map(import_markdown: Path) -> dict[str, tuple[str, str]]:
+    """Map the source workbook labels to the public IDs created by Markdown import."""
+
+    text = import_markdown.read_text(encoding="utf-8")
+    sections = re.findall(
+        r"^##\s+(.+?)\s*$\n(.*?)(?=^##\s+|\Z)",
+        text,
+        flags=re.MULTILINE | re.DOTALL,
+    )
+    result: dict[str, tuple[str, str]] = {}
+    for name, section in sections:
+        knowledge_id_match = re.search(
+            r"^- \*\*knowledge_id:\*\*\s*`?([^`\s]+)`?\s*$",
+            section,
+            flags=re.MULTILINE,
+        )
+        if knowledge_id_match is None:
+            raise ValueError(f"manual import Markdown knowledge_id missing: {name}")
+        source_name = name.strip()
+        public_id = "ki_" + hashlib.sha256(
+            f"smart_manufacturing:{knowledge_id_match.group(1)}".encode()
+        ).hexdigest()[:16]
+        if source_name in result:
+            raise ValueError(f"duplicate manual import knowledge name: {source_name}")
+        result[source_name] = (public_id, source_name)
+    if len(result) != 67:
+        raise ValueError("manual import Markdown must define exactly 67 knowledge items")
+    return result
+
+
+def _manual_inventory_fingerprint(knowledge_ids: list[str]) -> str:
+    slots = []
+    for knowledge_id in sorted(knowledge_ids):
+        for purpose, slot_key, quiz_level in PURPOSE_SLOTS:
+            slots.append(
+                {
+                    "slot_key": slot_key,
+                    "question_external_id": f"qslot:smart_manufacturing:{knowledge_id}:{slot_key}",
+                    "knowledge_ref": knowledge_id,
+                    "purpose": purpose,
+                    "quiz_level": quiz_level,
+                }
+            )
+    payload = sorted(
+        slots,
+        key=lambda value: (
+            value["knowledge_ref"], value["purpose"], value["slot_key"],
+            value["question_external_id"],
+        ),
+    )
+    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return "sha256:" + hashlib.sha256(encoded.encode()).hexdigest()
+
+
+def _build_manual_import_workbook(source: Path, destination: Path, import_markdown: Path) -> None:
+    """Rebase the verified 402 question rows onto the canonical import source.
+
+    Question text, options, answers, explanations and scoring rubrics remain
+    byte-for-byte equivalent at the cell-value level.  Only the protected
+    catalog/inventory metadata and protected slot references change, because
+    the public import Markdown has a different set of deterministic public
+    knowledge IDs.  The editable question cells remain unchanged.
+    """
+
+    knowledge_map = _manual_import_knowledge_map(import_markdown)
+    inventory_fingerprint = _manual_inventory_fingerprint(
+        [value[0] for value in knowledge_map.values()]
+    )
+    if inventory_fingerprint != MANUAL_IMPORT_INVENTORY_FINGERPRINT:
+        raise ValueError("manual import inventory fingerprint drifted")
+    workbook = openpyxl.load_workbook(source)
+    try:
+        sheet = workbook["题目"]
+        headers = [str(cell.value or "") for cell in sheet[1]]
+        expected = [
+            "slot_key", "question_external_id", "knowledge_ref", "知识点名称",
+            "purpose", "quiz_level", "domain_code", "knowledge_catalog_fingerprint",
+            "题目类型", "难度", "题干", "选项A", "选项B", "选项C", "选项D",
+            "正确答案", "解析", "评分点",
+        ]
+        if headers != expected or sheet.max_row != 403:
+            raise ValueError("smart manufacturing source workbook contract changed")
+        for row in range(2, sheet.max_row + 1):
+            source_name = str(sheet.cell(row, 4).value or "").strip()
+            public_id, imported_name = knowledge_map.get(source_name, ("", ""))
+            if not public_id:
+                raise ValueError(f"source workbook knowledge missing from manual Markdown: {source_name}")
+            slot_key = str(sheet.cell(row, 1).value or "").strip()
+            if slot_key not in {slot[1] for slot in PURPOSE_SLOTS}:
+                raise ValueError(f"source workbook slot is invalid: {slot_key}")
+            sheet.cell(row, 2).value = f"qslot:smart_manufacturing:{public_id}:{slot_key}"
+            sheet.cell(row, 3).value = public_id
+            sheet.cell(row, 4).value = imported_name
+            sheet.cell(row, 8).value = MANUAL_IMPORT_CATALOG_FINGERPRINT
+
+        metadata = workbook["元数据"]
+        values = {
+            str(row[0].value or ""): row[1]
+            for row in metadata.iter_rows(min_row=1, max_col=2)
+            if row[0].value is not None
+        }
+        if values.get("domain_code") is None or values["domain_code"].value != "smart_manufacturing":
+            raise ValueError("smart manufacturing source workbook domain metadata changed")
+        values["knowledge_catalog_fingerprint"].value = MANUAL_IMPORT_CATALOG_FINGERPRINT
+        values["question_inventory_fingerprint"].value = inventory_fingerprint
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        workbook.save(destination)
+    finally:
+        workbook.close()
+
+
+def _build_question_source_workbook(source: Path, destination: Path) -> None:
+    """Export only editable question content for a freshly downloaded template."""
+
+    source_workbook = openpyxl.load_workbook(source, read_only=True, data_only=True)
+    try:
+        source_sheet = source_workbook["题目"]
+        headers = [str(cell.value or "") for cell in source_sheet[1]]
+        header_index = {name: index for index, name in enumerate(headers)}
+        if not set(QUESTION_SOURCE_HEADERS) <= set(header_index):
+            raise ValueError("smart manufacturing source workbook columns changed")
+
+        workbook = openpyxl.Workbook()
+        try:
+            sheet = workbook.active
+            sheet.title = "题目源数据"
+            sheet.append(list(QUESTION_SOURCE_HEADERS))
+            for row in source_sheet.iter_rows(min_row=2, values_only=True):
+                sheet.append([row[header_index[name]] for name in QUESTION_SOURCE_HEADERS])
+            if sheet.max_row != 403:
+                raise ValueError("smart manufacturing question source must contain 402 rows")
+            sheet.freeze_panes = "A2"
+            sheet.auto_filter.ref = sheet.dimensions
+            for column, width in {
+                "A": 28, "B": 20, "C": 22, "D": 16, "E": 10, "F": 58,
+                "G": 28, "H": 28, "I": 28, "J": 28, "K": 14, "L": 48, "M": 48,
+            }.items():
+                sheet.column_dimensions[column].width = width
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            workbook.save(destination)
+        finally:
+            workbook.close()
+    finally:
+        source_workbook.close()
+
+
 def _weak_item(item: dict[str, Any], level: int) -> dict[str, Any]:
     return {
         "knowledge_id": item["knowledge_id"],
@@ -372,6 +541,9 @@ def build() -> None:
     shutil.copyfile(SOURCE_QUESTIONS, source_dir / SOURCE_QUESTIONS.name)
     import_path = import_dir / "01-smart-manufacturing-complete.md"
     import_path.write_text(_build_import_markdown(items), encoding="utf-8")
+    manual_workbook_path = import_dir / MANUAL_IMPORT_WORKBOOK_NAME
+    _build_manual_import_workbook(SOURCE_QUESTIONS, manual_workbook_path, import_path)
+    _build_question_source_workbook(SOURCE_QUESTIONS, QUESTION_SOURCE_WORKBOOK)
     write_json(FIXTURE_ROOT / "domain.json", domain)
     write_json(FIXTURE_ROOT / "knowledge_items.json", items)
     write_json(FIXTURE_ROOT / "relations.json", relations)
@@ -385,17 +557,18 @@ def build() -> None:
         "note": "Use this canonical import source or the bootstrap fixture, never both in one database.",
     })
     (FIXTURE_ROOT / "README.md").write_text(
-        "# 智能制造可执行测试数据包\n\n本目录用于从空库复现比赛第二领域 `smart_manufacturing`。它包含数据库切片、三类脱敏学情以及受管的三案例运行输入；不包含 50 例离线评测案例，也不声明第二领域质量指标。\n\n## 使用方式\n\n1. 运行 `scripts/submission-fixture.ps1 verify -FixtureDir data/submission_fixtures/smart_manufacturing_v1` 校验哈希和内容。\n2. 在新的 Docker 卷或已清空数据库中运行 `scripts/submission-fixture.ps1 bootstrap -FixtureDir data/submission_fixtures/smart_manufacturing_v1`。脚本不会清空现有数据。\n3. 若需与主演示环境隔离，可添加 `-ComposeProject cognivia_sm_test -ComposeFile docker-compose.submission.yml`。\n4. 构建索引后运行 `python test_script/smart_manufacturing_demo_acceptance.py --base-url http://localhost:18000/api/v1`，生成脱敏案例与报告。\n5. `import_source/` 中的 Markdown 与启动夹具互斥，不能在同一数据库叠加导入。\n\n## 内容\n\n- 67 条可追溯知识条目与课程规则生成的 `next_step` 图谱关系。\n- 402 道活动正式题：67 道诊断题、201 道分阶测验题、134 道掌握检查题。\n- 初学者、中阶和高阶三份合成画像及学习路径；所有账号均标记为测试数据。\n- `manual_demo_cases.json`：三组真实运行的受管输入与预期业务断言。\n- `source_assets/` 保存受管 Markdown 和 XLSX 的哈希锁定副本。\n",
+        "# 智能制造可执行测试数据包\n\n本目录用于从空库复现比赛第二领域 `smart_manufacturing`。它包含数据库切片、三类脱敏学情以及受管的三案例运行输入；不包含 50 例离线评测案例，也不声明第二领域质量指标。\n\n## 使用方式\n\n1. 运行 `scripts/submission-fixture.ps1 verify -FixtureDir data/submission_fixtures/smart_manufacturing_v1` 校验哈希和内容。\n2. 在新的 Docker 卷或已清空数据库中运行 `scripts/submission-fixture.ps1 bootstrap -FixtureDir data/submission_fixtures/smart_manufacturing_v1`。脚本不会清空现有数据。\n3. 若需与主演示环境隔离，可添加 `-ComposeProject cognivia_sm_test -ComposeFile docker-compose.submission.yml`。\n4. 构建索引后运行 `python test_script/smart_manufacturing_demo_acceptance.py --base-url http://localhost:18000/api/v1`，生成脱敏案例与报告。\n5. `import_source/` 中的 Markdown、同目录的 XLSX 与启动夹具互斥，不能在同一数据库叠加导入。\n\n## 内容\n\n- 67 条可追溯知识条目与课程规则生成的 `next_step` 图谱关系。\n- 402 道活动正式题：67 道诊断题、201 道分阶测验题、134 道掌握检查题。\n- 初学者、中阶和高阶三份合成画像及学习路径；所有账号均标记为测试数据。\n- `manual_demo_cases.json`：三组真实运行的受管输入与预期业务断言。\n- `import_source/` 内的 Markdown/XLSX 是已配对的前端手动导入材料；`source_assets/` 仅保留上游来源副本。\n",
         encoding="utf-8",
     )
     files = (
-        "domain.json", "knowledge_items.json", "relations.json", "diagnostic_questions.json", "template_question_source.json", "supplemental_diagnosis_questions.json", "learner_profiles.json", "manual_demo_cases.json", "import_source_manifest.json", "import_source/01-smart-manufacturing-complete.md", "source_assets/01-smart-manufacturing-complete.md", "source_assets/smart_manufacturing-question-bank-filled.xlsx", "README.md",
+        "domain.json", "knowledge_items.json", "relations.json", "diagnostic_questions.json", "template_question_source.json", "supplemental_diagnosis_questions.json", "learner_profiles.json", "manual_demo_cases.json", "import_source_manifest.json", "import_source/01-smart-manufacturing-complete.md", "import_source/smart_manufacturing-question-bank-filled.xlsx", "source_assets/01-smart-manufacturing-complete.md", "source_assets/smart_manufacturing-question-bank-filled.xlsx", "README.md",
     )
     relation_counts = Counter(relation["relation_type"] for relation in relations)
     purpose_counts = Counter(question["answer_key"]["question_bank_uses"][0] for question in questions)
     manifest = {
         "schema_version": "submission-fixture-manifest-v1", "fixture_version": FIXTURE_VERSION, "domain_code": "smart_manufacturing",
         "source_assets": {"knowledge_package": "source_assets/01-smart-manufacturing-complete.md", "question_workbook": "source_assets/smart_manufacturing-question-bank-filled.xlsx", "knowledge_catalog_fingerprint": workbook_metadata["knowledge_catalog_fingerprint"], "question_inventory_fingerprint": workbook_metadata["question_inventory_fingerprint"]},
+        "manual_import_assets": {"knowledge_package": "import_source/01-smart-manufacturing-complete.md", "question_workbook": f"import_source/{MANUAL_IMPORT_WORKBOOK_NAME}", "knowledge_catalog_fingerprint": MANUAL_IMPORT_CATALOG_FINGERPRINT, "question_inventory_fingerprint": MANUAL_IMPORT_INVENTORY_FINGERPRINT},
         "counts": {"knowledge_items": len(items), "knowledge_relations": len(relations), "relation_types": dict(sorted(relation_counts.items())), "active_questions": len(questions), "question_purposes": dict(sorted(purpose_counts.items())), "template_compatible_questions": len(template), "supplemental_diagnosis_questions": 0, "evaluation_cases": 0, "manual_demo_cases": len(manual_cases["cases"]), "learner_profiles": len(profiles)},
         "files": {name: {"sha256": sha256(FIXTURE_ROOT / name)} for name in files},
         "import_source": {"path": import_path.relative_to(FIXTURE_ROOT).as_posix(), "sha256": sha256(import_path), "deliverable_path": SOURCE_MARKDOWN.relative_to(PROJECT_ROOT).as_posix()},

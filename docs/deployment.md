@@ -6,8 +6,10 @@
 ## Docker Compose
 
 ```powershell
-./scripts/demo.ps1 start
+.\start.bat
 ```
+
+`start.bat` 使用空库加载提交夹具 `ai_app_dev_submission_fixture_v1`（75 条知识点、106 条关系、465 道活动题）。它不会覆盖普通开发种子或其他领域数据；需切换基线时，先执行 `docker compose down -v`。`./scripts/demo.ps1 start` 保留为开发用的轻量种子启动入口。
 
 MySQL keeps port `3306` inside Docker. Host tools and IDE database connections use
 `localhost:13306` by default; override it with `MYSQL_HOST_PORT` in `.env` when needed.

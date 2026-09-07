@@ -32,6 +32,16 @@
   {
     "relation_type": "prerequisite",
     "source_knowledge_id": "ai_app_dev_overview",
+    "target_knowledge_id": "ki_68375283ac5ca527"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ai_app_dev_overview",
+    "target_knowledge_id": "ki_a23b92994c49c639"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ai_app_dev_overview",
     "target_knowledge_id": "observability_tracing"
   },
   {
@@ -143,6 +153,121 @@
     "relation_type": "prerequisite",
     "source_knowledge_id": "http_rest_basics",
     "target_knowledge_id": "streaming_responses"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_0e673b8eec42b320",
+    "target_knowledge_id": "ki_f183dd3f6c58b215"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_185eac93556247a0",
+    "target_knowledge_id": "ki_8fcfe12783a7baea"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_185eac93556247a0",
+    "target_knowledge_id": "ki_eb61025d0c6deea3"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_46d9d4de4c4835d2",
+    "target_knowledge_id": "ki_63bef1cdb46b2948"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_65f1659af27d4984",
+    "target_knowledge_id": "ki_0e673b8eec42b320"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_65f1659af27d4984",
+    "target_knowledge_id": "ki_8ba31f93fb9f7bcd"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_6613d44b56deaa3e",
+    "target_knowledge_id": "ki_947e73313a12fc88"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_6613d44b56deaa3e",
+    "target_knowledge_id": "ki_96709f9830593e5c"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_747302beb84cdbdf",
+    "target_knowledge_id": "ki_884cca8ccb2c9f0c"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_8107173e3737a444",
+    "target_knowledge_id": "ki_fc9bb9f9de5913e5"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_884cca8ccb2c9f0c",
+    "target_knowledge_id": "ki_e669ac1d0bc95972"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_8ba31f93fb9f7bcd",
+    "target_knowledge_id": "ki_307d4cd9dc09951f"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_947e73313a12fc88",
+    "target_knowledge_id": "ki_185eac93556247a0"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_947e73313a12fc88",
+    "target_knowledge_id": "ki_3e3229243be11058"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_a23b92994c49c639",
+    "target_knowledge_id": "ki_65f1659af27d4984"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_a23b92994c49c639",
+    "target_knowledge_id": "ki_747302beb84cdbdf"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_a23b92994c49c639",
+    "target_knowledge_id": "ki_8107173e3737a444"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_a23b92994c49c639",
+    "target_knowledge_id": "ki_e82e51e944744bdb"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_d122c91269e87257",
+    "target_knowledge_id": "ki_23ed31d7af0f95d0"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_d122c91269e87257",
+    "target_knowledge_id": "ki_6613d44b56deaa3e"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_e82e51e944744bdb",
+    "target_knowledge_id": "ki_46d9d4de4c4835d2"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_e82e51e944744bdb",
+    "target_knowledge_id": "ki_d122c91269e87257"
+  },
+  {
+    "relation_type": "prerequisite",
+    "source_knowledge_id": "ki_fc9bb9f9de5913e5",
+    "target_knowledge_id": "ki_747c6d2d0ed6ba38"
   },
   {
     "relation_type": "prerequisite",

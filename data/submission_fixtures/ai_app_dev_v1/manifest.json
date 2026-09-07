@@ -8,7 +8,7 @@
   },
   "counts": {
     "knowledge_items": 75,
-    "prerequisite_relations": 67,
+    "prerequisite_relations": 92,
     "related_relations": 14,
     "active_questions": 465,
     "question_purposes": {
@@ -26,10 +26,10 @@
       "sha256": "896dfff03ccb53abde871a314255ea938c3c24be4592361efa21b0ef6fe00bf6"
     },
     "knowledge_items.json": {
-      "sha256": "0f02beec87f1031171160da252692382be996044938c4bb189cb78fa7c8fcd7b"
+      "sha256": "f62c204985ff557aa8cb56a255f3f6d5b5c0b04686dec96a116719266909b2c5"
     },
     "relations.json": {
-      "sha256": "a09dc8bde4a650a9a3e0849d488af95af21e279b1055fa324c5430a8e6894cab"
+      "sha256": "403887ae959ad341a13d4e049edc725dbea28773ebdb6737e6b278ad7f53b489"
     },
     "diagnostic_questions.json": {
       "sha256": "a30743f1653f8592abb3efa332b5d83af1184ec98300768676ed572ae068a052"

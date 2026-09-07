@@ -139,8 +139,8 @@ function Test-Fixture {
     $knowledge = Get-Json -Path (Join-Path $Root "knowledge_items.json")
     $relations = Get-Json -Path (Join-Path $Root "relations.json")
     $questions = Get-Json -Path (Join-Path $Root "diagnostic_questions.json")
-    if ($knowledge.Count -ne 75 -or $relations.Count -ne 81 -or $questions.Count -ne 465) {
-        throw "Fixture counts must be 75 knowledge items, 81 relations and 465 questions; actual $($knowledge.Count) / $($relations.Count) / $($questions.Count)."
+    if ($knowledge.Count -ne 75 -or $relations.Count -ne 106 -or $questions.Count -ne 465) {
+        throw "Fixture counts must be 75 knowledge items, 106 relations and 465 questions; actual $($knowledge.Count) / $($relations.Count) / $($questions.Count)."
     }
     $knowledgeIds = @{}
     foreach ($item in $knowledge) {
@@ -164,8 +164,8 @@ function Test-Fixture {
         if (-not $relationCounts.ContainsKey($relationType)) { $relationCounts[$relationType] = 0 }
         $relationCounts[$relationType]++
     }
-    if ($relationCounts["prerequisite"] -ne 67 -or $relationCounts["related"] -ne 14 -or $relationCounts.Count -ne 2) {
-        throw "Fixture relation distribution must be 67 prerequisite and 14 related."
+    if ($relationCounts["prerequisite"] -ne 92 -or $relationCounts["related"] -ne 14 -or $relationCounts.Count -ne 2) {
+        throw "Fixture relation distribution must be 92 prerequisite and 14 related."
     }
     $purposeCounts = @{}
     $purposeCoverage = @{
@@ -219,6 +219,12 @@ function Test-SmartManufacturingFixture {
     if ($manifest.counts.knowledge_items -ne 67 -or $manifest.counts.knowledge_relations -ne 49 -or $manifest.counts.active_questions -ne 402 -or $manifest.counts.evaluation_cases -ne 0 -or $manifest.counts.manual_demo_cases -ne 3 -or $manifest.counts.learner_profiles -ne 3) {
         throw "Unexpected smart manufacturing fixture manifest counts."
     }
+    $manualAssets = $manifest.manual_import_assets
+    if ($null -eq $manualAssets -or [string]::IsNullOrWhiteSpace([string]$manualAssets.knowledge_package) -or [string]::IsNullOrWhiteSpace([string]$manualAssets.question_workbook)) {
+        throw "Smart manufacturing manual import asset pair is missing from the manifest."
+    }
+    Assert-Exists -Path (Join-Path $Root ([string]$manualAssets.knowledge_package))
+    Assert-Exists -Path (Join-Path $Root ([string]$manualAssets.question_workbook))
 
     $knowledge = Get-Json -Path (Join-Path $Root "knowledge_items.json")
     $relations = Get-Json -Path (Join-Path $Root "relations.json")
@@ -760,8 +766,10 @@ function Build-Package {
         Copy-FileExact -Source (Join-Path $ProjectRoot "test_script\$script") -Destination (Join-Path $PackageRoot "03_程序运行包\test_script\$script")
     }
     foreach ($script in @(
+        "demo.ps1",
         "submission-fixture.ps1",
         "fill_submission_question_template.py",
+        "fill_question_template_from_source.py",
         "capture_submission_demo_cases.py"
     )) {
         Copy-FileExact -Source (Join-Path $ProjectRoot "scripts\$script") -Destination (Join-Path $PackageRoot "03_程序运行包\scripts\$script")
@@ -778,6 +786,7 @@ function Build-Package {
     Copy-FileExact -Source (Join-Path $ProjectRoot "docker-compose.yml") -Destination (Join-Path $PackageRoot "03_程序运行包\docker-compose.yml")
     Copy-FileExact -Source (Join-Path $ProjectRoot "docker-compose.submission.yml") -Destination (Join-Path $PackageRoot "03_程序运行包\docker-compose.submission.yml")
     Copy-FileExact -Source (Join-Path $ProjectRoot ".env.example") -Destination (Join-Path $PackageRoot "03_程序运行包\.env.example")
+    Copy-FileExact -Source (Join-Path $ProjectRoot "start.bat") -Destination (Join-Path $PackageRoot "03_程序运行包\start.bat")
     Copy-FileExact -Source (Join-Path $ProjectRoot "README.md") -Destination (Join-Path $PackageRoot "03_程序运行包\README.md")
     Write-Utf8File -Path (Join-Path $PackageRoot "03_程序运行包\storage\.gitkeep") -Content ""
     Write-Utf8File -Path (Join-Path $PackageRoot "03_程序运行包\reports\.gitkeep") -Content ""
@@ -786,9 +795,9 @@ function Build-Package {
 
 1. 复制 `.env.example` 为 `.env`，填写模型与密钥配置；`.env` 不得提交。
 2. 在新克隆或已清空 Docker 卷的环境中，执行 `./scripts/submission-fixture.ps1 bootstrap`。
-3. 执行 `./scripts/submission-fixture.ps1 verify`，应得到主领域 `75 / 81 / 465` 与 `90 / 225 / 150`。
+3. 执行 `./scripts/submission-fixture.ps1 verify`，应得到主领域 `75 / 106 / 465` 与 `90 / 225 / 150`。
 4. 在 backend 容器中执行 `python -m pytest -q tests/unit/test_submission_fixture.py`。
-5. 对导入能力演示，上传 `04_测试数据与案例/01_主领域_人工智能应用开发实训_ai_app_dev/01_知识库切片与来源/01-ai-app-dev-complete.md`，下载当次题库模板，
+5. 对导入能力演示，上传 `data/submission_fixtures/ai_app_dev_v1/import_source/01-ai-app-dev-complete.md`，下载当次题库模板，
    再用 `scripts/fill_submission_question_template.py` 填充 450 题题源。该路径不得与启动夹具叠加到同一数据库。
 6. 三组主领域差异化案例由 `scripts/capture_submission_demo_cases.py` 通过真实业务 API 创建学习者、完成诊断、生成、审核与反馈，并写出脱敏输入输出证据。
 7. 三组智能制造差异化案例由 `test_script/smart_manufacturing_demo_acceptance.py` 执行；它使用独立 Docker Compose 项目，不与主领域数据库混用。
@@ -803,11 +812,10 @@ function Build-Package {
 
 ## 从空环境启动
 
-1. 将 `.env.example` 复制为 `.env`，设置 `JWT_SECRET_KEY` 与初始管理员密码；完整演示还需填写生成、双审核和 embedding 模型配置。
-2. 执行 `docker compose up -d --build`。
-3. 执行 `./scripts/submission-fixture.ps1 bootstrap`；如只核验数据导入，可附加 `-SkipIndex`。
-4. 执行 `docker compose up -d frontend`，浏览器访问 `http://localhost:5173/`。
-5. 执行 `./scripts/submission-fixture.ps1 verify`，主领域应显示 75 条知识、81 条关系、465 道活动题（90 / 225 / 150）。
+1. 直接执行 `start.bat`。它会在缺少 `.env` 时从 `.env.example` 创建本地配置，并启动 Docker、迁移数据库、创建管理员和加载完整比赛夹具。
+2. 浏览器访问 `http://localhost:5173/`。
+3. 执行 `./scripts/submission-fixture.ps1 verify`，主领域应显示 75 条知识、106 条关系、465 道活动题（90 / 225 / 150）。
+4. 完整生成、双模型审核和 Candidate RAG 需要在 `.env` 或管理员模型配置页面填写生成、双审核和 embedding 模型配置；配置后执行 `./scripts/demo.ps1 rebuild-index`。
 
 ## 核验
 
@@ -857,7 +865,7 @@ python test_script/smart_manufacturing_demo_acceptance.py `
 # 题库用途说明
 
 启动夹具 `02_可执行启动夹具/ai_app_dev_submission_fixture_v1/diagnostic_questions.json` 是唯一的
-465 道活动题运行基线：90 道 `diagnosis`、225 道 `graded_quiz`、150 道 `mastery_validation`。
+465 道活动题运行基线：90 道 `diagnosis`、225 道 `graded_quiz`、150 道 `mastery_validation`。图谱基线为 75 个知识点、106 条关系（92 条前置、14 条关联）。
 每种用途覆盖 75 个主领域知识点，夹具的 `manifest.json` 记录其哈希与数量。
 
 导入能力演示不提交预填 XLSX：系统需先按当次知识版本下载题库模板，再以 450 题模板兼容题源填充。
@@ -881,12 +889,13 @@ python test_script/smart_manufacturing_demo_acceptance.py `
     Copy-FileExact -Source (Join-Path $SmartFixtureRoot "relations.json") -Destination (Join-Path $PackageRoot "$SecondaryDomainDataRoot\01_知识库切片与来源\知识关系.json")
     Copy-FileExact -Source (Join-Path $SmartFixtureRoot "import_source_manifest.json") -Destination (Join-Path $PackageRoot "$SecondaryDomainDataRoot\01_知识库切片与来源\来源许可清单.json")
     Copy-FileExact -Source (Join-Path $SmartFixtureRoot "template_question_source.json") -Destination (Join-Path $PackageRoot "$SecondaryDomainDataRoot\03_题库导入数据\402题模板兼容题源.json")
-    Copy-FileExact -Source (Join-Path $SmartFixtureRoot "source_assets\smart_manufacturing-question-bank-filled.xlsx") -Destination (Join-Path $PackageRoot "$SecondaryDomainDataRoot\03_题库导入数据\402题题库导入示例.xlsx")
+    Copy-FileExact -Source (Join-Path $ProjectRoot "deliverables\smart_manufacturing-question-source.xlsx") -Destination (Join-Path $PackageRoot "$SecondaryDomainDataRoot\03_题库导入数据\402题题目源数据.xlsx")
     Write-Utf8File -Path (Join-Path $PackageRoot "$SecondaryDomainDataRoot\03_题库导入数据\题库用途说明.md") -Content @'
 # 题库用途说明
 
 智能制造启动夹具的 402 道活动题包含：67 道 `diagnosis`、201 道 `graded_quiz` 与 134 道 `mastery_validation`。
-`402题模板兼容题源.json` 与 `402题题库导入示例.xlsx` 用于展示从领域知识导入到正式题库发布的输入数据。
+`402题题目源数据.xlsx` 仅保存可填写的题目内容与知识点、用途、层级信息；它不是系统导入模板，不能直接上传。
+评委或演示者导入 Markdown 后，须从系统下载该次知识目录生成的题库模板，将本文件中的题目内容填入模板的可编辑列后上传。
 启动夹具与 Markdown/XLSX 导入演示是两条互斥路径，不能在同一数据库叠加执行。
 '@
     Write-SmartManufacturingCaseEvidence `
@@ -908,7 +917,7 @@ UR ROS 2 集成与恢复挑战的高阶学习者。每组均按统一目录保�
 不保存完整作答文本、原始 Agent payload、数据库备份、容器日志或模型密钥。
 
 本第二领域不包含 `evaluation_cases`，不包含 50 例离线评测，不以三例运行替代正式质量评测或声明质量指标。
-主领域 `ai_app_dev` 的 75 条知识、81 条关系、465 道题和 50 例离线评测基线保持独立且不受影响。
+主领域 `ai_app_dev` 的 75 条知识、106 条关系、465 道题和 50 例离线评测基线保持独立且不受影响。
 
 复现时在新 Docker 卷中执行：
 
@@ -957,7 +966,7 @@ python test_script/smart_manufacturing_demo_acceptance.py `
 - 打包状态：$Mode
 - 正式主领域：人工智能应用开发实训（${markdownCodeTick}ai_app_dev${markdownCodeTick}）
 - 数据基线：${markdownCodeTick}ai_app_dev_submission_fixture_v1${markdownCodeTick}
-- 夹具规模：75 个知识点、81 条关系、465 道活动题（90 / 225 / 150）
+- 夹具规模：75 个知识点、106 条关系、465 道活动题（90 / 225 / 150）
 - 第二领域：智能制造实训（${markdownCodeTick}smart_manufacturing${markdownCodeTick}），67 个知识点、49 条关系、402 道活动题（67 / 201 / 134）和 3 组脱敏测试案例
 - 复现入口：${markdownCodeTick}03_程序运行包/scripts/submission-fixture.ps1${markdownCodeTick}
 
@@ -988,6 +997,7 @@ python test_script/smart_manufacturing_demo_acceptance.py `
     Assert-EqualHash -Left (Join-Path $submissionSmartFixtureRoot "relations.json") -Right (Join-Path $PackageRoot "$SecondaryDomainDataRoot\01_知识库切片与来源\知识关系.json") -Label "smart manufacturing relation slice"
     Assert-EqualHash -Left (Join-Path $submissionSmartFixtureRoot "template_question_source.json") -Right (Join-Path $PackageRoot "$SecondaryDomainDataRoot\03_题库导入数据\402题模板兼容题源.json") -Label "smart manufacturing template question source"
     Assert-EqualHash -Left (Join-Path $submissionSmartFixtureRoot "import_source\01-smart-manufacturing-complete.md") -Right (Join-Path $PackageRoot "$SecondaryDomainDataRoot\01_知识库切片与来源\01-smart-manufacturing-complete.md") -Label "smart manufacturing import source"
+    Assert-EqualHash -Left (Join-Path $ProjectRoot "deliverables\smart_manufacturing-question-source.xlsx") -Right (Join-Path $PackageRoot "$SecondaryDomainDataRoot\03_题库导入数据\402题题目源数据.xlsx") -Label "smart manufacturing question source workbook"
     $standardizedSmartCases = Join-Path $PackageRoot "$SecondaryDomainDataRoot\04_差异化学习者完整输入输出"
     foreach ($caseId in @("SM-DEMO-BEGINNER-INITIAL", "SM-DEMO-INTERMEDIATE-REVIEW", "SM-DEMO-ADVANCED-CHALLENGE")) {
         $caseRoot = Join-Path $standardizedSmartCases $caseId

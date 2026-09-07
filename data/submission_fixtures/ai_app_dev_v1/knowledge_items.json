@@ -680,7 +680,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_65f1659af27d4984"
+    ],
     "related": []
   },
   {
@@ -710,7 +712,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_947e73313a12fc88"
+    ],
     "related": []
   },
   {
@@ -739,7 +743,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_d122c91269e87257"
+    ],
     "related": []
   },
   {
@@ -769,7 +775,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_8ba31f93fb9f7bcd"
+    ],
     "related": []
   },
   {
@@ -799,7 +807,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_947e73313a12fc88"
+    ],
     "related": []
   },
   {
@@ -829,7 +839,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_e82e51e944744bdb"
+    ],
     "related": []
   },
   {
@@ -859,7 +871,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_46d9d4de4c4835d2"
+    ],
     "related": []
   },
   {
@@ -889,7 +903,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_a23b92994c49c639"
+    ],
     "related": []
   },
   {
@@ -918,7 +934,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_d122c91269e87257"
+    ],
     "related": []
   },
   {
@@ -948,7 +966,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ai_app_dev_overview"
+    ],
     "related": []
   },
   {
@@ -980,7 +1000,9 @@
       "command",
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_a23b92994c49c639"
+    ],
     "related": []
   },
   {
@@ -1010,7 +1032,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_fc9bb9f9de5913e5"
+    ],
     "related": []
   },
   {
@@ -1039,7 +1063,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_a23b92994c49c639"
+    ],
     "related": []
   },
   {
@@ -1069,7 +1095,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_747302beb84cdbdf"
+    ],
     "related": []
   },
   {
@@ -1098,7 +1126,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_65f1659af27d4984"
+    ],
     "related": []
   },
   {
@@ -1129,7 +1159,9 @@
       "concept",
       "version_boundary"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_185eac93556247a0"
+    ],
     "related": []
   },
   {
@@ -1158,7 +1190,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_6613d44b56deaa3e"
+    ],
     "related": []
   },
   {
@@ -1187,7 +1221,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_6613d44b56deaa3e"
+    ],
     "related": []
   },
   {
@@ -1219,7 +1255,9 @@
       "command",
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ai_app_dev_overview"
+    ],
     "related": []
   },
   {
@@ -1249,7 +1287,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_e82e51e944744bdb"
+    ],
     "related": []
   },
   {
@@ -1279,7 +1319,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_884cca8ccb2c9f0c"
+    ],
     "related": []
   },
   {
@@ -1308,7 +1350,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_a23b92994c49c639"
+    ],
     "related": []
   },
   {
@@ -1338,7 +1382,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_185eac93556247a0"
+    ],
     "related": []
   },
   {
@@ -1368,7 +1414,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_0e673b8eec42b320"
+    ],
     "related": []
   },
   {
@@ -1398,7 +1446,9 @@
     "evidence_capabilities": [
       "concept"
     ],
-    "prerequisites": [],
+    "prerequisites": [
+      "ki_8107173e3737a444"
+    ],
     "related": []
   },
   {
